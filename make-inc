@@ -1,0 +1,32 @@
+#
+# sonic-infinite-scroller-game-dev				May 21, 2025
+#
+# source: make-inc
+# author: @misael-diaz
+#
+# Synopsis:
+# Defines the include file for building the program with GNU make.
+#
+# Copyright (c) 2025 Misael Diaz-Maldonado
+#
+# This file is released under the GNU General Public License version 2 only
+# as published by the Free Software Foundation.
+#
+
+CC = clang-12
+CC = gcc
+
+CCOPT = -std=gnu99 \
+	-ftree-vectorize \
+	-mavx2 \
+	-O2 \
+
+CCOPT = -std=gnu99 \
+	-DDEBUG=0 \
+	-g \
+	-Wall \
+	-Wextra \
+	-Wformat \
+	-O0
+
+LIBS = -lX11 -lm
