@@ -1,3 +1,7 @@
 obj
 public
 bin
+*.swp
+*.swo
+*.bin
+*.o
