@@ -31,4 +31,4 @@ CCOPT = -std=gnu99 \
 	-gdwarf-4 \
 	-O0
 
-LIBS = -lX11 -lm
+LIBS = -lX11 -lpng -lm
