@@ -18,6 +18,7 @@ CC = gcc
 
 CCOPT = -std=gnu99 \
 	-ftree-vectorize \
+	-gdwarf-4 \
 	-mavx2 \
 	-O2 \
 
@@ -27,6 +28,7 @@ CCOPT = -std=gnu99 \
 	-Wall \
 	-Wextra \
 	-Wformat \
+	-gdwarf-4 \
 	-O0
 
 LIBS = -lX11 -lm
