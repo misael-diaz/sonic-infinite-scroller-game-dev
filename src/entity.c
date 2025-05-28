@@ -153,9 +153,33 @@ void en_init_aframes(struct game * const g)
 			animations[animation_id].aframes[frame_id].height = height;
 		}
 		if (EN_SONIC_RUN_AN == animation_id) {
+			float const duration = (
+				GAME_SONIC_RUN_ANIMATION_DURATION *
+				GAME_FRAMERATE_HZ
+			);
+			int const iduration = duration;
+			int const icount = (
+				(iduration / EN_AFRAME_COUNT) +
+				(iduration % EN_AFRAME_COUNT)
+			);
+			int const repetition_count_aframe = icount;
+			int const repcount_aframe = repetition_count_aframe;
 			animations[animation_id].name = EN_SONIC_RUN_FRAME_NAME;
+			animations[animation_id].repcount_aframe = repcount_aframe;
 		} else if (EN_SONIC_SPIN_AN == animation_id) {
+			float const duration = (
+				GAME_SONIC_SPIN_ANIMATION_DURATION *
+				GAME_FRAMERATE_HZ
+			);
+			int const iduration = duration;
+			int const icount = (
+				(iduration / EN_AFRAME_COUNT) +
+				(iduration % EN_AFRAME_COUNT)
+			);
+			int const repetition_count_aframe = icount;
+			int const repcount_aframe = repetition_count_aframe;
 			animations[animation_id].name = EN_SONIC_SPIN_FRAME_NAME;
+			animations[animation_id].repcount_aframe = repcount_aframe;
 		} else {
 			fprintf(stderr, "%s\n", "UXUnhandledAnimationError");
 			graph_unloadall_graphics(g);
@@ -223,6 +247,7 @@ void en_init(struct game * const g)
 			ent->ymin = 0;
 			ent->xmax = (width_game_window - ent->graphic.info.width);
 			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->animno = EN_SONIC_RUN_AN;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			if (EN_PLATFORM_BETA_ID == i) {
 				ent->xpos = 0;
@@ -270,7 +295,16 @@ void en_update(struct game * const g)
 			vid_close_gw(g);
 			exit(EXIT_FAILURE);
 		}
-		if (EN_PLATFORM_TAG == ent->tag) {
+		if (EN_SONIC_TAG == ent->tag) {
+			int const animno = ent->animno;
+			struct animation const * const an = &ent->animations[animno];
+			int const duration_animation = (
+				an->repcount_aframe * EN_SONIC_AFRAME_COUNT
+			);
+			int const rem = (g->frameno % duration_animation);
+			int const aframecur = (rem / an->repcount_aframe);
+			ent->animations[animno].aframecur = aframecur;
+		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xpos += (time_step * ent->xvel);
 			ent->ypos += (time_step * ent->yvel);
 		}

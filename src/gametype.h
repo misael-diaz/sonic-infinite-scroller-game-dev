@@ -25,6 +25,7 @@ struct game {
 	int screen_depth;
 	int protocolno;
 	int screeno;
+	int frameno;
 	int entno;
 	int init;
 };

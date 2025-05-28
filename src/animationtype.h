@@ -7,6 +7,8 @@
 struct animation {
 	struct aframe aframes[EN_AFRAME_COUNT];
 	char const *name;
+	int repcount_aframe;
+	int aframecur;
 	int count;
 	int id;
 };

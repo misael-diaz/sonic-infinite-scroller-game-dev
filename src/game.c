@@ -44,6 +44,7 @@ void g_loop(struct game * const g)
 	int frame_stat_count = 0;
 	clock_gettime(clockid, &time_game_start);
 	time_stat_start = time_game_start;
+	g->frameno = 0;
 	while (1) {
 		clock_gettime(clockid, &time_frame_start);
 		vid_draw_gw(g);
@@ -62,6 +63,7 @@ void g_loop(struct game * const g)
 			frame_stat_count = 0;
 			time_stat_start = time_stat_end;
 		}
+		g->frameno++;
 	}
 	clock_gettime(clockid, &time_game_end);
 	etime = sys_etime(&time_game_end, &time_game_start);

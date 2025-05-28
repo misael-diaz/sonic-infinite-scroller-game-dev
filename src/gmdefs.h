@@ -15,6 +15,9 @@
 #define GAME_SONIC_GRAPHIC_FP "public/graphics/sonic.png"
 #define GAME_PLATFORM_GRAPHIC_FP "public/graphics/platform.png"
 
+#define GAME_SONIC_RUN_ANIMATION_DURATION 0.125f
+#define GAME_SONIC_SPIN_ANIMATION_DURATION 0.50f
+
 #define GAME_SUPPORTED_PROTOCOLS_NUM 2
 #define GAME_PROTOCOL_ID 0
 #define GAME_DELETE_WINDOW_ID 1

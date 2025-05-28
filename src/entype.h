@@ -30,6 +30,7 @@ struct entity {
 	float ymin;
 	float xmax;
 	float ymax;
+	int animno;
 };
 
 #endif

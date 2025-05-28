@@ -170,17 +170,19 @@ void vid_draw_gw(struct game const * const g)
 		struct entity const * const entities = g->ents;
 		struct entity const * const ent = &entities[i];
 		if (EN_SONIC_TAG == ent->tag) {
+			int const animno = ent->animno;
+			int const aframecur = ent->animations[animno].aframecur;
 			XPutImage(
 					g->display,
 					g->window,
 					g->gc,
 					ent->framebuffer,
-					ent->animations[0].aframes[0].xof,
-					ent->animations[0].aframes[0].yof,
+					ent->animations[animno].aframes[aframecur].xof,
+					ent->animations[animno].aframes[aframecur].yof,
 					ent->xpos,
 					ent->ypos,
-					ent->animations[0].aframes[0].width,
-					ent->animations[0].aframes[0].height
+					ent->animations[animno].aframes[aframecur].width,
+					ent->animations[animno].aframes[aframecur].height
 				 );
 		} 
 	}
