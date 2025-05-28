@@ -46,10 +46,6 @@ void g_loop(struct game * const g)
 	time_stat_start = time_game_start;
 	while (1) {
 		clock_gettime(clockid, &time_frame_start);
-		if (g->abort) {
-			fprintf(stderr, "%s\n", g->error);
-			break;
-		}
 		vid_draw_gw(g);
 		if (in_handle_input(g)) {
 			break;

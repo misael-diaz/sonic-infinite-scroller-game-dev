@@ -26,7 +26,6 @@ struct game {
 	int protocolno;
 	int screeno;
 	int entno;
-	int abort;
 	int init;
 };
 
