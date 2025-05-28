@@ -1,5 +1,5 @@
 #
-# sonic-infinite-scroller-game-dev				May 21, 2025
+# gnu-linux-xlib-game-dev					May 23, 2025
 #
 # source: src/make-inc
 # author: @misael-diaz
@@ -13,8 +13,47 @@
 # as published by the Free Software Foundation.
 #
 
+GAME_DEFS_H = gmdefs.h
+ENTITY_DEFS_H = entdefs.h
+
+DEFS_H = \
+$(GAME_DEFS_H) \
+$(ENTITY_DEFS_H)
+
+GRAPHIC_TYPE_H = graphictype.h
+AFRAME_TYPE_H = aframetype.h
+ANIMATION_TYPE_H = animationtype.h
+ENTITY_TYPE_H = entype.h
+GAME_TYPE_H = gametype.h
+
+TYPES_H = \
+$(GRAPHIC_TYPE_H) \
+$(AFRAME_TYPE_H) \
+$(ANIMATION_TYPE_H) \
+$(ENTITY_TYPE_H) \
+$(GAME_TYPE_H)
+
+SYSTEM_H = system.h
+GRAPHIC_H = graphic.h
+ENTITY_H = entity.h
+VIDEO_H = video.h
+INPUT_H = input.h
+GAME_H = game.h
+
+SYSTEM_SRC = system.c
+INPUT_SRC = input.c
+VIDEO_SRC = video.c
+GRAPHIC_SRC = graphic.c
+ENTITY_SRC = entity.c
+GAME_SRC = game.c
 MAIN_SRC = main.c
 
+SYSTEM_OBJ = ../obj/system.o
+GRAPHIC_OBJ = ../obj/graphic.o
+ENTITY_OBJ = ../obj/entity.o
+VIDEO_OBJ = ../obj/video.o
+INPUT_OBJ = ../obj/input.o
+GAME_OBJ = ../obj/game.o
 MAIN_OBJ = ../obj/main.o
 
-BIN = ../bin/sonic-infinite-scroller.bin
+BIN = ../bin/sonic-infinite-scroller-game.bin
