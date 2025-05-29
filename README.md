@@ -36,3 +36,5 @@ My first sonic animation, watch on youtube by clicking on the image below:
 [![Watch the Video](https://img.youtube.com/vi/sbTZkZByafw/hqdefault.jpg)](https://youtu.be/sbTZkZByafw)
 
 The animation was done with the code at commit [655f4af0eb658ab04cfa2320609df662605ff15b](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/655f4af0eb658ab04cfa2320609df662605ff15b).
+
+The player can switch from a running/spinning animation with the right/down arrow keys.
