@@ -104,7 +104,7 @@ int in_handle_input(struct game * const g)
 			} else if (KBD_TAB == ev.xkey.keycode) {
 				struct entity * const sonic = &g->ents[EN_SONIC_ID];
 				sonic->contact = !GAME_PLATFORM_CONTACT;
-				fprintf(stdout, "%s\n", "spacebar-key pressed");
+				fprintf(stdout, "%s\n", "tab-key pressed");
 				rc = 0;
 				break;
 			}
@@ -126,7 +126,7 @@ int in_handle_input(struct game * const g)
 				rc = 0;
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "spacebar-key released");
+				fprintf(stdout, "%s\n", "tab-key released");
 				rc = 0;
 				break;
 			}
