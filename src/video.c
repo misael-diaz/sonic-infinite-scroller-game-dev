@@ -166,26 +166,37 @@ void vid_info_gw(struct game const * const g)
 void vid_draw_gw(struct game const * const g)
 {
 	XClearWindow(g->display, g->window);
-	for (int i = 0; i != g->entno; ++i) {
-		struct entity const * const entities = g->ents;
-		struct entity const * const ent = &entities[i];
-		if (EN_SONIC_TAG == ent->tag) {
-			int const animno = ent->animno;
-			int const aframecur = ent->animations[animno].aframecur;
-			XPutImage(
-					g->display,
-					g->window,
-					g->gc,
-					ent->framebuffer,
-					ent->animations[animno].aframes[aframecur].xof,
-					ent->animations[animno].aframes[aframecur].yof,
-					ent->xpos,
-					ent->ypos,
-					ent->animations[animno].aframes[aframecur].width,
-					ent->animations[animno].aframes[aframecur].height
-				 );
-		} 
-	}
+	struct entity const * const entities = g->ents;
+	struct entity const * const sonic = &entities[EN_SONIC_ID];
+	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
+
+	XPutImage(
+			g->display,
+			g->window,
+			g->gc,
+			beta_platform->framebuffer,
+			beta_platform->animations[0].aframes[0].xof,
+			beta_platform->animations[0].aframes[0].yof,
+			beta_platform->xpos,
+			beta_platform->ypos,
+			beta_platform->animations[0].aframes[0].width,
+			beta_platform->animations[0].aframes[0].height
+		 );
+
+	int const animno = sonic->animno;
+	int const aframecur = sonic->animations[animno].aframecur;
+	XPutImage(
+			g->display,
+			g->window,
+			g->gc,
+			sonic->framebuffer,
+			sonic->animations[animno].aframes[aframecur].xof,
+			sonic->animations[animno].aframes[aframecur].yof,
+			sonic->xpos,
+			sonic->ypos,
+			sonic->animations[animno].aframes[aframecur].width,
+			sonic->animations[animno].aframes[aframecur].height
+		 );
 	XFlush(g->display);
 }
 

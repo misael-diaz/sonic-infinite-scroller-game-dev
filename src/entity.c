@@ -132,7 +132,7 @@ handle_err:
 	}
 }
 
-void en_init_aframes(struct game * const g)
+static void en_init_sonic_aframes(struct game * const g)
 {
 	struct entity * const entities = g->ents;
 	struct entity * const sonic = &entities[EN_SONIC_ID];
@@ -201,31 +201,75 @@ void en_init_aframes(struct game * const g)
 	}
 }
 
-void en_init_framebuffers(struct game * const g)
+// we set everything for completeness even if we just need a subset of the platform data
+static void en_init_platform_aframes(
+		struct game * const g,
+		int const id_platform
+)
 {
 	struct entity * const entities = g->ents;
-	struct entity * const sonic = &entities[EN_SONIC_ID];
+	struct entity * const platform = &entities[id_platform];
+	struct animation * const animations = platform->animations;
+	int const width_platform = platform->graphic.info.width;
+	int const height_platform = platform->graphic.info.height;
+	for (int animno = 0; animno != EN_ANIMATIONS_COUNT; ++animno) {
+		for (int aframeno = 0; aframeno != EN_AFRAME_COUNT; ++aframeno) {
+			animations[animno].aframes[aframeno].id = aframeno;
+			animations[animno].aframes[aframeno].xof = 0;
+			animations[animno].aframes[aframeno].yof = 0;
+			animations[animno].aframes[aframeno].width = width_platform;
+			animations[animno].aframes[aframeno].height = height_platform;
+		}
+		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = 1;
+		animations[animno].name = EN_PLATFORM_FRAME_NAME;
+		animations[animno].count = 1;
+		animations[animno].id = animno;
+	}
+}
+
+static void en_init_aframes(struct game * const g)
+{
+	en_init_sonic_aframes(g);
+	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
+}
+
+static void en_init_entity_framebuffer(
+		struct game * const g,
+		int const id
+)
+{
+	struct entity * const entities = g->ents;
+	struct entity * const ent = &entities[id];
 	int const offset = 0;
 	int const bitmap_pad = 32;
-	int const bytes_per_line = (sonic->graphic.info.width * sizeof(int));
-	sonic->framebuffer = XCreateImage(
+	int const bytes_per_line = (ent->graphic.info.width * sizeof(int));
+	ent->framebuffer = XCreateImage(
 			g->display,
 			g->visual,
 			g->screen_depth,
 			ZPixmap,
 			offset,
-			(void*) sonic->graphic.data,
-			sonic->graphic.info.width,
-			sonic->graphic.info.height,
+			(void*) ent->graphic.data,
+			ent->graphic.info.width,
+			ent->graphic.info.height,
 			bitmap_pad,
 			bytes_per_line
 	);
-	if (!sonic->framebuffer) {
+	if (!ent->framebuffer) {
 		graph_unloadall_graphics(g);
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
 	}
-	sonic->graphic.binded = GAME_BINDED_GRAPHIC;
+	ent->graphic.binded = GAME_BINDED_GRAPHIC;
+}
+
+static void en_init_framebuffers(struct game * const g)
+{
+	en_init_entity_framebuffer(g, EN_SONIC_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
 }
 
 void en_init(struct game * const g)
@@ -237,6 +281,7 @@ void en_init(struct game * const g)
 	}
 	en_tag_entity(g);
 	en_load_graphic(g);
+	en_init_aframes(g);
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
@@ -259,14 +304,14 @@ void en_init(struct game * const g)
 			ent->ymax = (height_game_window - ent->graphic.info.height);
 			ent->animno = EN_SONIC_RUN_AN;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
-			if (EN_PLATFORM_BETA_ID == i) {
-				ent->xpos = 0;
-			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = ent->graphic.info.width;
-			}
+			struct entity * const sonic = &entities[EN_SONIC_ID];
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = i;
-			ent->ypos = (0.5 * height_game_window);
+			ent->xpos = 0;
+			ent->ypos = (
+					sonic->ypos +
+					sonic->animations[0].aframes[0].height
+			);
 			ent->xvel = 0;
 			ent->yvel = 0;
 			ent->xmin = -ent->graphic.info.width;
@@ -275,7 +320,6 @@ void en_init(struct game * const g)
 			ent->ymax = (height_game_window - ent->graphic.info.height);
 		}
 	}
-	en_init_aframes(g);
 	en_init_framebuffers(g);
 	return;
 handle_err:
