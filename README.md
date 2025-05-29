@@ -38,3 +38,9 @@ My first sonic animation, watch on youtube by clicking on the image below:
 The animation was done with the code at commit [655f4af0eb658ab04cfa2320609df662605ff15b](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/655f4af0eb658ab04cfa2320609df662605ff15b).
 
 The player can switch from a running/spinning animation with the right/down arrow keys.
+
+My second animation, sonic running on an infinite platform:
+
+[![Watch the Video](https://img.youtube.com/vi/Lz_PlsWDygE/hqdefault.jpg)](https://youtu.be/Lz_PlsWDygE)
+
+The animation was done with the code at commit [16200609797955a9da826eefcbb8437388fb2671](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/16200609797955a9da826eefcbb8437388fb2671).
