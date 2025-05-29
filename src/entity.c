@@ -162,7 +162,8 @@ void en_init_aframes(struct game * const g)
 				(iduration / EN_AFRAME_COUNT) +
 				(iduration % EN_AFRAME_COUNT)
 			);
-			int const tickcount_aframe = icount;
+			int const tickcount = (icount)? icount : 1;
+			int const tickcount_aframe = tickcount;
 			int const tickcount_aframe_sequence = (
 				tickcount_aframe * EN_AFRAME_COUNT
 			);
@@ -180,7 +181,8 @@ void en_init_aframes(struct game * const g)
 				(iduration / EN_AFRAME_COUNT) +
 				(iduration % EN_AFRAME_COUNT)
 			);
-			int const tickcount_aframe = icount;
+			int const tickcount = (icount)? icount : 1;
+			int const tickcount_aframe = tickcount;
 			int const tickcount_aframe_sequence = (
 				tickcount_aframe * EN_AFRAME_COUNT
 			);
@@ -306,10 +308,7 @@ void en_update(struct game * const g)
 		if (EN_SONIC_TAG == ent->tag) {
 			int const animno = ent->animno;
 			struct animation const * const an = &ent->animations[animno];
-			int const duration_animation = (
-				an->tickcount_aframe * EN_SONIC_AFRAME_COUNT
-			);
-			int const rem = (g->frameno % duration_animation);
+			int const rem = (g->frameno % an->tickcount_aframe_sequence);
 			int const aframecur = (rem / an->tickcount_aframe);
 			ent->animations[animno].aframecur = aframecur;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
