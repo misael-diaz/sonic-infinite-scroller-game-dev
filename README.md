@@ -4,7 +4,7 @@ This game has been motivated by this cool free codecamp
 
 ## Phases
 
-My first sonic animation:
+My first sonic animation, watch on youtube by clicking on the image below:
 
 [![Watch the Video](https://img.youtube.com/vi/sbTZkZByafw/hqdefault.jpg)](https://youtu.be/sbTZkZByafw)
 
