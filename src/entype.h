@@ -24,12 +24,18 @@ struct entity {
 	XImage *framebuffer;
 	float xpos;
 	float ypos;
+	float xoff;
+	float yoff;
+	float xvis;
+	float yvis;
 	float xvel;
 	float yvel;
 	float xmin;
 	float ymin;
 	float xmax;
 	float ymax;
+	float width;
+	float height;
 	int animno;
 };
 

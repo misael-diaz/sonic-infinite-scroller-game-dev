@@ -296,28 +296,45 @@ void en_init(struct game * const g)
 			ent->id = i;
 			ent->xpos = (0.5f * width_game_window);
 			ent->ypos = (0.5f * height_game_window);
+			ent->xvis = ent->xpos;
+			ent->yvis = ent->ypos;
 			ent->xvel = 0;
 			ent->yvel = 0;
 			ent->xmin = 0;
 			ent->ymin = 0;
 			ent->xmax = (width_game_window - ent->graphic.info.width);
 			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->width = ent->animations[0].aframes[0].width;
+			ent->height = ent->animations[0].aframes[0].height;
 			ent->animno = EN_SONIC_RUN_AN;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			struct entity * const sonic = &entities[EN_SONIC_ID];
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = i;
-			ent->xpos = 0;
+			ent->xvel = -GAME_PLATFORM_VEL;
+			ent->yvel = 0;
+			ent->xmin = -((float) ent->graphic.info.width);
+			ent->ymin = 0;
+			ent->xmax = ent->graphic.info.width;
+			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->height = ent->animations[0].aframes[0].height;
+			if (EN_PLATFORM_BETA_ID == i) {
+				ent->xpos = 0;
+				ent->xoff = 0;
+				ent->xvis = 0;
+				ent->width = ent->animations[0].aframes[0].width;
+			} else if (EN_PLATFORM_ZETA_ID == i) {
+				ent->xpos = ent->xmax;
+				ent->xoff = 0;
+				ent->xvis = ent->xmax;
+				ent->width = 0;
+			}
+			ent->yoff = 0;
 			ent->ypos = (
 					sonic->ypos +
-					sonic->animations[0].aframes[0].height
+					sonic->height
 			);
-			ent->xvel = 0;
-			ent->yvel = 0;
-			ent->xmin = -ent->graphic.info.width;
-			ent->ymin = 0;
-			ent->xmax = (width_game_window + ent->graphic.info.width);
-			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->yvis = ent->ypos;
 		}
 	}
 	en_init_framebuffers(g);
@@ -335,20 +352,12 @@ handle_err:
 	}
 }
 
-// TODO: clamping platform coords is not compatible with the infinite scrolling gameplay;
-//       you need to define a visible region for the platforms
 void en_update(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		if (ent->xvel || ent->yvel) {
-			fprintf(stderr, "%s\n", "en_update: NotImplError");
-			graph_unloadall_graphics(g);
-			vid_close_gw(g);
-			exit(EXIT_FAILURE);
-		}
 		if (EN_SONIC_TAG == ent->tag) {
 			int const animno = ent->animno;
 			struct animation const * const an = &ent->animations[animno];
@@ -357,7 +366,22 @@ void en_update(struct game * const g)
 			ent->animations[animno].aframecur = aframecur;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xpos += (time_step * ent->xvel);
-			ent->ypos += (time_step * ent->yvel);
+			if (0 > ent->xpos) {
+				ent->xvis = 0;
+				ent->xoff = -ent->xpos;
+				ent->width = (ent->graphic.info.width + ent->xpos);
+			} else {
+				ent->xvis = ent->xpos;
+				ent->xoff = 0;
+				ent->width = (ent->graphic.info.width - ent->xpos);
+			}
+			ent->xpos = en_clamp(ent->xpos, ent->xmin, ent->xmax);
+			if (ent->xmin == ent->xpos) {
+				ent->xpos = ent->xmax;
+				ent->xvis = ent->xmax;
+				ent->xoff = 0;
+				ent->width = 0;
+			}
 		}
 	}
 }

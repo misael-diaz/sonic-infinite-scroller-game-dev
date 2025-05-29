@@ -169,18 +169,32 @@ void vid_draw_gw(struct game const * const g)
 	struct entity const * const entities = g->ents;
 	struct entity const * const sonic = &entities[EN_SONIC_ID];
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
+	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
 
 	XPutImage(
 			g->display,
 			g->window,
 			g->gc,
 			beta_platform->framebuffer,
-			beta_platform->animations[0].aframes[0].xof,
-			beta_platform->animations[0].aframes[0].yof,
-			beta_platform->xpos,
-			beta_platform->ypos,
-			beta_platform->animations[0].aframes[0].width,
-			beta_platform->animations[0].aframes[0].height
+			beta_platform->xoff,
+			beta_platform->yoff,
+			beta_platform->xvis,
+			beta_platform->yvis,
+			beta_platform->width,
+			beta_platform->height
+		 );
+
+	XPutImage(
+			g->display,
+			g->window,
+			g->gc,
+			zeta_platform->framebuffer,
+			zeta_platform->xoff,
+			zeta_platform->yoff,
+			zeta_platform->xvis,
+			zeta_platform->yvis,
+			zeta_platform->width,
+			zeta_platform->height
 		 );
 
 	int const animno = sonic->animno;
@@ -206,50 +220,3 @@ void vid_close_gw(struct game * const g)
 	XCloseDisplay(g->display);
 	g->display = NULL;
 }
-
-/*
-void vid_write_fb(
-		struct game * const g,
-		struct image const * const img
-)
-{
-	int const offset = 0;
-	XImage *framebuffer = XCreateImage(
-			g->display,
-			g->visual,
-			g->depth,
-			ZPixmap,
-			offset,
-			data_img,
-			img->png.width,
-			img->png.height,
-			bitmap_pad,
-			bytes_per_line
-	);
-
-	if (!framebuffer) {
-		fprintf(stderr, "%s\n", "main: XCreateImageError");
-		free(map);
-		free(png);
-		XFree(visualInfo);
-		XCloseDisplay(display);
-		display = NULL;
-		map = NULL;
-		png = NULL;
-		exit(EXIT_FAILURE);
-	}
-
-	XPutImage(
-			display,
-			window,
-			gc,
-			framebuffer,
-			0,
-			0,
-			0,
-			0,
-			img.width,
-			img.height
-	);
-}
-*/
