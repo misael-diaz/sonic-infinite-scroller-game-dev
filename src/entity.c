@@ -162,10 +162,14 @@ void en_init_aframes(struct game * const g)
 				(iduration / EN_AFRAME_COUNT) +
 				(iduration % EN_AFRAME_COUNT)
 			);
-			int const repetition_count_aframe = icount;
-			int const repcount_aframe = repetition_count_aframe;
+			int const tickcount_aframe = icount;
+			int const tickcount_aframe_sequence = (
+				tickcount_aframe * EN_AFRAME_COUNT
+			);
+			int const tas = tickcount_aframe_sequence;
 			animations[animation_id].name = EN_SONIC_RUN_FRAME_NAME;
-			animations[animation_id].repcount_aframe = repcount_aframe;
+			animations[animation_id].tickcount_aframe = tickcount_aframe;
+			animations[animation_id].tickcount_aframe_sequence = tas;
 		} else if (EN_SONIC_SPIN_AN == animation_id) {
 			float const duration = (
 				GAME_SONIC_SPIN_ANIMATION_DURATION *
@@ -176,10 +180,14 @@ void en_init_aframes(struct game * const g)
 				(iduration / EN_AFRAME_COUNT) +
 				(iduration % EN_AFRAME_COUNT)
 			);
-			int const repetition_count_aframe = icount;
-			int const repcount_aframe = repetition_count_aframe;
+			int const tickcount_aframe = icount;
+			int const tickcount_aframe_sequence = (
+				tickcount_aframe * EN_AFRAME_COUNT
+			);
+			int const tas = tickcount_aframe_sequence;
 			animations[animation_id].name = EN_SONIC_SPIN_FRAME_NAME;
-			animations[animation_id].repcount_aframe = repcount_aframe;
+			animations[animation_id].tickcount_aframe = tickcount_aframe;
+			animations[animation_id].tickcount_aframe_sequence = tas;
 		} else {
 			fprintf(stderr, "%s\n", "UXUnhandledAnimationError");
 			graph_unloadall_graphics(g);
@@ -299,10 +307,10 @@ void en_update(struct game * const g)
 			int const animno = ent->animno;
 			struct animation const * const an = &ent->animations[animno];
 			int const duration_animation = (
-				an->repcount_aframe * EN_SONIC_AFRAME_COUNT
+				an->tickcount_aframe * EN_SONIC_AFRAME_COUNT
 			);
 			int const rem = (g->frameno % duration_animation);
-			int const aframecur = (rem / an->repcount_aframe);
+			int const aframecur = (rem / an->tickcount_aframe);
 			ent->animations[animno].aframecur = aframecur;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xpos += (time_step * ent->xvel);
