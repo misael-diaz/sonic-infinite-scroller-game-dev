@@ -44,3 +44,9 @@ My second animation, sonic running on an infinite platform:
 [![Watch the Video](https://img.youtube.com/vi/Lz_PlsWDygE/hqdefault.jpg)](https://youtu.be/Lz_PlsWDygE)
 
 The animation was done with the code at commit [16200609797955a9da826eefcbb8437388fb2671](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/16200609797955a9da826eefcbb8437388fb2671).
+
+My third animation, sonic jumping and running on an infinite platform:
+
+[![Watch the Video](https://img.youtube.com/vi/kQrb8HPSllk/hqdefault.jpg)](https://youtu.be/kQrb8HPSllk)
+
+The animation was done with the code at commit [511c5c339a4f27fcdbddad1420df0b1aef55dd2c](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/511c5c339a4f27fcdbddad1420df0b1aef55dd2c).
