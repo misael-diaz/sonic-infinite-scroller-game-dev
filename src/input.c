@@ -85,10 +85,14 @@ int in_handle_input(struct game * const g)
 				rc = 0;
 				break;
 			} else if (KBD_RIGHT == ev.xkey.keycode) {
+				struct entity * const sonic = &g->ents[EN_SONIC_ID];
+				sonic->animno = EN_SONIC_RUN_AN;
 				fprintf(stdout, "%s\n", "right-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_DOWN == ev.xkey.keycode) {
+				struct entity * const sonic = &g->ents[EN_SONIC_ID];
+				sonic->animno = EN_SONIC_SPIN_AN;
 				fprintf(stdout, "%s\n", "down-key pressed");
 				rc = 0;
 				break;
