@@ -36,7 +36,10 @@ struct entity {
 	float ymax;
 	float width;
 	float height;
+	int contact;
+	int frameno;
 	int animno;
+	int tickno;
 };
 
 #endif

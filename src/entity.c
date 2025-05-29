@@ -307,6 +307,8 @@ void en_init(struct game * const g)
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
 			ent->animno = EN_SONIC_RUN_AN;
+			ent->frameno = 0;
+			ent->contact = GAME_PLATFORM_CONTACT;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			struct entity * const sonic = &entities[EN_SONIC_ID];
 			ent->tag = EN_PLATFORM_TAG;
@@ -318,6 +320,8 @@ void en_init(struct game * const g)
 			ent->xmax = ent->graphic.info.width;
 			ent->ymax = (height_game_window - ent->graphic.info.height);
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->frameno = 0;
+			ent->contact = 0;
 			if (EN_PLATFORM_BETA_ID == i) {
 				ent->xpos = 0;
 				ent->xoff = 0;
@@ -358,12 +362,59 @@ void en_update(struct game * const g)
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
+		struct entity * const platform = &entities[EN_PLATFORM_BETA_ID];
 		if (EN_SONIC_TAG == ent->tag) {
-			int const animno = ent->animno;
-			struct animation const * const an = &ent->animations[animno];
-			int const rem = (g->frameno % an->tickcount_aframe_sequence);
-			int const aframecur = (rem / an->tickcount_aframe);
-			ent->animations[animno].aframecur = aframecur;
+			if (GAME_PLATFORM_CONTACT == ent->contact) {
+				int const animno = ent->animno;
+				struct animation const * const anims = ent->animations;
+				struct animation const * const an = &anims[animno];
+				int const rem = (
+					g->frameno % an->tickcount_aframe_sequence
+				);
+				int const aframecur = (rem / an->tickcount_aframe);
+				ent->animations[animno].aframecur = aframecur;
+				ent->ypos = (platform->ypos - ent->height);
+				ent->frameno = 0;
+				ent->tickno = 0;
+				ent->yvel = 0;
+			} else {
+				int animno = EN_SONIC_SPIN_AN;
+				if (!ent->tickno) {
+					ent->frameno = g->frameno;
+					ent->ypos = (platform->ypos - ent->height);
+					ent->yvel = -((float) GAME_SONIC_VEL);
+					ent->tickno++;
+				} else {
+					float const game_period = GAME_PERIOD_SEC;
+					float const time = (
+						(g->frameno - ent->frameno) * game_period
+					);
+					float const t = time;
+					float const g = GAME_GRAVITY_ACCELERATION;
+					ent->ypos += (ent->yvel * t) + (0.5f * g * t * t);
+					ent->ypos = en_clamp(
+							ent->ypos,
+							ent->ymin,
+							platform->ypos - ent->height
+					);
+					if ((platform->ypos - ent->height) == ent->ypos) {
+						animno = EN_SONIC_RUN_AN;
+						ent->contact = GAME_PLATFORM_CONTACT;
+						ent->frameno = 0;
+						ent->tickno = 0;
+					} else {
+						ent->tickno++;
+					}
+				}
+				struct animation const * const anims = ent->animations;
+				struct animation const * const an = &anims[animno];
+				int const rem = (
+					g->frameno % an->tickcount_aframe_sequence
+				);
+				int const aframecur = (rem / an->tickcount_aframe);
+				ent->animations[animno].aframecur = aframecur;
+				ent->animno = animno;
+			}
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xpos += (time_step * ent->xvel);
 			if (0 > ent->xpos) {

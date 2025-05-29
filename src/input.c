@@ -33,6 +33,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define KBD_RIGHT XKeysymToKeycode(dpy, XK_Right)
 #define KBD_DOWN XKeysymToKeycode(dpy, XK_Down)
 #define KBD_UP XKeysymToKeycode(dpy, XK_Up)
+#define KBD_TAB XKeysymToKeycode(dpy, XK_Tab)
 
 // Window Manager Protocol Message Handling Resource:
 // https://tronche.com/gui/x/xlib/events/client-communication/client-message.html
@@ -100,6 +101,12 @@ int in_handle_input(struct game * const g)
 				fprintf(stdout, "%s\n", "up-key pressed");
 				rc = 0;
 				break;
+			} else if (KBD_TAB == ev.xkey.keycode) {
+				struct entity * const sonic = &g->ents[EN_SONIC_ID];
+				sonic->contact = !GAME_PLATFORM_CONTACT;
+				fprintf(stdout, "%s\n", "spacebar-key pressed");
+				rc = 0;
+				break;
 			}
 		} else if (KeyRelease == ev.type) {
 			if (KBD_LEFT == ev.xkey.keycode) {
@@ -116,6 +123,10 @@ int in_handle_input(struct game * const g)
 				break;
 			} else if (KBD_UP == ev.xkey.keycode) {
 				fprintf(stdout, "%s\n", "up-key released");
+				rc = 0;
+				break;
+			} else if (KBD_TAB == ev.xkey.keycode) {
+				fprintf(stdout, "%s\n", "spacebar-key released");
 				rc = 0;
 				break;
 			}
