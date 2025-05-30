@@ -321,7 +321,6 @@ void en_init(struct game * const g)
 			goto handle_err;
 		}
 		if (EN_CAMERA_TAG == ent->tag) {
-			ent->tag = EN_CAMERA_TAG;
 			ent->id = i;
 			ent->xpos = (0.5f * width_game_window);
 			ent->ypos = (0.5f * height_game_window);
@@ -340,7 +339,6 @@ void en_init(struct game * const g)
 			ent->contact = !GAME_PLATFORM_CONTACT;
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
-			ent->tag = EN_SONIC_TAG;
 			ent->id = i;
 			ent->xpos = (0.5f * width_game_window);
 			ent->ypos = (0.5f * height_game_window);
@@ -360,7 +358,6 @@ void en_init(struct game * const g)
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			struct entity * const sonic = &entities[EN_SONIC_ID];
-			ent->tag = EN_PLATFORM_TAG;
 			ent->id = i;
 			ent->xvel = -GAME_PLATFORM_VEL;
 			ent->yvel = 0;
