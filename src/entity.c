@@ -52,18 +52,21 @@ static float en_clamp(
 static void en_tag_entity(struct game * const g)
 {
 	int count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i, ++count) {
+	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
+			++count;
 		} else if (EN_PLATFORM_BETA_ID == i) {
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_BETA_ID;
+			++count;
 		} else if (EN_PLATFORM_ZETA_ID == i) {
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_ZETA_ID;
+			++count;
 		}
 	}
 	if (EN_MAXNUMOF_ENT != count) {
