@@ -24,8 +24,14 @@
 #define GAME_SONIC_RUN_ANIMATION_DURATION 0.0625f
 #define GAME_SONIC_SPIN_ANIMATION_DURATION 0.0625f
 
-#define GAME_SONIC_VEL 2000
-#define GAME_PLATFORM_VEL 400
+#define GAME_SONIC_XVEL 400
+#define GAME_SONIC_YVEL 0
+#define GAME_CAMERA_XVEL GAME_SONIC_XVEL
+#define GAME_CAMERA_YVEL GAME_SONIC_YVEL
+#define GAME_PLATFORM_XVEL 0
+#define GAME_PLATFORM_YVEL 0
+
+#define GAME_SONIC_JUMP_VEL 2000
 
 /* if set sonic is in contact with a platform (has no meaning for other entities) */
 

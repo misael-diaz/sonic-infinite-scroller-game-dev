@@ -311,6 +311,8 @@ void en_init(struct game * const g)
 	en_tag_entity(g);
 	en_load_graphic(g);
 	en_init_aframes(g);
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
@@ -321,71 +323,68 @@ void en_init(struct game * const g)
 			goto handle_err;
 		}
 		if (EN_CAMERA_TAG == ent->tag) {
-			ent->id = i;
 			ent->xpos = (0.5f * width_game_window);
 			ent->ypos = (0.5f * height_game_window);
-			ent->xvis = ent->xpos;
-			ent->yvis = ent->ypos;
-			ent->xvel = 0;
-			ent->yvel = 0;
-			ent->xmin = 0;
-			ent->ymin = 0;
-			ent->xmax = (width_game_window - ent->graphic.info.width);
-			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->xoff = EN_IGNORE_PROPERTY;
+			ent->yoff = EN_IGNORE_PROPERTY;
+			ent->xvis = EN_IGNORE_PROPERTY;
+			ent->yvis = EN_IGNORE_PROPERTY;
+			ent->xvel = GAME_CAMERA_XVEL;
+			ent->yvel = GAME_CAMERA_YVEL;
+			ent->xmin = EN_IGNORE_PROPERTY;
+			ent->ymin = EN_IGNORE_PROPERTY;
+			ent->xmax = EN_IGNORE_PROPERTY;
+			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->animno = EN_CAMERA_DEFAULT_AN;
+			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
-			ent->contact = !GAME_PLATFORM_CONTACT;
+			ent->animno = EN_CAMERA_DEFAULT_AN;
+			ent->tickno = EN_IGNORE_PROPERTY;
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
-			ent->id = i;
-			ent->xpos = (0.5f * width_game_window);
-			ent->ypos = (0.5f * height_game_window);
-			ent->xvis = ent->xpos;
-			ent->yvis = ent->ypos;
-			ent->xvel = 0;
-			ent->yvel = 0;
-			ent->xmin = 0;
-			ent->ymin = 0;
-			ent->xmax = (width_game_window - ent->graphic.info.width);
-			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->xoff = EN_IGNORE_PROPERTY;
+			ent->yoff = EN_IGNORE_PROPERTY;
+			ent->xvis = EN_IGNORE_PROPERTY;
+			ent->yvis = EN_IGNORE_PROPERTY;
+			ent->xvel = GAME_SONIC_XVEL;
+			ent->yvel = GAME_SONIC_YVEL;
+			ent->xmin = EN_IGNORE_PROPERTY;
+			ent->ymin = EN_IGNORE_PROPERTY;
+			ent->xmax = EN_IGNORE_PROPERTY;
+			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->animno = EN_SONIC_RUN_AN;
-			ent->frameno = EN_SONIC_DEFAULT_AF;
 			ent->contact = GAME_PLATFORM_CONTACT;
+			ent->frameno = EN_SONIC_DEFAULT_AF;
+			ent->animno = EN_SONIC_RUN_AN;
+			ent->tickno = 0;
+			ent->xpos = camera->xpos;
+			ent->ypos = camera->ypos + ent->height;
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
-			struct entity * const sonic = &entities[EN_SONIC_ID];
-			ent->id = i;
-			ent->xvel = -GAME_PLATFORM_VEL;
-			ent->yvel = 0;
-			ent->xmin = -((float) ent->graphic.info.width);
-			ent->ymin = 0;
-			ent->xmax = ent->graphic.info.width;
-			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->xoff = EN_IGNORE_PROPERTY;
+			ent->yoff = EN_IGNORE_PROPERTY;
+			ent->xvis = EN_IGNORE_PROPERTY;
+			ent->yvis = EN_IGNORE_PROPERTY;
+			ent->xvel = GAME_PLATFORM_XVEL;
+			ent->yvel = GAME_PLATFORM_YVEL;
+			ent->xmin = EN_IGNORE_PROPERTY;
+			ent->ymin = EN_IGNORE_PROPERTY;
+			ent->xmax = EN_IGNORE_PROPERTY;
+			ent->ymax = EN_IGNORE_PROPERTY;
+			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->animno = EN_PLATFORM_DEFAULT_AN;
+			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_PLATFORM_DEFAULT_AF;
-			ent->contact = !GAME_PLATFORM_CONTACT;
+			ent->animno = EN_PLATFORM_DEFAULT_AN;
+			ent->tickno = EN_IGNORE_PROPERTY;
 			if (EN_PLATFORM_BETA_ID == i) {
-				ent->xpos = 0;
-				ent->xoff = 0;
-				ent->xvis = 0;
-				ent->width = ent->animations[0].aframes[0].width;
+				ent->xpos = 0.5f * ent->width;
 			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = ent->xmax;
-				ent->xoff = 0;
-				ent->xvis = ent->xmax;
-				ent->width = 0;
+				ent->xpos = 1.5f * ent->width;
 			}
-			ent->yoff = 0;
-			ent->ypos = (
-					sonic->ypos +
-					sonic->height
-			);
-			ent->yvis = ent->ypos;
+			ent->ypos = (sonic->ypos + 0.5f * sonic->height);
 			++count;
 		}
 	}
@@ -430,7 +429,7 @@ void en_update(struct game * const g)
 				if (!ent->tickno) {
 					ent->frameno = g->frameno;
 					ent->ypos = (platform->ypos - ent->height);
-					ent->yvel = -((float) GAME_SONIC_VEL);
+					ent->yvel = -((float) GAME_SONIC_JUMP_VEL);
 					ent->tickno++;
 				} else {
 					float const game_period = GAME_PERIOD_SEC;

@@ -11,6 +11,8 @@
 
 #define EN_ENVIEW_NUMFACES 4
 
+#define EN_IGNORE_PROPERTY 0
+
 /*
 
 E: East,  aligned with the screen +x-axis

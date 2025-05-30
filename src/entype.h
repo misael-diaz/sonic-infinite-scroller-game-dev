@@ -38,6 +38,10 @@ struct enview {
 	float yrel;
 	float xoff;
 	float yoff;
+	float xmin;
+	float ymin;
+	float xmax;
+	float ymax;
 	float width;
 	float height;
 };
