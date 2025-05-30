@@ -391,7 +391,11 @@ void en_update(struct game * const g)
 					);
 					float const t = time;
 					float const g = GAME_GRAVITY_ACCELERATION;
-					ent->ypos += (ent->yvel * t) + (0.5f * g * t * t);
+					ent->ypos = (
+							(platform->ypos - ent->height) +
+							(ent->yvel * t) +
+							(0.5f * g * t * t)
+					);
 					ent->ypos = en_clamp(
 							ent->ypos,
 							ent->ymin,
