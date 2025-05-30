@@ -9,18 +9,45 @@
 /* entity tags */
 
 enum entag {
+	EN_CAMERA_TAG,
 	EN_SONIC_TAG,
 	EN_ENEMY_TAG,
 	EN_PLATFORM_TAG,
 	EN_MAXNUMOF_TAG
 };
 
-// animations can share graphics this is why they are not nested in the animation struct
+struct vector {
+	float x;
+	float y;
+};
+
+/*
+
+struct enview:
+Think of an `enview struct' to be a rectangle that encloses an entity, the enview has
+four faces and a unit normal vector for each face (just like rectangles).
+We pass the coordinates and dimensions of the `enview struct' to Xlib drawing functions,
+and so their meanings are tied to the parameter list of Xlib drawing functions.
+
+*/
+
+struct enview {
+	struct vector N[EN_ENVIEW_NUMFACES];
+	float xpos;
+	float ypos;
+	float xoff;
+	float yoff;
+	float width;
+	float height;
+};
+
+/*animations can share graphics this is why they are not nested in the animation struct*/
 struct entity {
 	enum entag tag;
 	int id;
 	struct graphic graphic;
 	struct animation animations[EN_ANIMATIONS_COUNT];
+	struct enview view;
 	XImage *framebuffer;
 	float xpos;
 	float ypos;

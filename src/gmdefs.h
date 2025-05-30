@@ -12,6 +12,10 @@
 #define GAME_LOADED_GRAPHIC 1
 #define GAME_BINDED_GRAPHIC 1
 
+#define GAME_CAMERA_WIDTH 32
+#define GAME_CAMERA_HEIGHT 32
+
+#define GAME_CAMERA_NOGRAPHIC_FP "nographic"
 #define GAME_SONIC_GRAPHIC_FP "public/graphics/sonic.png"
 #define GAME_PLATFORM_GRAPHIC_FP "public/graphics/platform.png"
 
@@ -20,6 +24,8 @@
 
 #define GAME_SONIC_VEL 2000
 #define GAME_PLATFORM_VEL 400
+
+/* if set sonic is in contact with a platform (has no meaning for other entities) */
 
 #define GAME_PLATFORM_CONTACT 1
 

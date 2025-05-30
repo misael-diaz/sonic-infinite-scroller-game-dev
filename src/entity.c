@@ -22,6 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
 #include "graphic.h"
@@ -55,7 +56,12 @@ static void en_tag_entity(struct game * const g)
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		if (EN_SONIC_ID == i) {
+		if (EN_CAMERA_ID == i) {
+			ent->tag = EN_CAMERA_TAG;
+			ent->id = EN_CAMERA_ID;
+			++count;
+		}
+		else if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
 			++count;
@@ -82,32 +88,15 @@ static void en_load_graphic(struct game * const g)
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		if (EN_SONIC_ID == i) {
-			ent->tag = EN_SONIC_TAG;
-			ent->id = EN_SONIC_ID;
-			++count;
-		} else if (EN_PLATFORM_BETA_ID == i) {
-			ent->tag = EN_PLATFORM_TAG;
-			ent->id = EN_PLATFORM_BETA_ID;
-			++count;
-		} else if (EN_PLATFORM_ZETA_ID == i) {
-			ent->tag = EN_PLATFORM_TAG;
-			ent->id = EN_PLATFORM_ZETA_ID;
-			++count;
-		}
-	}
-	if (EN_MAXNUMOF_ENT != count) {
-		fprintf(stderr, "%s\n", "en_load_graphic: UXUnhandledEntitiesError");
-		vid_close_gw(g);
-		exit(EXIT_FAILURE);
-	}
-
-	count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
-		struct entity * const entities = g->ents;
-		struct entity * const ent = &entities[i];
 		struct graphic * const graphicp = &ent->graphic;
-		if (EN_SONIC_TAG == ent->tag) {
+		if (EN_CAMERA_TAG == ent->tag) {
+			memset(&ent->graphic, 0, sizeof(ent->graphic));
+			ent->graphic.name = GAME_CAMERA_NOGRAPHIC_FP;
+			ent->graphic.data = NULL;
+			ent->graphic.loaded = !GAME_LOADED_GRAPHIC;
+			ent->graphic.binded = !GAME_LOADED_GRAPHIC;
+			++count;
+		} else if (EN_SONIC_TAG == ent->tag) {
 			graphicp->name = GAME_SONIC_GRAPHIC_FP;
 			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
 				fprintf(stderr,
@@ -137,6 +126,30 @@ handle_err:
 		graph_unloadall_graphics(g);
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
+	}
+}
+
+// we set this for completeness, might be useful for debugging sessions
+static void en_init_camera_aframes(struct game * const g)
+{
+	struct entity * const entities = g->ents;
+	struct entity * const camera = &entities[EN_CAMERA_ID];
+	struct animation * const animations = camera->animations;
+	int const width_camera = GAME_CAMERA_WIDTH;
+	int const height_camera = GAME_CAMERA_HEIGHT;
+	for (int animno = 0; animno != EN_ANIMATIONS_COUNT; ++animno) {
+		for (int aframeno = 0; aframeno != EN_AFRAME_COUNT; ++aframeno) {
+			animations[animno].aframes[aframeno].id = aframeno;
+			animations[animno].aframes[aframeno].xof = 0;
+			animations[animno].aframes[aframeno].yof = 0;
+			animations[animno].aframes[aframeno].width = width_camera;
+			animations[animno].aframes[aframeno].height = height_camera;
+		}
+		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = 1;
+		animations[animno].name = EN_CAMERA_FRAME_NAME;
+		animations[animno].count = 1;
+		animations[animno].id = animno;
 	}
 }
 
@@ -238,6 +251,7 @@ static void en_init_platform_aframes(
 
 static void en_init_aframes(struct game * const g)
 {
+	en_init_camera_aframes(g);
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
@@ -250,6 +264,11 @@ static void en_init_entity_framebuffer(
 {
 	struct entity * const entities = g->ents;
 	struct entity * const ent = &entities[id];
+	if (!ent->graphic.data || !ent->graphic.loaded) {
+		// handles entities that have no graphic such as the camera
+		ent->graphic.binded = !GAME_BINDED_GRAPHIC;
+		return;
+	}
 	int const offset = 0;
 	int const bitmap_pad = 32;
 	int const bytes_per_line = (ent->graphic.info.width * sizeof(int));
@@ -275,6 +294,7 @@ static void en_init_entity_framebuffer(
 
 static void en_init_framebuffers(struct game * const g)
 {
+	en_init_entity_framebuffer(g, EN_CAMERA_ID);
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
@@ -282,6 +302,7 @@ static void en_init_framebuffers(struct game * const g)
 
 void en_init(struct game * const g)
 {
+	int count = 0;
 	if ((0 >= g->entno) || (EN_MAXNUMOF_ENT < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
 		vid_close_gw(g);
@@ -295,11 +316,30 @@ void en_init(struct game * const g)
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		if (!ent->graphic.data) {
+		if (!ent->graphic.data && (EN_CAMERA_TAG != ent->tag)) {
 			fprintf(stderr, "%s\n", "en_init: UXNoGraphicsDataEntityError\n");
 			goto handle_err;
 		}
-		if (EN_SONIC_TAG == ent->tag) {
+		if (EN_CAMERA_TAG == ent->tag) {
+			ent->tag = EN_CAMERA_TAG;
+			ent->id = i;
+			ent->xpos = (0.5f * width_game_window);
+			ent->ypos = (0.5f * height_game_window);
+			ent->xvis = ent->xpos;
+			ent->yvis = ent->ypos;
+			ent->xvel = 0;
+			ent->yvel = 0;
+			ent->xmin = 0;
+			ent->ymin = 0;
+			ent->xmax = (width_game_window - ent->graphic.info.width);
+			ent->ymax = (height_game_window - ent->graphic.info.height);
+			ent->width = ent->animations[0].aframes[0].width;
+			ent->height = ent->animations[0].aframes[0].height;
+			ent->animno = EN_CAMERA_DEFAULT_AN;
+			ent->frameno = EN_CAMERA_DEFAULT_AF;
+			ent->contact = !GAME_PLATFORM_CONTACT;
+			++count;
+		} else if (EN_SONIC_TAG == ent->tag) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = i;
 			ent->xpos = (0.5f * width_game_window);
@@ -315,8 +355,9 @@ void en_init(struct game * const g)
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
 			ent->animno = EN_SONIC_RUN_AN;
-			ent->frameno = 0;
+			ent->frameno = EN_SONIC_DEFAULT_AF;
 			ent->contact = GAME_PLATFORM_CONTACT;
+			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			struct entity * const sonic = &entities[EN_SONIC_ID];
 			ent->tag = EN_PLATFORM_TAG;
@@ -328,8 +369,9 @@ void en_init(struct game * const g)
 			ent->xmax = ent->graphic.info.width;
 			ent->ymax = (height_game_window - ent->graphic.info.height);
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->frameno = 0;
-			ent->contact = 0;
+			ent->animno = EN_PLATFORM_DEFAULT_AN;
+			ent->frameno = EN_PLATFORM_DEFAULT_AF;
+			ent->contact = !GAME_PLATFORM_CONTACT;
 			if (EN_PLATFORM_BETA_ID == i) {
 				ent->xpos = 0;
 				ent->xoff = 0;
@@ -347,18 +389,19 @@ void en_init(struct game * const g)
 					sonic->height
 			);
 			ent->yvis = ent->ypos;
+			++count;
 		}
+	}
+	if (EN_MAXNUMOF_ENT != count) {
+		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
 	}
 	en_init_framebuffers(g);
 	return;
 handle_err:
 	{
-		for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
-			struct entity * const entities = g->ents;
-			struct entity * const ent = &entities[i];
-			struct graphic * const graphicp = &ent->graphic;
-			graph_unload_graphic(graphicp);
-		}
+		graph_unloadall_graphics(g);
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
 	}

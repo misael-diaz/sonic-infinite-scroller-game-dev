@@ -3,16 +3,40 @@
 
 #include "gmdefs.h"
 
-#define EN_MAXNUMOF_ENT 3
-#define EN_SONIC_ID 0
-#define EN_PLATFORM_BETA_ID 1
-#define EN_PLATFORM_ZETA_ID 2
+#define EN_MAXNUMOF_ENT 4
+#define EN_CAMERA_ID 0
+#define EN_SONIC_ID 1
+#define EN_PLATFORM_BETA_ID 2
+#define EN_PLATFORM_ZETA_ID 3
+
+#define EN_ENVIEW_NUMFACES 4
+
+/*
+
+E: East,  aligned with the screen +x-axis
+N: Nort,  aligned with the screen +y-axis
+W: West,  aligned with the screen -x-axis
+S: South, aligned with the screen -y-axis
+
+*/
+
+#define EN_ENVIEW_E 0
+#define EN_ENVIEW_N 1
+#define EN_ENVIEW_W 2
+#define EN_ENVIEW_S 3
 
 #define EN_ANIMATIONS_COUNT 2
 #define EN_AFRAME_COUNT 8
 
+#define EN_CAMERA_DEFAULT_AN 0
+#define EN_CAMERA_DEFAULT_AF 0
+
 #define EN_SONIC_RUN_AN 0
 #define EN_SONIC_SPIN_AN 1
+#define EN_SONIC_DEFAULT_AF 0
+
+#define EN_PLATFORM_DEFAULT_AN 0
+#define EN_PLATFORM_DEFAULT_AF 0
 
 #define EN_SONIC_AFRAME_COUNT EN_AFRAME_COUNT
 #define EN_SONIC_ANIMATIONS_COUNT EN_ANIMATIONS_COUNT
@@ -21,6 +45,7 @@ _Static_assert(EN_SONIC_AFRAME_COUNT == EN_AFRAME_COUNT, "UXAframeCountError");
 #define EN_SONIC_RUN_FRAME_NAME "run"
 #define EN_SONIC_SPIN_FRAME_NAME "spin"
 #define EN_PLATFORM_FRAME_NAME "scroll"
+#define EN_CAMERA_FRAME_NAME "hover"
 
 #endif
 
