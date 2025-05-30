@@ -79,18 +79,21 @@ static void en_tag_entity(struct game * const g)
 static void en_load_graphic(struct game * const g)
 {
 	int count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i, ++count) {
+	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
+			++count;
 		} else if (EN_PLATFORM_BETA_ID == i) {
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_BETA_ID;
+			++count;
 		} else if (EN_PLATFORM_ZETA_ID == i) {
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_ZETA_ID;
+			++count;
 		}
 	}
 	if (EN_MAXNUMOF_ENT != count) {
@@ -100,7 +103,7 @@ static void en_load_graphic(struct game * const g)
 	}
 
 	count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i, ++count) {
+	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		struct graphic * const graphicp = &ent->graphic;
@@ -112,6 +115,7 @@ static void en_load_graphic(struct game * const g)
 					"en_load_graphic: UXLoadGraphicError");
 				goto handle_err;
 			}
+			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			graphicp->name = GAME_PLATFORM_GRAPHIC_FP;
 			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
@@ -120,6 +124,7 @@ static void en_load_graphic(struct game * const g)
 					"en_load_graphic: UXLoadGraphicError");
 				goto handle_err;
 			}
+			++count;
 		}
 	}
 	if (EN_MAXNUMOF_ENT != count) {
