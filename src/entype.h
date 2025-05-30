@@ -28,13 +28,14 @@ Think of an `enview struct' to be a rectangle that encloses an entity, the envie
 four faces and a unit normal vector for each face (just like rectangles).
 We pass the coordinates and dimensions of the `enview struct' to Xlib drawing functions,
 and so their meanings are tied to the parameter list of Xlib drawing functions.
+The coordinates are relative to the camera placement.
 
 */
 
 struct enview {
 	struct vector N[EN_ENVIEW_NUMFACES];
-	float xpos;
-	float ypos;
+	float xrel;
+	float yrel;
 	float xoff;
 	float yoff;
 	float width;
