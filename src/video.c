@@ -29,6 +29,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "gmdefs.h"
 #include "video.h"
 
 void vid_init_gw(struct game * const g)
@@ -161,6 +162,19 @@ void vid_info_gw(struct game const * const g)
 	fprintf(stdout, "vid_init_gw: max-num-colormaps: %d\n", MaxCmapsOfScreen(g->screen));
 	fprintf(stdout, "vid_init_gw: min-num-colormaps: %d\n", MinCmapsOfScreen(g->screen));
 
+}
+
+void vid_check_gw(struct game * const g)
+{
+	if (
+		(GAME_CAMERA_VIEW_LEN > g->screen_width) ||
+		(GAME_CAMERA_VIEW_LEN > g->screen_height)
+	   ) {
+
+		fprintf(stderr, "%s\n", "vid_check_gw: GameCameraViewRangeError");
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
 }
 
 void vid_draw_gw(struct game const * const g)

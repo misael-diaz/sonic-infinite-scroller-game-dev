@@ -5,6 +5,7 @@
 
 void vid_init_gw(struct game * const g);
 void vid_info_gw(struct game const * const g);
+void vid_check_gw(struct game * const g);
 void vid_draw_gw(struct game const * const g);
 void vid_close_gw(struct game * const g);
 

@@ -61,6 +61,7 @@ int main(void)
 	sys_init_random();
 	vid_init_gw(&g);
 	vid_info_gw(&g);
+	vid_check_gw(&g);
 	en_init(&g);
 	vid_draw_gw(&g);
 //	g_loop(&g);
