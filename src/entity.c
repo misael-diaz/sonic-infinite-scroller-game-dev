@@ -29,6 +29,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "video.h"
 #include "entity.h"
 
+#define MAX(x, y) ((x) > (y))? (x) : (y)
+
 static float en_clamp(
 		float const val,
 		float const min,
@@ -331,6 +333,9 @@ void en_set_view(
 			(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
 	);
 	if ((xmin > (ent->view.xedg + ent->width)) || (xmax < ent->view.xedg)) {
+		if (EN_SONIC_ID == ent->id) {
+			return;
+		}
 		ent->view.xedg = 0;
 		ent->view.yedg = 0;
 		ent->view.xscr = 0;
@@ -342,6 +347,9 @@ void en_set_view(
 		return;
 	}
 	if ((ymin > (ent->view.yedg + ent->height)) || (ymax < ent->view.yedg)) {
+		if (EN_SONIC_ID == ent->id) {
+			return;
+		}
 		ent->view.xedg = 0;
 		ent->view.yedg = 0;
 		ent->view.xscr = 0;
@@ -440,7 +448,7 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->visible = !GAME_CAMERA_VISIBLE;
+			ent->visible = GAME_CAMERA_VISIBLE;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
@@ -560,25 +568,43 @@ void en_update(struct game * const g)
 		struct entity * const ent = &entities[i];
 		struct entity * const camera = &entities[EN_CAMERA_ID];
 		struct entity * const sonic = &entities[EN_SONIC_ID];
+		struct entity const * const beta = &entities[EN_PLATFORM_BETA_ID];
+		struct entity const * const zeta = &entities[EN_PLATFORM_ZETA_ID];
 		if (EN_CAMERA_TAG == ent->tag) {
 			float const beacon_ypos = (
 				sonic->ypos -
 				(0.5f * sonic->height) -
-				(0.5f * ent->height)
+				(ent->height)
 			);
 			float const base = (
-				(0.5f * sonic->height)
+				(1.0f * sonic->height)
 			);
 			float const dist = ((ent->ypos - beacon_ypos) / base);
 			float const d2 = (dist * dist);
 			float const d = sqrtf(d2);
+			float const r = (ent->ypos - sonic->ypos);
+			float const r2 = (r * r);
+			float const overlap = 0.5f * (ent->height + sonic->height);
+			float const overlap2 = overlap * overlap;
 			float yvel = 0;
-			if (0 > sonic->view.yrel) {
-				yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
-			} else {
-				yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+			if (overlap2 < r2) {
+				if (0 > sonic->view.yrel) {
+					yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+				} else {
+					yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+				}
 			}
-			ent->yvel = yvel;
+			if (
+				(!GAME_PLATFORM_CONTACT == sonic->contact) &&
+				((1.4f * GAME_FRAMERATE_HZ) <= sonic->tickno)
+			   ) {
+				ent->ypos = MAX(beta->ypos, zeta->xpos);
+				ent->ypos -= (0.5f * beta->height);
+				ent->ypos -= (3.0f * sonic->height);
+				ent->ypos -= (ent->height);
+			} else {
+				ent->yvel = yvel;
+			}
 			ent->xpos += (time_step * ent->xvel);
 			ent->ypos += (time_step * ent->yvel);
 		} else if (EN_SONIC_TAG == ent->tag) {
