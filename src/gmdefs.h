@@ -18,6 +18,7 @@
 #define GAME_CAMERA_WIDTH 32
 #define GAME_CAMERA_HEIGHT 32
 
+#define GAME_CAMERA_VISIBLE 1
 #define GAME_CAMERA_NOGRAPHIC_FP "nographic"
 #define GAME_SONIC_GRAPHIC_FP "public/graphics/sonic.png"
 #define GAME_PLATFORM_GRAPHIC_FP "public/graphics/platform.png"

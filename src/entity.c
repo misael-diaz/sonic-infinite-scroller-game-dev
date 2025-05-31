@@ -440,6 +440,7 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->visible = !GAME_CAMERA_VISIBLE;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
@@ -484,6 +485,7 @@ void en_init(struct game * const g)
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
 			ent->ymin = 0.5f * ent->height;
+			ent->visible = EN_IGNORE_PROPERTY;
 			ent->falling = !GAME_SONIC_FALLING;
 			ent->contact = GAME_PLATFORM_CONTACT;
 			ent->frameno = EN_SONIC_DEFAULT_AF;
@@ -513,6 +515,7 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->visible = EN_IGNORE_PROPERTY;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_PLATFORM_DEFAULT_AF;

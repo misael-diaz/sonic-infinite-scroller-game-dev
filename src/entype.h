@@ -82,6 +82,7 @@ struct entity {
 	float ymax;
 	float width;
 	float height;
+	int visible;
 	int falling;
 	int contact;
 	int frameno;
