@@ -448,7 +448,7 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
-			ent->visible = GAME_CAMERA_VISIBLE;
+			ent->visible = !GAME_CAMERA_VISIBLE;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
@@ -700,7 +700,7 @@ void en_update(struct game * const g)
 			);
 			if (xmin >= (ent->xpos + (0.5f * ent->width))) {
 				ent->xpos += (2.0f * ent->width);
-				ent->ypos += (16.0f * ent->height);
+				ent->ypos += (128.0f * ent->height);
 			}
 			en_set_view(g, ent->id);
 		}
