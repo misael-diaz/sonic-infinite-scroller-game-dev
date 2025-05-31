@@ -479,11 +479,11 @@ void en_init(struct game * const g)
 			ent->xvel = GAME_SONIC_XVEL;
 			ent->yvel = GAME_SONIC_YVEL;
 			ent->xmin = EN_IGNORE_PROPERTY;
-			ent->ymin = EN_IGNORE_PROPERTY;
 			ent->xmax = EN_IGNORE_PROPERTY;
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->ymin = 0.5f * ent->height;
 			ent->contact = GAME_PLATFORM_CONTACT;
 			ent->frameno = EN_SONIC_DEFAULT_AF;
 			ent->animno = EN_SONIC_RUN_AN;
@@ -519,20 +519,14 @@ void en_init(struct game * const g)
 			ent->view.yref = (0.5f * height_game_window);
 			if (EN_PLATFORM_BETA_ID == i) {
 				ent->xpos = camera->xpos;
-				ent->ypos = (
-					sonic->ypos +
-					(0.5f * sonic->height) +
-					(0.5f * ent->height)
-				);
 			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = camera->xpos;
-				ent->ypos = (
-					camera->ypos -
-					(0.5f * camera->height) -
-					(1.0f * sonic->height) -
-					(0.5f * ent->height)
-				);
+				ent->xpos = camera->xpos + ent->width;
 			}
+			ent->ypos = (
+				sonic->ypos +
+				(0.5f * sonic->height) +
+				(0.5f * ent->height)
+			);
 			en_set_view(g, ent->id);
 			++count;
 		}
@@ -558,8 +552,11 @@ void en_update(struct game * const g)
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
+		struct entity * const camera = &entities[EN_CAMERA_ID];
 		struct entity * const platform = &entities[EN_PLATFORM_BETA_ID];
-		if (EN_SONIC_TAG == ent->tag) {
+		if (EN_CAMERA_TAG == ent->tag) {
+			ent->xpos += (time_step * ent->xvel);
+		} else if (EN_SONIC_TAG == ent->tag) {
 			if (GAME_PLATFORM_CONTACT == ent->contact) {
 				int const animno = ent->animno;
 				struct animation const * const anims = ent->animations;
@@ -569,7 +566,11 @@ void en_update(struct game * const g)
 				);
 				int const aframecur = (rem / an->tickcount_aframe);
 				ent->animations[animno].aframecur = aframecur;
-				ent->ypos = (platform->ypos - ent->height);
+				ent->ypos = (
+					platform->ypos -
+					(0.5f * platform->height) -
+					(0.5f * ent->height)
+				);
 				ent->frameno = 0;
 				ent->tickno = 0;
 				ent->yvel = 0;
@@ -577,7 +578,11 @@ void en_update(struct game * const g)
 				int animno = EN_SONIC_SPIN_AN;
 				if (!ent->tickno) {
 					ent->frameno = g->frameno;
-					ent->ypos = (platform->ypos - ent->height);
+					ent->ypos = (
+						platform->ypos -
+						(0.5f * platform->height) -
+						(0.5f * ent->height)
+					);
 					ent->yvel = -((float) GAME_SONIC_JUMP_VEL);
 					ent->tickno++;
 				} else {
@@ -587,17 +592,22 @@ void en_update(struct game * const g)
 					);
 					float const t = time;
 					float const g = GAME_GRAVITY_ACCELERATION;
+					float const y0 = (
+						platform->ypos -
+						(0.5f * platform->height) -
+						(0.5f * ent->height)
+					);
 					ent->ypos = (
-							(platform->ypos - ent->height) +
-							(ent->yvel * t) +
-							(0.5f * g * t * t)
+						y0 +
+						(ent->yvel * t) +
+						(0.5f * g * t * t)
 					);
 					ent->ypos = en_clamp(
-							ent->ypos,
-							ent->ymin,
-							platform->ypos - ent->height
+						ent->ypos,
+						ent->ymin,
+						y0
 					);
-					if ((platform->ypos - ent->height) == ent->ypos) {
+					if (y0 == ent->ypos) {
 						animno = EN_SONIC_RUN_AN;
 						ent->contact = GAME_PLATFORM_CONTACT;
 						ent->frameno = 0;
@@ -615,24 +625,17 @@ void en_update(struct game * const g)
 				ent->animations[animno].aframecur = aframecur;
 				ent->animno = animno;
 			}
-		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xpos += (time_step * ent->xvel);
-			if (0 > ent->xpos) {
-				ent->xvis = 0;
-				ent->xoff = -ent->xpos;
-				ent->width = (ent->graphic.info.width + ent->xpos);
-			} else {
-				ent->xvis = ent->xpos;
-				ent->xoff = 0;
-				ent->width = (ent->graphic.info.width - ent->xpos);
+			en_set_view(g, ent->id);
+		} else if (EN_PLATFORM_TAG == ent->tag) {
+			float const xmin = (
+					camera->xpos +
+					0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
+			);
+			if (xmin >= (ent->xpos + (0.5f * ent->width))) {
+				ent->xpos += (2.0f * ent->width);
 			}
-			ent->xpos = en_clamp(ent->xpos, ent->xmin, ent->xmax);
-			if (ent->xmin == ent->xpos) {
-				ent->xpos = ent->xmax;
-				ent->xvis = ent->xmax;
-				ent->xoff = 0;
-				ent->width = 0;
-			}
+			en_set_view(g, ent->id);
 		}
 	}
 }

@@ -33,7 +33,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 int main(void)
 {
-	// NEED TO LOAD GRAPHICS FIRST
 	struct game g = {
 		.ents = {},
 		.supported_protocols = {
@@ -63,8 +62,7 @@ int main(void)
 	vid_info_gw(&g);
 	vid_check_gw(&g);
 	en_init(&g);
-	vid_draw_gw(&g);
-//	g_loop(&g);
+	g_loop(&g);
 	g_pause(&g);
 	graph_unloadall_graphics(&g);
 	vid_close_gw(&g);
