@@ -433,7 +433,7 @@ void en_init(struct game * const g)
 			ent->xold = EN_IGNORE_PROPERTY;
 			ent->yold = EN_IGNORE_PROPERTY;
 			ent->xvel = GAME_CAMERA_XVEL;
-			ent->yvel = GAME_CAMERA_YVEL;
+			ent->yvel = (0 * (GAME_CAMERA_YVEL));
 			ent->xmin = EN_IGNORE_PROPERTY;
 			ent->ymin = EN_IGNORE_PROPERTY;
 			ent->xmax = EN_IGNORE_PROPERTY;
@@ -556,8 +556,28 @@ void en_update(struct game * const g)
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		struct entity * const camera = &entities[EN_CAMERA_ID];
+		struct entity * const sonic = &entities[EN_SONIC_ID];
 		if (EN_CAMERA_TAG == ent->tag) {
+			float const beacon_ypos = (
+				sonic->ypos -
+				(0.5f * sonic->height) -
+				(0.5f * ent->height)
+			);
+			float const base = (
+				(0.5f * sonic->height)
+			);
+			float const dist = ((ent->ypos - beacon_ypos) / base);
+			float const d2 = (dist * dist);
+			float const d = sqrtf(d2);
+			float yvel = 0;
+			if (0 > sonic->view.yrel) {
+				yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+			} else {
+				yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+			}
+			ent->yvel = yvel;
 			ent->xpos += (time_step * ent->xvel);
+			ent->ypos += (time_step * ent->yvel);
 		} else if (EN_SONIC_TAG == ent->tag) {
 			int platform_id = EN_PLATFORM_BETA_ID;
 			struct entity const * platform = &entities[platform_id];
@@ -651,7 +671,7 @@ void en_update(struct game * const g)
 			);
 			if (xmin >= (ent->xpos + (0.5f * ent->width))) {
 				ent->xpos += (2.0f * ent->width);
-				ent->ypos += (ent->height);
+				ent->ypos += (16.0f * ent->height);
 			}
 			en_set_view(g, ent->id);
 		}
