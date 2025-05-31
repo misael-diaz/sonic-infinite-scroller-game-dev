@@ -72,8 +72,8 @@ struct entity {
 	float ypos;
 	float xoff;
 	float yoff;
-	float xvis;
-	float yvis;
+	float xold;
+	float yold;
 	float xvel;
 	float yvel;
 	float xmin;
@@ -82,6 +82,7 @@ struct entity {
 	float ymax;
 	float width;
 	float height;
+	int falling;
 	int contact;
 	int frameno;
 	int animno;

@@ -36,6 +36,7 @@
 
 /* if set sonic is in contact with a platform (has no meaning for other entities) */
 
+#define GAME_SONIC_FALLING 1
 #define GAME_PLATFORM_CONTACT 1
 
 #define GAME_GRAVITY_ACCELERATION 4000
