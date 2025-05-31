@@ -598,7 +598,7 @@ void en_update(struct game * const g)
 				(!GAME_PLATFORM_CONTACT == sonic->contact) &&
 				((1.4f * GAME_FRAMERATE_HZ) <= sonic->tickno)
 			   ) {
-				ent->ypos = MAX(beta->ypos, zeta->xpos);
+				ent->ypos = MAX(beta->ypos, zeta->ypos);
 				ent->ypos -= (0.5f * beta->height);
 				ent->ypos -= (3.0f * sonic->height);
 				ent->ypos -= (ent->height);
