@@ -341,6 +341,28 @@ void en_init(struct game * const g)
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
 			ent->animno = EN_CAMERA_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
+			ent->view.N[EN_ENVIEW_E].x = 1;
+			ent->view.N[EN_ENVIEW_E].y = 0;
+			ent->view.N[EN_ENVIEW_N].x = 0;
+			ent->view.N[EN_ENVIEW_N].y = 1;
+			ent->view.N[EN_ENVIEW_W].x =-1;
+			ent->view.N[EN_ENVIEW_W].y = 0;
+			ent->view.N[EN_ENVIEW_S].x = 0;
+			ent->view.N[EN_ENVIEW_S].y =-1;
+			ent->view.xrel = ent->xpos;
+			ent->view.yrel = ent->ypos;
+			ent->view.xedg = (
+				ent->view.xrel +
+				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
+			);
+			ent->view.yedg = (
+				ent->view.yrel +
+				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
+			);
+			ent->view.xoff = 0;
+			ent->view.yoff = 0;
+			ent->view.width = ent->width;
+			ent->view.height = ent->height;
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			ent->xoff = EN_IGNORE_PROPERTY;
@@ -360,7 +382,35 @@ void en_init(struct game * const g)
 			ent->animno = EN_SONIC_RUN_AN;
 			ent->tickno = 0;
 			ent->xpos = camera->xpos;
-			ent->ypos = camera->ypos + ent->height;
+			ent->ypos = (
+				camera->ypos +
+				(0.5f * camera->height) +
+				(0.5f * ent->height)
+			);
+			ent->view.N[EN_ENVIEW_E].x = 1;
+			ent->view.N[EN_ENVIEW_E].y = 0;
+			ent->view.N[EN_ENVIEW_N].x = 0;
+			ent->view.N[EN_ENVIEW_N].y = 1;
+			ent->view.N[EN_ENVIEW_W].x =-1;
+			ent->view.N[EN_ENVIEW_W].y = 0;
+			ent->view.N[EN_ENVIEW_S].x = 0;
+			ent->view.N[EN_ENVIEW_S].y =-1;
+			ent->view.xrel = ent->xpos - camera->xpos;
+			ent->view.yrel = ent->ypos - camera->ypos;
+			ent->view.xedg = (
+				ent->view.xrel +
+				camera->view.xrel +
+				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
+			);
+			ent->view.yedg = (
+				ent->view.yrel +
+				camera->view.yrel +
+				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
+			);
+			ent->view.xoff = 0;
+			ent->view.yoff = 0;
+			ent->view.width = ent->width;
+			ent->view.height = ent->height;
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xoff = EN_IGNORE_PROPERTY;
@@ -380,11 +430,39 @@ void en_init(struct game * const g)
 			ent->animno = EN_PLATFORM_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
 			if (EN_PLATFORM_BETA_ID == i) {
-				ent->xpos = 0.5f * ent->width;
+				ent->xpos = camera->xpos;
 			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = 1.5f * ent->width;
+				ent->xpos = camera->xpos + 1.5f * ent->width;
 			}
-			ent->ypos = (sonic->ypos + 0.5f * sonic->height);
+			ent->ypos = (
+				sonic->ypos +
+				(0.5f * sonic->height) +
+				(0.5f * ent->height)
+			);
+			ent->view.N[EN_ENVIEW_E].x = 1;
+			ent->view.N[EN_ENVIEW_E].y = 0;
+			ent->view.N[EN_ENVIEW_N].x = 0;
+			ent->view.N[EN_ENVIEW_N].y = 1;
+			ent->view.N[EN_ENVIEW_W].x =-1;
+			ent->view.N[EN_ENVIEW_W].y = 0;
+			ent->view.N[EN_ENVIEW_S].x = 0;
+			ent->view.N[EN_ENVIEW_S].y =-1;
+			ent->view.xrel = ent->xpos - camera->xpos;
+			ent->view.yrel = ent->ypos - camera->ypos;
+			ent->view.xedg = (
+				ent->view.xrel +
+				camera->view.xrel +
+				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
+			);
+			ent->view.yedg = (
+				ent->view.yrel +
+				camera->view.yrel +
+				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
+			);
+			ent->view.xoff = 0;
+			ent->view.yoff = 0;
+			ent->view.width = ent->width;
+			ent->view.height = ent->height;
 			++count;
 		}
 	}

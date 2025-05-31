@@ -36,12 +36,10 @@ struct enview {
 	struct vector N[EN_ENVIEW_NUMFACES];
 	float xrel;
 	float yrel;
+	float xedg;
+	float yedg;
 	float xoff;
 	float yoff;
-	float xmin;
-	float ymin;
-	float xmax;
-	float ymax;
 	float width;
 	float height;
 };

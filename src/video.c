@@ -181,38 +181,59 @@ void vid_draw_gw(struct game const * const g)
 {
 	XClearWindow(g->display, g->window);
 	struct entity const * const entities = g->ents;
+	struct entity const * const camera = &entities[EN_CAMERA_ID];
 	struct entity const * const sonic = &entities[EN_SONIC_ID];
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
+
+	XSetForeground(
+			g->display,
+			g->gc,
+			g->gray.pixel
+	);
+	XFillRectangle(
+			g->display,
+			g->window,
+			g->gc,
+			camera->view.xedg,
+			camera->view.yedg,
+			camera->view.width,
+			camera->view.height
+	);
 
 	XPutImage(
 			g->display,
 			g->window,
 			g->gc,
 			beta_platform->framebuffer,
-			beta_platform->xoff,
-			beta_platform->yoff,
-			beta_platform->xvis,
-			beta_platform->yvis,
-			beta_platform->width,
-			beta_platform->height
+			beta_platform->view.xoff,
+			beta_platform->view.yoff,
+			beta_platform->view.xedg,
+			beta_platform->view.yedg,
+			beta_platform->view.width,
+			beta_platform->view.height
 		 );
 
+	/*
 	XPutImage(
 			g->display,
 			g->window,
 			g->gc,
 			zeta_platform->framebuffer,
-			zeta_platform->xoff,
-			zeta_platform->yoff,
-			zeta_platform->xvis,
-			zeta_platform->yvis,
-			zeta_platform->width,
-			zeta_platform->height
+			zeta_platform->view.xoff,
+			zeta_platform->view.yoff,
+			zeta_platform->view.xedg,
+			zeta_platform->view.yedg,
+			zeta_platform->view.width,
+			zeta_platform->view.height
 		 );
+	 */
 
 	int const animno = sonic->animno;
 	int const aframecur = sonic->animations[animno].aframecur;
+	// TODO: handle the xoff and yoff for sonic when he goes outside the screen but
+	//       for now we are going to assume that he's on screen always, we have yet
+	//       to get to that point; also you will have to modify the widht and height
 	XPutImage(
 			g->display,
 			g->window,
@@ -220,8 +241,8 @@ void vid_draw_gw(struct game const * const g)
 			sonic->framebuffer,
 			sonic->animations[animno].aframes[aframecur].xof,
 			sonic->animations[animno].aframes[aframecur].yof,
-			sonic->xpos,
-			sonic->ypos,
+			sonic->view.xedg,
+			sonic->view.yedg,
 			sonic->animations[animno].aframes[aframecur].width,
 			sonic->animations[animno].aframes[aframecur].height
 		 );

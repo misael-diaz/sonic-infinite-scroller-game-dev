@@ -11,6 +11,8 @@
 
 #define EN_ENVIEW_NUMFACES 4
 
+/* if a property is set to this that means that it has no meaning for that entity */
+
 #define EN_IGNORE_PROPERTY 0
 
 /*
