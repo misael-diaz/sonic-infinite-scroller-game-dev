@@ -300,6 +300,109 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
 }
 
+void en_set_view(
+		struct game * const g,
+		int const id
+)
+{
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity * const ent = &g->ents[id];
+	ent->view.N[EN_ENVIEW_E].x = 1;
+	ent->view.N[EN_ENVIEW_E].y = 0;
+	ent->view.N[EN_ENVIEW_N].x = 0;
+	ent->view.N[EN_ENVIEW_N].y = 1;
+	ent->view.N[EN_ENVIEW_W].x =-1;
+	ent->view.N[EN_ENVIEW_W].y = 0;
+	ent->view.N[EN_ENVIEW_S].x = 0;
+	ent->view.N[EN_ENVIEW_S].y =-1;
+	ent->view.xrel = ent->xpos - camera->xpos;
+	ent->view.yrel = ent->ypos - camera->ypos;
+
+	float const xmin = (0.5f * (-(GAME_CAMERA_VIEW_WIDTH)));
+	float const xmax = (0.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
+	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
+	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
+	ent->view.xedg = (
+			ent->view.xrel +
+			(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
+	);
+	ent->view.yedg = (
+			ent->view.yrel +
+			(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
+	);
+	if ((xmin > (ent->view.xedg + ent->width)) || (xmax < ent->view.xedg)) {
+		ent->view.xedg = 0;
+		ent->view.yedg = 0;
+		ent->view.xscr = 0;
+		ent->view.yscr = 0;
+		ent->view.xoff = 0;
+		ent->view.yoff = 0;
+		ent->view.width = 0;
+		ent->view.height = 0;
+		return;
+	}
+	if ((ymin > (ent->view.yedg + ent->height)) || (ymax < ent->view.yedg)) {
+		ent->view.xedg = 0;
+		ent->view.yedg = 0;
+		ent->view.xscr = 0;
+		ent->view.yscr = 0;
+		ent->view.xoff = 0;
+		ent->view.yoff = 0;
+		ent->view.width = 0;
+		ent->view.height = 0;
+		return;
+	}
+
+	if (
+		(xmin > (ent->view.xedg + ent->width)) ||
+		(xmax < ent->view.xedg) ||
+		(ymin > (ent->view.yedg + ent->height)) ||
+		(xmax < ent->view.yedg)
+	   ) {
+		fprintf(stderr, "%s\n", "en_set_view: ImplCameraViewBoundsError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	if (xmin > ent->view.xedg) {
+		ent->view.xoff = xmin - ent->view.xedg;
+		if (xmax > (ent->view.xedg + ent->width)) {
+			ent->view.width = ent->width - ent->view.xoff;
+		} else {
+			ent->view.width = GAME_CAMERA_VIEW_WIDTH;
+		}
+	} else {
+		ent->view.xoff = 0;
+		if (xmax > (ent->view.xedg + ent->width)) {
+			ent->view.width = ent->width;
+		} else {
+			ent->view.width = xmax - ent->view.xedg;
+		}
+	}
+
+	if (ymin > ent->view.yedg) {
+		ent->view.yoff = ymin - ent->view.yedg;
+		if (ymax > (ent->view.yedg + ent->height)) {
+			ent->view.height = ent->height - ent->view.yoff;
+		} else {
+			ent->view.height = GAME_CAMERA_VIEW_HEIGHT;
+		}
+	} else {
+		ent->view.yoff = 0;
+		if (ymax > (ent->view.yedg + ent->height)) {
+			ent->view.height = ent->height;
+		} else {
+			ent->view.height = ymax - ent->view.yedg;
+		}
+	}
+
+	ent->view.xedg = en_clamp(ent->view.xedg, xmin, xmax);
+	ent->view.yedg = en_clamp(ent->view.yedg, ymin, ymax);
+	ent->view.xscr = ent->view.xedg + ent->view.xref;
+	ent->view.yscr = ent->view.yedg + ent->view.yref;
+}
+
 void en_init(struct game * const g)
 {
 	int count = 0;
@@ -311,10 +414,10 @@ void en_init(struct game * const g)
 	en_tag_entity(g);
 	en_load_graphic(g);
 	en_init_aframes(g);
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
-	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
@@ -349,8 +452,10 @@ void en_init(struct game * const g)
 			ent->view.N[EN_ENVIEW_W].y = 0;
 			ent->view.N[EN_ENVIEW_S].x = 0;
 			ent->view.N[EN_ENVIEW_S].y =-1;
-			ent->view.xrel = ent->xpos;
-			ent->view.yrel = ent->ypos;
+			ent->view.xref = (0.5f * width_game_window);
+			ent->view.yref = (0.5f * height_game_window);
+			ent->view.xrel = 0;
+			ent->view.yrel = 0;
 			ent->view.xedg = (
 				ent->view.xrel +
 				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
@@ -359,6 +464,8 @@ void en_init(struct game * const g)
 				ent->view.yrel +
 				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
 			);
+			ent->view.xscr = ent->view.xedg + ent->view.xref;
+			ent->view.yscr = ent->view.yedg + ent->view.yref;
 			ent->view.xoff = 0;
 			ent->view.yoff = 0;
 			ent->view.width = ent->width;
@@ -381,36 +488,15 @@ void en_init(struct game * const g)
 			ent->frameno = EN_SONIC_DEFAULT_AF;
 			ent->animno = EN_SONIC_RUN_AN;
 			ent->tickno = 0;
+			ent->view.xref = (0.5f * width_game_window);
+			ent->view.yref = (0.5f * height_game_window);
 			ent->xpos = camera->xpos;
 			ent->ypos = (
 				camera->ypos +
 				(0.5f * camera->height) +
 				(0.5f * ent->height)
 			);
-			ent->view.N[EN_ENVIEW_E].x = 1;
-			ent->view.N[EN_ENVIEW_E].y = 0;
-			ent->view.N[EN_ENVIEW_N].x = 0;
-			ent->view.N[EN_ENVIEW_N].y = 1;
-			ent->view.N[EN_ENVIEW_W].x =-1;
-			ent->view.N[EN_ENVIEW_W].y = 0;
-			ent->view.N[EN_ENVIEW_S].x = 0;
-			ent->view.N[EN_ENVIEW_S].y =-1;
-			ent->view.xrel = ent->xpos - camera->xpos;
-			ent->view.yrel = ent->ypos - camera->ypos;
-			ent->view.xedg = (
-				ent->view.xrel +
-				camera->view.xrel +
-				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
-			);
-			ent->view.yedg = (
-				ent->view.yrel +
-				camera->view.yrel +
-				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
-			);
-			ent->view.xoff = 0;
-			ent->view.yoff = 0;
-			ent->view.width = ent->width;
-			ent->view.height = ent->height;
+			en_set_view(g, ent->id);
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			ent->xoff = EN_IGNORE_PROPERTY;
@@ -429,40 +515,25 @@ void en_init(struct game * const g)
 			ent->frameno = EN_PLATFORM_DEFAULT_AF;
 			ent->animno = EN_PLATFORM_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
+			ent->view.xref = (0.5f * width_game_window);
+			ent->view.yref = (0.5f * height_game_window);
 			if (EN_PLATFORM_BETA_ID == i) {
 				ent->xpos = camera->xpos;
+				ent->ypos = (
+					sonic->ypos +
+					(0.5f * sonic->height) +
+					(0.5f * ent->height)
+				);
 			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = camera->xpos + 1.5f * ent->width;
+				ent->xpos = camera->xpos;
+				ent->ypos = (
+					camera->ypos -
+					(0.5f * camera->height) -
+					(1.0f * sonic->height) -
+					(0.5f * ent->height)
+				);
 			}
-			ent->ypos = (
-				sonic->ypos +
-				(0.5f * sonic->height) +
-				(0.5f * ent->height)
-			);
-			ent->view.N[EN_ENVIEW_E].x = 1;
-			ent->view.N[EN_ENVIEW_E].y = 0;
-			ent->view.N[EN_ENVIEW_N].x = 0;
-			ent->view.N[EN_ENVIEW_N].y = 1;
-			ent->view.N[EN_ENVIEW_W].x =-1;
-			ent->view.N[EN_ENVIEW_W].y = 0;
-			ent->view.N[EN_ENVIEW_S].x = 0;
-			ent->view.N[EN_ENVIEW_S].y =-1;
-			ent->view.xrel = ent->xpos - camera->xpos;
-			ent->view.yrel = ent->ypos - camera->ypos;
-			ent->view.xedg = (
-				ent->view.xrel +
-				camera->view.xrel +
-				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
-			);
-			ent->view.yedg = (
-				ent->view.yrel +
-				camera->view.yrel +
-				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
-			);
-			ent->view.xoff = 0;
-			ent->view.yoff = 0;
-			ent->view.width = ent->width;
-			ent->view.height = ent->height;
+			en_set_view(g, ent->id);
 			++count;
 		}
 	}

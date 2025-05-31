@@ -26,18 +26,34 @@ struct vector {
 struct enview:
 Think of an `enview struct' to be a rectangle that encloses an entity, the enview has
 four faces and a unit normal vector for each face (just like rectangles).
+
 We pass the coordinates and dimensions of the `enview struct' to Xlib drawing functions,
 and so their meanings are tied to the parameter list of Xlib drawing functions.
-The coordinates are relative to the camera placement.
+
+The coordinates `xref' and `yref' define the center of the screen in pixels (all coords
+and dimensions are in pixels) and once set we don't change them because they are fixed.
+The coordinates `xrel', `yrel' and `xedg', `yedg' are defined with relative to the camera,
+where `xrel', `yrel' define the relative-position vector that points towards the center
+of the entity, and `xedg', `yedg' define the relative-position vector that points to the
+left-top edge (from our viewing perspective) of the entity. The coordinates `xscr' and
+`yscr' also define the position of the left-top edge of the entity but with respect to
+the screen reference frame (not the camera). The values for `xoff', `yoff', `width', and
+`height' determine the visible region of the entity (what's not visible is simply beyond
+the viewing range of the camera); these are the parameters that we pass to Xlib functions
+for drawing entities.
 
 */
 
 struct enview {
 	struct vector N[EN_ENVIEW_NUMFACES];
+	float xref;
+	float yref;
 	float xrel;
 	float yrel;
 	float xedg;
 	float yedg;
+	float xscr;
+	float yscr;
 	float xoff;
 	float yoff;
 	float width;

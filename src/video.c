@@ -167,8 +167,8 @@ void vid_info_gw(struct game const * const g)
 void vid_check_gw(struct game * const g)
 {
 	if (
-		(GAME_CAMERA_VIEW_LEN > g->screen_width) ||
-		(GAME_CAMERA_VIEW_LEN > g->screen_height)
+		(GAME_CAMERA_VIEW_WIDTH > g->screen_width) ||
+		(GAME_CAMERA_VIEW_HEIGHT > g->screen_height)
 	   ) {
 
 		fprintf(stderr, "%s\n", "vid_check_gw: GameCameraViewRangeError");
@@ -195,8 +195,8 @@ void vid_draw_gw(struct game const * const g)
 			g->display,
 			g->window,
 			g->gc,
-			camera->view.xedg,
-			camera->view.yedg,
+			camera->view.xscr,
+			camera->view.yscr,
 			camera->view.width,
 			camera->view.height
 	);
@@ -208,13 +208,12 @@ void vid_draw_gw(struct game const * const g)
 			beta_platform->framebuffer,
 			beta_platform->view.xoff,
 			beta_platform->view.yoff,
-			beta_platform->view.xedg,
-			beta_platform->view.yedg,
+			beta_platform->view.xscr,
+			beta_platform->view.yscr,
 			beta_platform->view.width,
 			beta_platform->view.height
 		 );
 
-	/*
 	XPutImage(
 			g->display,
 			g->window,
@@ -222,12 +221,11 @@ void vid_draw_gw(struct game const * const g)
 			zeta_platform->framebuffer,
 			zeta_platform->view.xoff,
 			zeta_platform->view.yoff,
-			zeta_platform->view.xedg,
-			zeta_platform->view.yedg,
+			zeta_platform->view.xscr,
+			zeta_platform->view.yscr,
 			zeta_platform->view.width,
 			zeta_platform->view.height
 		 );
-	 */
 
 	int const animno = sonic->animno;
 	int const aframecur = sonic->animations[animno].aframecur;
@@ -241,8 +239,8 @@ void vid_draw_gw(struct game const * const g)
 			sonic->framebuffer,
 			sonic->animations[animno].aframes[aframecur].xof,
 			sonic->animations[animno].aframes[aframecur].yof,
-			sonic->view.xedg,
-			sonic->view.yedg,
+			sonic->view.xscr,
+			sonic->view.yscr,
 			sonic->animations[animno].aframes[aframecur].width,
 			sonic->animations[animno].aframes[aframecur].height
 		 );
