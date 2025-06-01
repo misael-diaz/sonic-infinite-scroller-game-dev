@@ -11,7 +11,10 @@ building the game.
 My drive is not to build a game because I like games but to build a game because I
 want to get the experience of writing code in an area outside of my field of expertise.
 And also because there are no games that interest me right now, so instead of investing
-some of my free time on playing games I rather invest that time in building a game.
+some of my free time on playing games I rather invest that time in building a game
+and learn something useful. Developing a game basically from the ground up without
+relying on (game-dev) frameworks is challenging and that is something that I wanted to
+do for a long time to test myself.
 
 ## Credits
 
