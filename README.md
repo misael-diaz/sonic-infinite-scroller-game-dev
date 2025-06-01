@@ -19,7 +19,7 @@ do for a long time to test myself.
 ## Credits
 
 This fan made game would not have been possible without the Sonic Team efforts and Sega.
-Therefore, I want to express my gratitude tothe Sonic Team and Sega for creating such
+Therefore, I want to express my gratitude to the Sonic Team and Sega for creating such
 amazing games that have left a long lasting impression on so many gamers. For me it is
 a wonderful experience to try to develop a game that aims to resemble (if at least in
 spirit) the original games that they made for Sega Genesis.
