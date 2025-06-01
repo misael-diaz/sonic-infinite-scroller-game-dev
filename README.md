@@ -13,6 +13,14 @@ want to get the experience of writing code in an area outside of my field of exp
 And also because there are no games that interest me right now, so instead of investing
 some of my free time on playing games I rather invest that time in building a game.
 
+## Credits
+
+This fan made game would not have been possible without the Sonic Team efforts and Sega.
+Therefore, I want to express my gratitude tothe Sonic Team and Sega for creating such
+amazing games that have left a long lasting impression on so many gamers. For me it is
+a wonderful experience to try to develop a game that aims to resemble (if at least in
+spirit) the original games that they made for Sega Genesis.
+
 ## References
 
 I am using the [Xlib Programming Manual](https://tronche.com/gui/x/xlib/) as the main
