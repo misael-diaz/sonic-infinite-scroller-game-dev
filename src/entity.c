@@ -560,149 +560,175 @@ handle_err:
 	}
 }
 
-void en_update(struct game * const g)
+static void en_update_camera(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
+	struct entity * const entities = g->ents;
+	struct entity * const ent = &entities[EN_CAMERA_ID];
+	struct entity * const sonic = &entities[EN_SONIC_ID];
+	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
+	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
+	float const beacon_ypos = (
+			sonic->ypos -
+			(0.5f * sonic->height) -
+			(ent->height)
+	);
+	float const base = (
+			(1.0f * sonic->height)
+	);
+	float const dist = ((ent->ypos - beacon_ypos) / base);
+	float const d2 = (dist * dist);
+	float const d = sqrtf(d2);
+	float const r = (ent->ypos - sonic->ypos);
+	float const r2 = (r * r);
+	float const overlap = 0.5f * (ent->height + sonic->height);
+	float const overlap2 = overlap * overlap;
+	float yvel = 0;
+	if (overlap2 < r2) {
+		if (0 > sonic->view.yrel) {
+			yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+		} else {
+			yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+		}
+	}
+	if (
+		((!GAME_PLATFORM_CONTACT) == sonic->contact) &&
+		((1.4f * GAME_FRAMERATE_HZ) <= sonic->tickno)
+	   ) {
+		ent->ypos = MAX(beta_platform->ypos, zeta_platform->ypos);
+		ent->ypos -= (0.5f * beta_platform->height);
+		ent->ypos -= (3.0f * sonic->height);
+		ent->ypos -= (ent->height);
+	} else {
+		ent->yvel = yvel;
+	}
+	ent->xpos += (time_step * ent->xvel);
+	ent->ypos += (time_step * ent->yvel);
+}
+
+static void en_update_sonic(struct game * const g)
+{
+	float const time_step = GAME_PERIOD_SEC;
+	int platform_id = EN_PLATFORM_BETA_ID;
+	struct entity * const entities = g->ents;
+	struct entity * const ent = &entities[EN_SONIC_ID];
+	struct entity const * platform = &entities[platform_id];
+	if (
+		((platform->xpos - 0.5f * platform->width) > ent->xpos) ||
+		((platform->xpos + 0.5f * platform->width) < ent->xpos)
+	   ) {
+		platform_id = EN_PLATFORM_ZETA_ID;
+		platform = &entities[platform_id];
+	}
+	if (GAME_PLATFORM_CONTACT == ent->contact) {
+		int animno = ent->animno;
+		float const contact = (
+				platform->ypos - 0.5f * platform->height
+		);
+		if (contact != (ent->ypos + 0.5f * ent->height)) {
+			ent->contact = !GAME_PLATFORM_CONTACT;
+			ent->falling = GAME_SONIC_FALLING;
+			ent->yold = ent->ypos;
+			animno = EN_SONIC_SPIN_AN;
+			ent->animno = animno;
+		}
+		struct animation const * const anims = ent->animations;
+		struct animation const * const an = &anims[animno];
+		int const rem = (
+				g->frameno % an->tickcount_aframe_sequence
+		);
+		int const aframecur = (rem / an->tickcount_aframe);
+		ent->animations[animno].aframecur = aframecur;
+		ent->frameno = 0;
+		ent->tickno = 0;
+		ent->yvel = 0;
+	} else {
+		int animno = EN_SONIC_SPIN_AN;
+		if (!ent->tickno) {
+			ent->frameno = g->frameno;
+			if (GAME_SONIC_FALLING == ent->falling) {
+				ent->yvel = 0;
+			} else {
+				ent->yvel = -((float)GAME_SONIC_JUMP_VEL);
+			}
+			ent->yold = ent->ypos;
+			ent->tickno++;
+		} else {
+			float const game_period = GAME_PERIOD_SEC;
+			float const time = (
+					(g->frameno - ent->frameno) * game_period
+			);
+			float const t = time;
+			float const g = GAME_GRAVITY_ACCELERATION;
+			float const floor = (
+					platform->ypos -
+					(0.5f * platform->height) -
+					(0.5f * ent->height)
+			);
+			ent->ypos = (
+					ent->yold +
+					(ent->yvel * t) +
+					(0.5f * g * t * t)
+			);
+			ent->ypos = en_clamp(
+					ent->ypos,
+					ent->ymin,
+					floor
+			);
+			if (floor == ent->ypos) {
+				animno = EN_SONIC_RUN_AN;
+				ent->falling = !GAME_SONIC_FALLING;
+				ent->contact = GAME_PLATFORM_CONTACT;
+				ent->frameno = 0;
+				ent->tickno = 0;
+			} else {
+				ent->tickno++;
+			}
+		}
+		struct animation const * const anims = ent->animations;
+		struct animation const * const an = &anims[animno];
+		int const rem = (
+				g->frameno % an->tickcount_aframe_sequence
+		);
+		int const aframecur = (rem / an->tickcount_aframe);
+		ent->animations[animno].aframecur = aframecur;
+		ent->animno = animno;
+	}
+	ent->xpos += (time_step * ent->xvel);
+	en_set_view(g, ent->id);
+}
+
+static void en_update_platform(
+		struct game * const g,
+		int const id_platform
+)
+{
+	struct entity * const entities = g->ents;
+	struct entity const * const camera = &entities[EN_CAMERA_ID];
+	struct entity * const ent = &entities[id_platform];
+	float const xmin = (
+		camera->xpos +
+		0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
+	);
+	if (xmin >= (ent->xpos + (0.5f * ent->width))) {
+		ent->xpos += (2.0f * ent->width);
+		ent->ypos += (128.0f * ent->height);
+	}
+	en_set_view(g, ent->id);
+}
+
+void en_update(struct game * const g)
+{
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		struct entity * const camera = &entities[EN_CAMERA_ID];
-		struct entity * const sonic = &entities[EN_SONIC_ID];
-		struct entity const * const beta = &entities[EN_PLATFORM_BETA_ID];
-		struct entity const * const zeta = &entities[EN_PLATFORM_ZETA_ID];
 		if (EN_CAMERA_TAG == ent->tag) {
-			float const beacon_ypos = (
-				sonic->ypos -
-				(0.5f * sonic->height) -
-				(ent->height)
-			);
-			float const base = (
-				(1.0f * sonic->height)
-			);
-			float const dist = ((ent->ypos - beacon_ypos) / base);
-			float const d2 = (dist * dist);
-			float const d = sqrtf(d2);
-			float const r = (ent->ypos - sonic->ypos);
-			float const r2 = (r * r);
-			float const overlap = 0.5f * (ent->height + sonic->height);
-			float const overlap2 = overlap * overlap;
-			float yvel = 0;
-			if (overlap2 < r2) {
-				if (0 > sonic->view.yrel) {
-					yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
-				} else {
-					yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
-				}
-			}
-			if (
-				(!GAME_PLATFORM_CONTACT == sonic->contact) &&
-				((1.4f * GAME_FRAMERATE_HZ) <= sonic->tickno)
-			   ) {
-				ent->ypos = MAX(beta->ypos, zeta->ypos);
-				ent->ypos -= (0.5f * beta->height);
-				ent->ypos -= (3.0f * sonic->height);
-				ent->ypos -= (ent->height);
-			} else {
-				ent->yvel = yvel;
-			}
-			ent->xpos += (time_step * ent->xvel);
-			ent->ypos += (time_step * ent->yvel);
+			en_update_camera(g);
 		} else if (EN_SONIC_TAG == ent->tag) {
-			int platform_id = EN_PLATFORM_BETA_ID;
-			struct entity const * platform = &entities[platform_id];
-			if (
-				((platform->xpos - 0.5f * platform->width) > ent->xpos) ||
-				((platform->xpos + 0.5f * platform->width) < ent->xpos)
-			   ) {
-				platform_id = EN_PLATFORM_ZETA_ID;
-				platform = &entities[platform_id];
-			}
-			if (GAME_PLATFORM_CONTACT == ent->contact) {
-				int animno = ent->animno;
-				float const contact = (
-					platform->ypos - 0.5f * platform->height
-				);
-				if (contact != (ent->ypos + 0.5f * ent->height)) {
-					ent->contact = !GAME_PLATFORM_CONTACT;
-					ent->falling = GAME_SONIC_FALLING;
-					ent->yold = ent->ypos;
-					animno = EN_SONIC_SPIN_AN;
-					ent->animno = animno;
-				}
-				struct animation const * const anims = ent->animations;
-				struct animation const * const an = &anims[animno];
-				int const rem = (
-					g->frameno % an->tickcount_aframe_sequence
-				);
-				int const aframecur = (rem / an->tickcount_aframe);
-				ent->animations[animno].aframecur = aframecur;
-				ent->frameno = 0;
-				ent->tickno = 0;
-				ent->yvel = 0;
-			} else {
-				int animno = EN_SONIC_SPIN_AN;
-				if (!ent->tickno) {
-					ent->frameno = g->frameno;
-					if (GAME_SONIC_FALLING == ent->falling) {
-						ent->yvel = 0;
-					} else {
-						ent->yvel = -((float)GAME_SONIC_JUMP_VEL);
-					}
-					ent->yold = ent->ypos;
-					ent->tickno++;
-				} else {
-					float const game_period = GAME_PERIOD_SEC;
-					float const time = (
-						(g->frameno - ent->frameno) * game_period
-					);
-					float const t = time;
-					float const g = GAME_GRAVITY_ACCELERATION;
-					float const floor = (
-						platform->ypos -
-						(0.5f * platform->height) -
-						(0.5f * ent->height)
-					);
-					ent->ypos = (
-						ent->yold +
-						(ent->yvel * t) +
-						(0.5f * g * t * t)
-					);
-					ent->ypos = en_clamp(
-						ent->ypos,
-						ent->ymin,
-						floor
-					);
-					if (floor == ent->ypos) {
-						animno = EN_SONIC_RUN_AN;
-						ent->falling = !GAME_SONIC_FALLING;
-						ent->contact = GAME_PLATFORM_CONTACT;
-						ent->frameno = 0;
-						ent->tickno = 0;
-					} else {
-						ent->tickno++;
-					}
-				}
-				struct animation const * const anims = ent->animations;
-				struct animation const * const an = &anims[animno];
-				int const rem = (
-					g->frameno % an->tickcount_aframe_sequence
-				);
-				int const aframecur = (rem / an->tickcount_aframe);
-				ent->animations[animno].aframecur = aframecur;
-				ent->animno = animno;
-			}
-			ent->xpos += (time_step * ent->xvel);
-			en_set_view(g, ent->id);
+			en_update_sonic(g);
 		} else if (EN_PLATFORM_TAG == ent->tag) {
-			float const xmin = (
-					camera->xpos +
-					0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
-			);
-			if (xmin >= (ent->xpos + (0.5f * ent->width))) {
-				ent->xpos += (2.0f * ent->width);
-				ent->ypos += (128.0f * ent->height);
-			}
-			en_set_view(g, ent->id);
+			int const id_platform = i;
+			en_update_platform(g, id_platform);
 		}
 	}
 }
