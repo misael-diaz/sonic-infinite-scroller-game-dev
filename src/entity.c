@@ -578,30 +578,23 @@ static void en_update_camera(struct game * const g)
 	);
 	float const dist = ((ent->ypos - beacon_ypos) / base);
 	float const d2 = (dist * dist);
-	float const d = sqrtf(d2);
 	float const r = (ent->ypos - sonic->ypos);
 	float const r2 = (r * r);
 	float const overlap = 0.5f * (ent->height + sonic->height);
 	float const overlap2 = overlap * overlap;
 	float yvel = 0;
-	if (overlap2 < r2) {
+	if (((1.5f * overlap2) >= r2) && (overlap2 < r2)) {
 		if (0 > sonic->view.yrel) {
-			yvel = -((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+			yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
 		} else {
-			yvel = ((d2 + 0.25 * d) * GAME_CAMERA_YVEL);
+			yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
 		}
-	}
-	if (
-		((!GAME_PLATFORM_CONTACT) == sonic->contact) &&
-		((1.4f * GAME_FRAMERATE_HZ) <= sonic->tickno)
-	   ) {
-		ent->ypos = MAX(beta_platform->ypos, zeta_platform->ypos);
-		ent->ypos -= (0.5f * beta_platform->height);
-		ent->ypos -= (3.0f * sonic->height);
-		ent->ypos -= (ent->height);
+	} else if (((1.5f * overlap2) < r2)) {
+		yvel = 1.005f * sonic->yvel;
 	} else {
-		ent->yvel = yvel;
+		yvel = 0;
 	}
+	ent->yvel = yvel;
 	ent->xpos += (time_step * ent->xvel);
 	ent->ypos += (time_step * ent->yvel);
 }

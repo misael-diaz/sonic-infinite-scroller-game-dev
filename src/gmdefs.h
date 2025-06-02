@@ -30,10 +30,11 @@
 #define GAME_SONIC_YVEL 0
 #define GAME_CAMERA_XVEL GAME_SONIC_XVEL
 #define GAME_CAMERA_YVEL GAME_SONIC_YVEL
+#define GAME_CAMERA_CATCHUP_YVEL 200
 #define GAME_PLATFORM_XVEL 0
 #define GAME_PLATFORM_YVEL 0
 
-#define GAME_SONIC_JUMP_VEL 2000
+#define GAME_SONIC_JUMP_VEL 2300
 
 /* if set sonic is in contact with a platform (has no meaning for other entities) */
 
