@@ -70,12 +70,12 @@ struct entity {
 	XImage *framebuffer;
 	float xpos;
 	float ypos;
-	float xoff;
-	float yoff;
 	float xold;
 	float yold;
 	float xvel;
 	float yvel;
+	float xv00;
+	float yv00;
 	float xmin;
 	float ymin;
 	float xmax;
