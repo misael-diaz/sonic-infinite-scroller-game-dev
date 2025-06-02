@@ -78,7 +78,7 @@ static void en_tag_entity(struct game * const g)
 		}
 	}
 	if (EN_MAXNUMOF_ENT != count) {
-		fprintf(stderr, "%s\n", "en_load_graphic: UXUnhandledEntitiesError");
+		fprintf(stderr, "%s\n", "en_tag_entity: UXUnhandledEntitiesError");
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
 	}
