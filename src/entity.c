@@ -243,10 +243,10 @@ static void en_init_platform_aframes(
 			animations[animno].aframes[aframeno].width = width_platform;
 			animations[animno].aframes[aframeno].height = height_platform;
 		}
-		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
-		animations[animno].tickcount_aframe = 1;
+		animations[animno].tickcount_aframe_sequence = EN_PLATFORM_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = EN_PLATFORM_AFRAME_COUNT;
 		animations[animno].name = EN_PLATFORM_FRAME_NAME;
-		animations[animno].count = 1;
+		animations[animno].count = EN_PLATFORM_AFRAME_COUNT;
 		animations[animno].id = animno;
 	}
 }
