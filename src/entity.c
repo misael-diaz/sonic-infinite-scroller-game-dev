@@ -75,6 +75,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_ZETA_ID;
 			++count;
+		} else if (EN_ENEMY_MOTOBUG_ID == i) {
+			ent->tag = EN_ENEMY_TAG;
+			ent->id = EN_ENEMY_MOTOBUG_ID;
+			++count;
 		}
 	}
 	if (EN_MAXNUMOF_ENT != count) {
@@ -109,6 +113,15 @@ static void en_load_graphic(struct game * const g)
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			graphicp->name = GAME_PLATFORM_GRAPHIC_FP;
+			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
+				fprintf(stderr,
+					"%s\n",
+					"en_load_graphic: UXLoadGraphicError");
+				goto handle_err;
+			}
+			++count;
+		} else if (EN_ENEMY_TAG == ent->tag) {
+			graphicp->name = GAME_ENEMY_MOTOBUG_GRAPHIC_FP;
 			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
 				fprintf(stderr,
 					"%s\n",
@@ -251,12 +264,68 @@ static void en_init_platform_aframes(
 	}
 }
 
+static void en_init_enemy_motobug_aframes(
+		struct game * const g,
+		int const id_enemy
+)
+{
+	struct entity * const entities = g->ents;
+	struct entity * const enemy = &entities[id_enemy];
+	struct animation * const animations = enemy->animations;
+	int const numaframes = EN_ENEMY_MOTOBUG_AFRAME_COUNT;
+	int const width = (enemy->graphic.info.width / numaframes);
+	int const height = enemy->graphic.info.height;
+	memset(enemy->animations, 0, sizeof(enemy->animations));
+	for (int i = 0; i != EN_ENEMY_MOTOBUG_ANIMATIONS_COUNT; ++i) {
+		int const animation_id = i;
+		for (int j = 0; j != EN_ENEMY_MOTOBUG_AFRAME_COUNT; ++j) {
+			int const frame_id = j;
+			int const id = frame_id;
+			int const xof = frame_id * width;
+			int const yof = animation_id * height;
+			animations[animation_id].aframes[frame_id].id = id;
+			animations[animation_id].aframes[frame_id].xof = xof;
+			animations[animation_id].aframes[frame_id].yof = yof;
+			animations[animation_id].aframes[frame_id].width = width;
+			animations[animation_id].aframes[frame_id].height = height;
+		}
+		if (EN_ENEMY_MOTOBUG_RUN_AN == animation_id) {
+			float const duration = (
+				GAME_ENEMY_MOTOBUG_RUN_ANIMATION_DURATION *
+				GAME_FRAMERATE_HZ
+			);
+			int const iduration = duration;
+			int const icount = (
+				(iduration / EN_ENEMY_MOTOBUG_AFRAME_COUNT) +
+				(iduration % EN_ENEMY_MOTOBUG_AFRAME_COUNT)
+			);
+			int const tickcount = (icount)? icount : 1;
+			int const tickcount_aframe = tickcount;
+			int const tickcount_aframe_sequence = (
+				tickcount_aframe * EN_ENEMY_MOTOBUG_AFRAME_COUNT
+			);
+			int const tas = tickcount_aframe_sequence;
+			animations[animation_id].name = EN_ENEMY_MOTOBUG_RUN_FRAME_NAME;
+			animations[animation_id].tickcount_aframe = tickcount_aframe;
+			animations[animation_id].tickcount_aframe_sequence = tas;
+		} else {
+			fprintf(stderr, "%s\n", "UXUnhandledAnimationError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+		animations[animation_id].count = EN_ENEMY_MOTOBUG_AFRAME_COUNT;
+		animations[animation_id].id = animation_id;
+	}
+}
+
 static void en_init_aframes(struct game * const g)
 {
 	en_init_camera_aframes(g);
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ID);
 }
 
 static void en_init_entity_framebuffer(
@@ -300,6 +369,7 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ID);
 }
 
 void en_set_view(
@@ -409,6 +479,12 @@ void en_set_view(
 	ent->view.yedg = en_clamp(ent->view.yedg, ymin, ymax);
 	ent->view.xscr = ent->view.xedg + ent->view.xref;
 	ent->view.yscr = ent->view.yedg + ent->view.yref;
+	if (EN_ENEMY_TAG == ent->tag) {
+		int const animno = ent->animno;
+		int const aframecur = ent->animations[animno].aframecur;
+		ent->view.xoff += ent->animations[animno].aframes[aframecur].xof;
+		ent->view.yoff += ent->animations[animno].aframes[aframecur].yof;
+	}
 }
 
 void en_init(struct game * const g)
@@ -426,6 +502,7 @@ void en_init(struct game * const g)
 	float const height_game_window = g->screen_height;
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
@@ -541,6 +618,35 @@ void en_init(struct game * const g)
 				(0.5f * sonic->height) +
 				(0.5f * ent->height)
 			);
+			en_set_view(g, ent->id);
+			++count;
+		} else if (EN_ENEMY_TAG == ent->tag) {
+			ent->xold = EN_IGNORE_PROPERTY;
+			ent->xvel = GAME_ENEMY_MOTOBUG_XVEL;
+			ent->yvel = GAME_ENEMY_MOTOBUG_YVEL;
+			ent->xv00 = GAME_ENEMY_MOTOBUG_XVEL;
+			ent->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
+			ent->xmin = EN_IGNORE_PROPERTY;
+			ent->xmax = EN_IGNORE_PROPERTY;
+			ent->ymax = EN_IGNORE_PROPERTY;
+			ent->width = ent->animations[0].aframes[0].width;
+			ent->height = ent->animations[0].aframes[0].height;
+			ent->ymin = 0.5f * ent->height;
+			ent->visible = EN_IGNORE_PROPERTY;
+			ent->falling = EN_IGNORE_PROPERTY;
+			ent->contact = GAME_PLATFORM_CONTACT;
+			ent->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
+			ent->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
+			ent->tickno = EN_IGNORE_PROPERTY;
+			ent->view.xref = (0.5f * width_game_window);
+			ent->view.yref = (0.5f * height_game_window);
+			ent->xpos = beta_platform->xpos + 0.5f * beta_platform->width;
+			ent->ypos = (
+					beta_platform->ypos -
+					(0.5f * beta_platform->height) -
+					(0.5f * ent->height)
+			);
+			ent->yold = ent->ypos;
 			en_set_view(g, ent->id);
 			++count;
 		}
@@ -716,6 +822,16 @@ static void en_update_platform(
 	en_set_view(g, ent->id);
 }
 
+static void en_update_enemy(
+		struct game * const g,
+		int const id_enemy
+)
+{
+	struct entity * const ent = &g->ents[id_enemy];
+	en_update_animation(g, ent->id, EN_ENEMY_MOTOBUG_DEFAULT_AN);
+	en_set_view(g, ent->id);
+}
+
 void en_update(struct game * const g)
 {
 	for (int i = 0; i != g->entno; ++i) {
@@ -728,6 +844,9 @@ void en_update(struct game * const g)
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			int const id_platform = i;
 			en_update_platform(g, id_platform);
+		} else if (EN_ENEMY_TAG == ent->tag) {
+			int const id_enemy = i;
+			en_update_enemy(g, id_enemy);
 		}
 	}
 }
