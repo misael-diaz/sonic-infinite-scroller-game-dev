@@ -560,6 +560,21 @@ handle_err:
 	}
 }
 
+static void en_update_animation(
+		struct game * const g,
+		int const id_entity,
+		int const animno
+)
+{
+	struct entity * const ent = &g->ents[id_entity];
+	struct animation const * const anims = ent->animations;
+	struct animation const * const an = &anims[animno];
+	int const rem = g->frameno % an->tickcount_aframe_sequence;
+	int const aframecur = (rem / an->tickcount_aframe);
+	ent->animations[animno].aframecur = aframecur;
+	ent->animno = animno;
+}
+
 static void en_update_camera(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
@@ -613,8 +628,8 @@ static void en_update_sonic(struct game * const g)
 		platform_id = EN_PLATFORM_ZETA_ID;
 		platform = &entities[platform_id];
 	}
+	int animno = ent->animno;
 	if (GAME_PLATFORM_CONTACT == ent->contact) {
-		int animno = ent->animno;
 		float const contact = (
 				platform->ypos - 0.5f * platform->height
 		);
@@ -626,19 +641,12 @@ static void en_update_sonic(struct game * const g)
 			animno = EN_SONIC_SPIN_AN;
 			ent->animno = animno;
 		}
-		struct animation const * const anims = ent->animations;
-		struct animation const * const an = &anims[animno];
-		int const rem = (
-				g->frameno % an->tickcount_aframe_sequence
-		);
-		int const aframecur = (rem / an->tickcount_aframe);
-		ent->animations[animno].aframecur = aframecur;
 		ent->frameno = 0;
 		ent->tickno = 0;
 		ent->yv00 = 0;
 		ent->yvel = 0;
 	} else {
-		int animno = EN_SONIC_SPIN_AN;
+		animno = EN_SONIC_SPIN_AN;
 		if (!ent->tickno) {
 			ent->frameno = g->frameno;
 			if (GAME_SONIC_FALLING == ent->falling) {
@@ -683,16 +691,9 @@ static void en_update_sonic(struct game * const g)
 				ent->tickno++;
 			}
 		}
-		struct animation const * const anims = ent->animations;
-		struct animation const * const an = &anims[animno];
-		int const rem = (
-				g->frameno % an->tickcount_aframe_sequence
-		);
-		int const aframecur = (rem / an->tickcount_aframe);
-		ent->animations[animno].aframecur = aframecur;
-		ent->animno = animno;
 	}
 	ent->xpos += (time_step * ent->xvel);
+	en_update_animation(g, ent->id, animno);
 	en_set_view(g, ent->id);
 }
 
