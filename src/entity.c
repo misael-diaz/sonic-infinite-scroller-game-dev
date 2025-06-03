@@ -274,7 +274,7 @@ static void en_init_enemy_motobug_aframes(
 	struct animation * const animations = enemy->animations;
 	int const numaframes = EN_ENEMY_MOTOBUG_AFRAME_COUNT;
 	int const width = (enemy->graphic.info.width / numaframes);
-	int const height = enemy->graphic.info.height;
+	int const height = (enemy->graphic.info.height >> 1);
 	memset(enemy->animations, 0, sizeof(enemy->animations));
 	for (int i = 0; i != EN_ENEMY_MOTOBUG_ANIMATIONS_COUNT; ++i) {
 		int const animation_id = i;
@@ -306,6 +306,27 @@ static void en_init_enemy_motobug_aframes(
 			);
 			int const tas = tickcount_aframe_sequence;
 			animations[animation_id].name = EN_ENEMY_MOTOBUG_RUN_FRAME_NAME;
+			animations[animation_id].tickcount_aframe = tickcount_aframe;
+			animations[animation_id].tickcount_aframe_sequence = tas;
+		} else if (EN_ENEMY_MOTOBUG_EXPLODE_AN == animation_id) {
+			float const duration = (
+				GAME_ENEMY_MOTOBUG_EXPLODE_ANIMATION_DURATION *
+				GAME_FRAMERATE_HZ
+			);
+			int const iduration = duration;
+			int const icount = (
+				(iduration / EN_ENEMY_MOTOBUG_AFRAME_COUNT) +
+				(iduration % EN_ENEMY_MOTOBUG_AFRAME_COUNT)
+			);
+			int const tickcount = (icount)? icount : 1;
+			int const tickcount_aframe = tickcount;
+			int const tickcount_aframe_sequence = (
+				tickcount_aframe * EN_ENEMY_MOTOBUG_AFRAME_COUNT
+			);
+			int const tas = tickcount_aframe_sequence;
+			animations[animation_id].name = (
+				EN_ENEMY_MOTOBUG_EXPLODE_FRAME_NAME
+			);
 			animations[animation_id].tickcount_aframe = tickcount_aframe;
 			animations[animation_id].tickcount_aframe_sequence = tas;
 		} else {
@@ -525,9 +546,11 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
 			ent->visible = !GAME_CAMERA_VISIBLE;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
+			ent->explode = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_CAMERA_DEFAULT_AF;
 			ent->animno = EN_CAMERA_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
@@ -569,10 +592,12 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
 			ent->ymin = 0.5f * ent->height;
 			ent->visible = EN_IGNORE_PROPERTY;
 			ent->falling = !GAME_SONIC_FALLING;
 			ent->contact = GAME_PLATFORM_CONTACT;
+			ent->explode = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_SONIC_DEFAULT_AF;
 			ent->animno = EN_SONIC_RUN_AN;
 			ent->tickno = 0;
@@ -600,9 +625,11 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->reff = EN_IGNORE_PROPERTY;
 			ent->visible = EN_IGNORE_PROPERTY;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = EN_IGNORE_PROPERTY;
+			ent->explode = EN_IGNORE_PROPERTY;
 			ent->frameno = EN_PLATFORM_DEFAULT_AF;
 			ent->animno = EN_PLATFORM_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
@@ -631,10 +658,12 @@ void en_init(struct game * const g)
 			ent->ymax = EN_IGNORE_PROPERTY;
 			ent->width = ent->animations[0].aframes[0].width;
 			ent->height = ent->animations[0].aframes[0].height;
+			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
 			ent->ymin = 0.5f * ent->height;
 			ent->visible = EN_IGNORE_PROPERTY;
 			ent->falling = EN_IGNORE_PROPERTY;
 			ent->contact = GAME_PLATFORM_CONTACT;
+			ent->explode = !GAME_ENEMY_EXPLODE;
 			ent->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 			ent->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 			ent->tickno = EN_IGNORE_PROPERTY;
@@ -675,6 +704,17 @@ static void en_update_animation(
 	struct entity * const ent = &g->ents[id_entity];
 	struct animation const * const anims = ent->animations;
 	struct animation const * const an = &anims[animno];
+	if ((EN_ENEMY_TAG == ent->tag) && (GAME_ENEMY_EXPLODE == ent->explode)) {
+		int const ticks = (g->frameno - ent->frameno);
+		int aframecur = 0;
+		if (an->tickcount_aframe_sequence <= ticks) {
+			aframecur = (an->count - 1);
+		} else {
+			aframecur = (ticks / an->tickcount_aframe);
+		}
+		ent->animations[animno].aframecur = aframecur;
+		return;
+	}
 	int const rem = g->frameno % an->tickcount_aframe_sequence;
 	int const aframecur = (rem / an->tickcount_aframe);
 	ent->animations[animno].aframecur = aframecur;
@@ -827,8 +867,21 @@ static void en_update_enemy(
 		int const id_enemy
 )
 {
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	struct entity * const ent = &g->ents[id_enemy];
-	en_update_animation(g, ent->id, EN_ENEMY_MOTOBUG_DEFAULT_AN);
+	float const dx = sonic->xpos - ent->xpos;
+	float const dy = sonic->ypos - ent->ypos;
+	float const r2 = (dx * dx) + (dy * dy);
+	float const contact = (sonic->reff + ent->reff);
+	float const contact2 = (contact * contact);
+	if (contact2 >= r2) {
+		if (!GAME_ENEMY_EXPLODE == ent->explode) {
+			ent->explode = GAME_ENEMY_EXPLODE;
+			ent->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
+			ent->frameno = g->frameno;
+		}
+	}
+	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
 }
 

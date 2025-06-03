@@ -80,11 +80,13 @@ struct entity {
 	float ymin;
 	float xmax;
 	float ymax;
+	float reff;
 	float width;
 	float height;
 	int visible;
 	int falling;
 	int contact;
+	int explode;
 	int frameno;
 	int animno;
 	int tickno;
