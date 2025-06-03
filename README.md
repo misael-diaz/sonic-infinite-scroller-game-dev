@@ -67,3 +67,11 @@ My fourth animation, sonic jumping off a platform:
 [![Watch the Video](https://img.youtube.com/vi/gpQOFEkzxYg/hqdefault.jpg)](https://youtu.be/gpQOFEkzxYg)
 
 The animation was done with the code at commit [d1c00fa9fad4549984be17578ade355874171320](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/d1c00fa9fad4549984be17578ade355874171320).
+
+My fifth animation, sonic destroying a motobug:
+
+https://youtu.be/
+
+[![Watch the Video](https://img.youtube.com/vi/qsgNFFoKFGs/hqdefault.jpg)](https://youtu.be/qsgNFFoKFGs)
+
+The animation was done with the code at commit [3fc8e80bb0a7108f000110d7d98e82d2bb0797f1](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/3fc8e80bb0a7108f000110d7d98e82d2bb0797f1).
