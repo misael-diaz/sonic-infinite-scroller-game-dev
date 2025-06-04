@@ -635,16 +635,17 @@ void en_init(struct game * const g)
 			ent->tickno = EN_IGNORE_PROPERTY;
 			ent->view.xref = (0.5f * width_game_window);
 			ent->view.yref = (0.5f * height_game_window);
-			if (EN_PLATFORM_BETA_ID == i) {
-				ent->xpos = camera->xpos;
-			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = camera->xpos + ent->width;
-			}
 			ent->ypos = (
 				sonic->ypos +
 				(0.5f * sonic->height) +
 				(0.5f * ent->height)
 			);
+			if (EN_PLATFORM_BETA_ID == i) {
+				ent->xpos = camera->xpos;
+			} else if (EN_PLATFORM_ZETA_ID == i) {
+				ent->xpos = camera->xpos + ent->width;
+				ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
+			}
 			en_set_view(g, ent->id);
 			++count;
 		} else if (EN_ENEMY_TAG == ent->tag) {
