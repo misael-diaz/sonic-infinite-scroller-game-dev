@@ -62,8 +62,7 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_CAMERA_TAG;
 			ent->id = EN_CAMERA_ID;
 			++count;
-		}
-		else if (EN_SONIC_ID == i) {
+		} else if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
 			++count;
@@ -75,9 +74,25 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_ZETA_ID;
 			++count;
-		} else if (EN_ENEMY_MOTOBUG_ID == i) {
+		} else if (EN_ENEMY_MOTOBUG_ALPHA_ID == i) {
 			ent->tag = EN_ENEMY_TAG;
-			ent->id = EN_ENEMY_MOTOBUG_ID;
+			ent->id = EN_ENEMY_MOTOBUG_ALPHA_ID;
+			++count;
+		} else if (EN_ENEMY_MOTOBUG_GAMMA_ID == i) {
+			ent->tag = EN_ENEMY_TAG;
+			ent->id = EN_ENEMY_MOTOBUG_GAMMA_ID;
+			++count;
+		} else if (EN_ENEMY_MOTOBUG_DELTA_ID == i) {
+			ent->tag = EN_ENEMY_TAG;
+			ent->id = EN_ENEMY_MOTOBUG_DELTA_ID;
+			++count;
+		} else if (EN_ENEMY_MOTOBUG_THETA_ID == i) {
+			ent->tag = EN_ENEMY_TAG;
+			ent->id = EN_ENEMY_MOTOBUG_THETA_ID;
+			++count;
+		} else if (EN_ENEMY_MOTOBUG_KAPPA_ID == i) {
+			ent->tag = EN_ENEMY_TAG;
+			ent->id = EN_ENEMY_MOTOBUG_KAPPA_ID;
 			++count;
 		}
 	}
@@ -346,7 +361,11 @@ static void en_init_aframes(struct game * const g)
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
-	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_THETA_ID);
+	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_KAPPA_ID);
 }
 
 static void en_init_entity_framebuffer(
@@ -390,7 +409,11 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
-	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_THETA_ID);
+	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_KAPPA_ID);
 }
 
 void en_set_view(
@@ -524,6 +547,7 @@ void en_init(struct game * const g)
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
@@ -670,10 +694,10 @@ void en_init(struct game * const g)
 			ent->tickno = EN_IGNORE_PROPERTY;
 			ent->view.xref = (0.5f * width_game_window);
 			ent->view.yref = (0.5f * height_game_window);
-			ent->xpos = beta_platform->xpos + 0.5f * beta_platform->width;
+			ent->xpos = zeta_platform->xpos + ent->id * 2.0f * ent->width;
 			ent->ypos = (
-					beta_platform->ypos -
-					(0.5f * beta_platform->height) -
+					zeta_platform->ypos -
+					(0.5f * zeta_platform->height) -
 					(0.5f * ent->height)
 			);
 			ent->yold = ent->ypos;
