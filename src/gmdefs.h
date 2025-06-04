@@ -39,6 +39,8 @@
 #define GAME_ENEMY_MOTOBUG_XVEL 0
 #define GAME_ENEMY_MOTOBUG_YVEL 0
 
+#define GAME_PLATFORM_SHIFT_YPOS 1200
+
 #define GAME_SONIC_JUMP_VEL 2300
 
 /* if set sonic is in contact with a platform (has no meaning for other entities) */

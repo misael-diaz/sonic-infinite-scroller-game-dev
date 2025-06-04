@@ -857,7 +857,7 @@ static void en_update_platform(
 	);
 	if (xmin >= (ent->xpos + (0.5f * ent->width))) {
 		ent->xpos += (2.0f * ent->width);
-		ent->ypos += (128.0f * ent->height);
+		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
 	}
 	en_set_view(g, ent->id);
 }
@@ -867,19 +867,29 @@ static void en_update_enemy(
 		int const id_enemy
 )
 {
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	struct entity const * const platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity * const ent = &g->ents[id_enemy];
 	float const dx = sonic->xpos - ent->xpos;
 	float const dy = sonic->ypos - ent->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
 	float const contact = (sonic->reff + ent->reff);
 	float const contact2 = (contact * contact);
+	float const xmin = (camera->xpos + (0.5f * (-(GAME_CAMERA_VIEW_WIDTH))));
 	if (contact2 >= r2) {
-		if (!GAME_ENEMY_EXPLODE == ent->explode) {
+		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
 			ent->explode = GAME_ENEMY_EXPLODE;
 			ent->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
 			ent->frameno = g->frameno;
 		}
+	}
+	if (xmin >= ent->xpos) {
+		ent->xpos += (2.0f * platform->width);
+		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
+		ent->explode = !GAME_ENEMY_EXPLODE;
+		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
+		ent->frameno = 0;
 	}
 	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
