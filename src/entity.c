@@ -751,6 +751,7 @@ void en_init(struct game * const g)
 	int count = 0;
 	if ((0 >= g->entno) || (EN_MAXNUMOF_ENT < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
+		graph_unloadall_graphics(g);
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
 	}
@@ -780,8 +781,7 @@ void en_init(struct game * const g)
 	}
 	if (EN_MAXNUMOF_ENT != count) {
 		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
-		vid_close_gw(g);
-		exit(EXIT_FAILURE);
+		goto handle_err;
 	}
 	en_init_framebuffers(g);
 	return;
