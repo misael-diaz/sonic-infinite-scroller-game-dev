@@ -531,6 +531,221 @@ void en_set_view(
 	}
 }
 
+static void en_init_camera(struct game * const g)
+{
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	camera->xpos = (0.5f * width_game_window);
+	camera->ypos = (0.5f * height_game_window);
+	camera->xold = EN_IGNORE_PROPERTY;
+	camera->yold = EN_IGNORE_PROPERTY;
+	camera->xvel = GAME_CAMERA_XVEL;
+	camera->yvel = GAME_CAMERA_YVEL;
+	camera->xv00 = GAME_CAMERA_XVEL;
+	camera->yv00 = GAME_CAMERA_YVEL;
+	camera->xmin = EN_IGNORE_PROPERTY;
+	camera->ymin = EN_IGNORE_PROPERTY;
+	camera->xmax = EN_IGNORE_PROPERTY;
+	camera->ymax = EN_IGNORE_PROPERTY;
+	camera->width = camera->animations[0].aframes[0].width;
+	camera->height = camera->animations[0].aframes[0].height;
+	camera->reff = 0.5f * (0.5f * (camera->width + camera->height));
+	camera->visible = !GAME_CAMERA_VISIBLE;
+	camera->falling = EN_IGNORE_PROPERTY;
+	camera->contact = EN_IGNORE_PROPERTY;
+	camera->explode = EN_IGNORE_PROPERTY;
+	camera->frameno = EN_CAMERA_DEFAULT_AF;
+	camera->animno = EN_CAMERA_DEFAULT_AN;
+	camera->tickno = EN_IGNORE_PROPERTY;
+	camera->view.N[EN_ENVIEW_E].x = 1;
+	camera->view.N[EN_ENVIEW_E].y = 0;
+	camera->view.N[EN_ENVIEW_N].x = 0;
+	camera->view.N[EN_ENVIEW_N].y = 1;
+	camera->view.N[EN_ENVIEW_W].x =-1;
+	camera->view.N[EN_ENVIEW_W].y = 0;
+	camera->view.N[EN_ENVIEW_S].x = 0;
+	camera->view.N[EN_ENVIEW_S].y =-1;
+	camera->view.xref = (0.5f * width_game_window);
+	camera->view.yref = (0.5f * height_game_window);
+	camera->view.xrel = 0;
+	camera->view.yrel = 0;
+	camera->view.xedg = (
+		camera->view.xrel +
+		(0.5f * camera->width) * camera->view.N[EN_ENVIEW_W].x
+	);
+	camera->view.yedg = (
+		camera->view.yrel +
+		(0.5f * camera->height) * camera->view.N[EN_ENVIEW_S].y
+	);
+	camera->view.xscr = camera->view.xedg + camera->view.xref;
+	camera->view.yscr = camera->view.yedg + camera->view.yref;
+	camera->view.xoff = 0;
+	camera->view.yoff = 0;
+	camera->view.width = camera->width;
+	camera->view.height = camera->height;
+}
+
+static void en_init_sonic(struct game * const g)
+{
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity * const sonic = &g->ents[EN_SONIC_ID];
+	sonic->xold = EN_IGNORE_PROPERTY;
+	sonic->xvel = GAME_SONIC_XVEL;
+	sonic->yvel = GAME_SONIC_YVEL;
+	sonic->xv00 = GAME_SONIC_XVEL;
+	sonic->yv00 = GAME_SONIC_YVEL;
+	sonic->xmin = EN_IGNORE_PROPERTY;
+	sonic->xmax = EN_IGNORE_PROPERTY;
+	sonic->ymax = EN_IGNORE_PROPERTY;
+	sonic->width = sonic->animations[0].aframes[0].width;
+	sonic->height = sonic->animations[0].aframes[0].height;
+	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
+	sonic->ymin = 0.5f * sonic->height;
+	sonic->visible = EN_IGNORE_PROPERTY;
+	sonic->falling = !GAME_SONIC_FALLING;
+	sonic->contact = GAME_PLATFORM_CONTACT;
+	sonic->explode = EN_IGNORE_PROPERTY;
+	sonic->frameno = EN_SONIC_DEFAULT_AF;
+	sonic->animno = EN_SONIC_RUN_AN;
+	sonic->tickno = 0;
+	sonic->view.xref = (0.5f * width_game_window);
+	sonic->view.yref = (0.5f * height_game_window);
+	sonic->xpos = camera->xpos;
+	sonic->ypos = (
+		camera->ypos +
+		(0.5f * camera->height) +
+		(0.5f * sonic->height)
+	);
+	sonic->yold = sonic->ypos;
+	en_set_view(g, sonic->id);
+}
+
+static void en_init_platform(
+		struct game * const g,
+		int const id_platform
+)
+{
+	if (
+		(EN_PLATFORM_BETA_ID != id_platform) &&
+		(EN_PLATFORM_ZETA_ID != id_platform)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_platform: InvalidPlatformIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	struct entity * const platform = &g->ents[id_platform];
+	if (id_platform != platform->id) {
+		fprintf(stderr, "%s\n", "en_init_enemy: MismatchEnemyIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	platform->xold = EN_IGNORE_PROPERTY;
+	platform->yold = EN_IGNORE_PROPERTY;
+	platform->xvel = GAME_PLATFORM_XVEL;
+	platform->yvel = GAME_PLATFORM_YVEL;
+	platform->xv00 = EN_IGNORE_PROPERTY;
+	platform->yv00 = EN_IGNORE_PROPERTY;
+	platform->xmin = EN_IGNORE_PROPERTY;
+	platform->ymin = EN_IGNORE_PROPERTY;
+	platform->xmax = EN_IGNORE_PROPERTY;
+	platform->ymax = EN_IGNORE_PROPERTY;
+	platform->width = platform->animations[0].aframes[0].width;
+	platform->height = platform->animations[0].aframes[0].height;
+	platform->reff = EN_IGNORE_PROPERTY;
+	platform->visible = EN_IGNORE_PROPERTY;
+	platform->falling = EN_IGNORE_PROPERTY;
+	platform->contact = EN_IGNORE_PROPERTY;
+	platform->explode = EN_IGNORE_PROPERTY;
+	platform->frameno = EN_PLATFORM_DEFAULT_AF;
+	platform->animno = EN_PLATFORM_DEFAULT_AN;
+	platform->tickno = EN_IGNORE_PROPERTY;
+	platform->view.xref = (0.5f * width_game_window);
+	platform->view.yref = (0.5f * height_game_window);
+	platform->ypos = (
+			sonic->ypos +
+			(0.5f * sonic->height) +
+			(0.5f * platform->height)
+	);
+	if (EN_PLATFORM_BETA_ID == id_platform) {
+		platform->xpos = camera->xpos;
+	} else if (EN_PLATFORM_ZETA_ID == id_platform) {
+		platform->xpos = camera->xpos + platform->width;
+		platform->ypos += GAME_PLATFORM_SHIFT_YPOS;
+	}
+	en_set_view(g, platform->id);
+}
+
+static void en_init_enemy(
+		struct game * const g,
+		int const id_enemy
+)
+{
+	if (
+		(EN_ENEMY_MOTOBUG_ALPHA_ID != id_enemy) &&
+		(EN_ENEMY_MOTOBUG_GAMMA_ID != id_enemy) &&
+		(EN_ENEMY_MOTOBUG_DELTA_ID != id_enemy) &&
+		(EN_ENEMY_MOTOBUG_THETA_ID != id_enemy) &&
+		(EN_ENEMY_MOTOBUG_KAPPA_ID != id_enemy)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_enemy: InvalidEnemyIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	struct entity * const enemy = &g->ents[id_enemy];
+	if (id_enemy != enemy->id) {
+		fprintf(stderr, "%s\n", "en_init_enemy: MismatchEnemyIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	enemy->xold = EN_IGNORE_PROPERTY;
+	enemy->xvel = GAME_ENEMY_MOTOBUG_XVEL;
+	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
+	enemy->xv00 = GAME_ENEMY_MOTOBUG_XVEL;
+	enemy->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
+	enemy->xmin = EN_IGNORE_PROPERTY;
+	enemy->xmax = EN_IGNORE_PROPERTY;
+	enemy->ymax = EN_IGNORE_PROPERTY;
+	enemy->width = enemy->animations[0].aframes[0].width;
+	enemy->height = enemy->animations[0].aframes[0].height;
+	enemy->reff = 0.5f * (0.5f * (enemy->width + enemy->height));
+	enemy->ymin = 0.5f * enemy->height;
+	enemy->visible = EN_IGNORE_PROPERTY;
+	enemy->falling = EN_IGNORE_PROPERTY;
+	enemy->contact = GAME_PLATFORM_CONTACT;
+	enemy->explode = !GAME_ENEMY_EXPLODE;
+	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
+	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
+	enemy->tickno = EN_IGNORE_PROPERTY;
+	enemy->view.xref = (0.5f * width_game_window);
+	enemy->view.yref = (0.5f * height_game_window);
+	enemy->xpos = zeta_platform->xpos + enemy->id * 2.0f * enemy->width;
+	enemy->ypos = (
+		zeta_platform->ypos -
+		(0.5f * zeta_platform->height) -
+		(0.5f * enemy->height)
+	);
+	enemy->yold = enemy->ypos;
+	en_set_view(g, enemy->id);
+}
+
 void en_init(struct game * const g)
 {
 	int count = 0;
@@ -542,12 +757,6 @@ void en_init(struct game * const g)
 	en_tag_entity(g);
 	en_load_graphic(g);
 	en_init_aframes(g);
-	float const width_game_window = g->screen_width;
-	float const height_game_window = g->screen_height;
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
-	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
-	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
@@ -556,152 +765,16 @@ void en_init(struct game * const g)
 			goto handle_err;
 		}
 		if (EN_CAMERA_TAG == ent->tag) {
-			ent->xpos = (0.5f * width_game_window);
-			ent->ypos = (0.5f * height_game_window);
-			ent->xold = EN_IGNORE_PROPERTY;
-			ent->yold = EN_IGNORE_PROPERTY;
-			ent->xvel = GAME_CAMERA_XVEL;
-			ent->yvel = GAME_CAMERA_YVEL;
-			ent->xv00 = GAME_CAMERA_XVEL;
-			ent->yv00 = GAME_CAMERA_YVEL;
-			ent->xmin = EN_IGNORE_PROPERTY;
-			ent->ymin = EN_IGNORE_PROPERTY;
-			ent->xmax = EN_IGNORE_PROPERTY;
-			ent->ymax = EN_IGNORE_PROPERTY;
-			ent->width = ent->animations[0].aframes[0].width;
-			ent->height = ent->animations[0].aframes[0].height;
-			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
-			ent->visible = !GAME_CAMERA_VISIBLE;
-			ent->falling = EN_IGNORE_PROPERTY;
-			ent->contact = EN_IGNORE_PROPERTY;
-			ent->explode = EN_IGNORE_PROPERTY;
-			ent->frameno = EN_CAMERA_DEFAULT_AF;
-			ent->animno = EN_CAMERA_DEFAULT_AN;
-			ent->tickno = EN_IGNORE_PROPERTY;
-			ent->view.N[EN_ENVIEW_E].x = 1;
-			ent->view.N[EN_ENVIEW_E].y = 0;
-			ent->view.N[EN_ENVIEW_N].x = 0;
-			ent->view.N[EN_ENVIEW_N].y = 1;
-			ent->view.N[EN_ENVIEW_W].x =-1;
-			ent->view.N[EN_ENVIEW_W].y = 0;
-			ent->view.N[EN_ENVIEW_S].x = 0;
-			ent->view.N[EN_ENVIEW_S].y =-1;
-			ent->view.xref = (0.5f * width_game_window);
-			ent->view.yref = (0.5f * height_game_window);
-			ent->view.xrel = 0;
-			ent->view.yrel = 0;
-			ent->view.xedg = (
-				ent->view.xrel +
-				(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
-			);
-			ent->view.yedg = (
-				ent->view.yrel +
-				(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
-			);
-			ent->view.xscr = ent->view.xedg + ent->view.xref;
-			ent->view.yscr = ent->view.yedg + ent->view.yref;
-			ent->view.xoff = 0;
-			ent->view.yoff = 0;
-			ent->view.width = ent->width;
-			ent->view.height = ent->height;
+			en_init_camera(g);
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
-			ent->xold = EN_IGNORE_PROPERTY;
-			ent->xvel = GAME_SONIC_XVEL;
-			ent->yvel = GAME_SONIC_YVEL;
-			ent->xv00 = GAME_SONIC_XVEL;
-			ent->yv00 = GAME_SONIC_YVEL;
-			ent->xmin = EN_IGNORE_PROPERTY;
-			ent->xmax = EN_IGNORE_PROPERTY;
-			ent->ymax = EN_IGNORE_PROPERTY;
-			ent->width = ent->animations[0].aframes[0].width;
-			ent->height = ent->animations[0].aframes[0].height;
-			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
-			ent->ymin = 0.5f * ent->height;
-			ent->visible = EN_IGNORE_PROPERTY;
-			ent->falling = !GAME_SONIC_FALLING;
-			ent->contact = GAME_PLATFORM_CONTACT;
-			ent->explode = EN_IGNORE_PROPERTY;
-			ent->frameno = EN_SONIC_DEFAULT_AF;
-			ent->animno = EN_SONIC_RUN_AN;
-			ent->tickno = 0;
-			ent->view.xref = (0.5f * width_game_window);
-			ent->view.yref = (0.5f * height_game_window);
-			ent->xpos = camera->xpos;
-			ent->ypos = (
-				camera->ypos +
-				(0.5f * camera->height) +
-				(0.5f * ent->height)
-			);
-			ent->yold = ent->ypos;
-			en_set_view(g, ent->id);
+			en_init_sonic(g);
 			++count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
-			ent->xold = EN_IGNORE_PROPERTY;
-			ent->yold = EN_IGNORE_PROPERTY;
-			ent->xvel = GAME_PLATFORM_XVEL;
-			ent->yvel = GAME_PLATFORM_YVEL;
-			ent->xv00 = EN_IGNORE_PROPERTY;
-			ent->yv00 = EN_IGNORE_PROPERTY;
-			ent->xmin = EN_IGNORE_PROPERTY;
-			ent->ymin = EN_IGNORE_PROPERTY;
-			ent->xmax = EN_IGNORE_PROPERTY;
-			ent->ymax = EN_IGNORE_PROPERTY;
-			ent->width = ent->animations[0].aframes[0].width;
-			ent->height = ent->animations[0].aframes[0].height;
-			ent->reff = EN_IGNORE_PROPERTY;
-			ent->visible = EN_IGNORE_PROPERTY;
-			ent->falling = EN_IGNORE_PROPERTY;
-			ent->contact = EN_IGNORE_PROPERTY;
-			ent->explode = EN_IGNORE_PROPERTY;
-			ent->frameno = EN_PLATFORM_DEFAULT_AF;
-			ent->animno = EN_PLATFORM_DEFAULT_AN;
-			ent->tickno = EN_IGNORE_PROPERTY;
-			ent->view.xref = (0.5f * width_game_window);
-			ent->view.yref = (0.5f * height_game_window);
-			ent->ypos = (
-				sonic->ypos +
-				(0.5f * sonic->height) +
-				(0.5f * ent->height)
-			);
-			if (EN_PLATFORM_BETA_ID == i) {
-				ent->xpos = camera->xpos;
-			} else if (EN_PLATFORM_ZETA_ID == i) {
-				ent->xpos = camera->xpos + ent->width;
-				ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
-			}
-			en_set_view(g, ent->id);
+			en_init_platform(g, i);
 			++count;
 		} else if (EN_ENEMY_TAG == ent->tag) {
-			ent->xold = EN_IGNORE_PROPERTY;
-			ent->xvel = GAME_ENEMY_MOTOBUG_XVEL;
-			ent->yvel = GAME_ENEMY_MOTOBUG_YVEL;
-			ent->xv00 = GAME_ENEMY_MOTOBUG_XVEL;
-			ent->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
-			ent->xmin = EN_IGNORE_PROPERTY;
-			ent->xmax = EN_IGNORE_PROPERTY;
-			ent->ymax = EN_IGNORE_PROPERTY;
-			ent->width = ent->animations[0].aframes[0].width;
-			ent->height = ent->animations[0].aframes[0].height;
-			ent->reff = 0.5f * (0.5f * (ent->width + ent->height));
-			ent->ymin = 0.5f * ent->height;
-			ent->visible = EN_IGNORE_PROPERTY;
-			ent->falling = EN_IGNORE_PROPERTY;
-			ent->contact = GAME_PLATFORM_CONTACT;
-			ent->explode = !GAME_ENEMY_EXPLODE;
-			ent->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
-			ent->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
-			ent->tickno = EN_IGNORE_PROPERTY;
-			ent->view.xref = (0.5f * width_game_window);
-			ent->view.yref = (0.5f * height_game_window);
-			ent->xpos = zeta_platform->xpos + ent->id * 2.0f * ent->width;
-			ent->ypos = (
-					zeta_platform->ypos -
-					(0.5f * zeta_platform->height) -
-					(0.5f * ent->height)
-			);
-			ent->yold = ent->ypos;
-			en_set_view(g, ent->id);
+			en_init_enemy(g, i);
 			++count;
 		}
 	}
