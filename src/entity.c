@@ -29,6 +29,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "video.h"
 #include "entity.h"
 
+#define MIN(x, y) ((x) < (y))? (x) : (y)
 #define MAX(x, y) ((x) > (y))? (x) : (y)
 
 static float en_clamp(
@@ -599,11 +600,11 @@ static void en_init_sonic(struct game * const g)
 	sonic->yv00 = GAME_SONIC_YVEL;
 	sonic->xmin = EN_IGNORE_PROPERTY;
 	sonic->xmax = EN_IGNORE_PROPERTY;
+	sonic->ymin = EN_IGNORE_PROPERTY;
 	sonic->ymax = EN_IGNORE_PROPERTY;
 	sonic->width = sonic->animations[0].aframes[0].width;
 	sonic->height = sonic->animations[0].aframes[0].height;
 	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
-	sonic->ymin = 0.5f * sonic->height;
 	sonic->visible = EN_IGNORE_PROPERTY;
 	sonic->falling = !GAME_SONIC_FALLING;
 	sonic->contact = GAME_PLATFORM_CONTACT;
@@ -722,11 +723,11 @@ static void en_init_enemy(
 	enemy->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
 	enemy->xmin = EN_IGNORE_PROPERTY;
 	enemy->xmax = EN_IGNORE_PROPERTY;
+	enemy->ymin = EN_IGNORE_PROPERTY;
 	enemy->ymax = EN_IGNORE_PROPERTY;
 	enemy->width = enemy->animations[0].aframes[0].width;
 	enemy->height = enemy->animations[0].aframes[0].height;
 	enemy->reff = 0.5f * (0.5f * (enemy->width + enemy->height));
-	enemy->ymin = 0.5f * enemy->height;
 	enemy->visible = EN_IGNORE_PROPERTY;
 	enemy->falling = EN_IGNORE_PROPERTY;
 	enemy->contact = GAME_PLATFORM_CONTACT;
@@ -918,11 +919,7 @@ static void en_update_sonic(struct game * const g)
 					(ent->yv00 * t) +
 					(0.5f * g * t * t)
 			);
-			ent->ypos = en_clamp(
-					ent->ypos,
-					ent->ymin,
-					floor
-			);
+			ent->ypos = MIN(ent->ypos, floor);
 			if (floor == ent->ypos) {
 				animno = EN_SONIC_RUN_AN;
 				ent->falling = !GAME_SONIC_FALLING;
