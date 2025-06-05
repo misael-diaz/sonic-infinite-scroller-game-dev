@@ -997,10 +997,11 @@ static void en_update_enemy(
 		int const id_enemy
 )
 {
+	struct entity * const ent = &g->ents[id_enemy];
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
-	struct entity const * const platform = &g->ents[EN_PLATFORM_BETA_ID];
-	struct entity * const ent = &g->ents[id_enemy];
+	int const platform_id = en_map_platform(g, ent->id);
+	struct entity const * const platform = &g->ents[platform_id];
 	float const dx = sonic->xpos - ent->xpos;
 	float const dy = sonic->ypos - ent->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
@@ -1014,6 +1015,15 @@ static void en_update_enemy(
 			ent->frameno = g->frameno;
 		}
 	}
+
+	if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
+		if (GAME_PLATFORM_CONTACT == ent->contact) {
+			en_check_falling(g, platform_id, ent->id);
+		} else {
+			en_apply_gravity(g, platform_id, ent->id);
+		}
+	}
+
 	if (xmin >= ent->xpos) {
 		ent->xpos += (2.0f * platform->width);
 		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
