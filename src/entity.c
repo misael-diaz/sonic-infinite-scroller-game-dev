@@ -876,6 +876,36 @@ static int en_map_platform(
 	return platform_id;
 }
 
+static void en_check_falling(
+		struct game * const gp,
+		int const platform_id,
+		int const id
+)
+{
+	struct entity const * const platform = &gp->ents[platform_id];
+	struct entity * const ent = &gp->ents[id];
+	ent->frameno = 0;
+	ent->tickno = 0;
+	ent->yv00 = 0;
+	ent->yvel = 0;
+	ent->yold = 0;
+	float const contact = (
+			platform->ypos - 0.5f * platform->height
+	);
+	if (contact != (ent->ypos + 0.5f * ent->height)) {
+		ent->contact = !GAME_PLATFORM_CONTACT;
+		ent->falling = GAME_ENTITY_FALLING;
+		ent->frameno = gp->frameno;
+		ent->tickno = 1;
+		ent->yv00 = 0;
+		ent->yvel = 0;
+		ent->yold = ent->ypos;
+		if (EN_SONIC_TAG == ent->tag) {
+			ent->animno = EN_SONIC_SPIN_AN;
+		}
+	}
+}
+
 static void en_apply_gravity(
 		struct game * const gp,
 		int const platform_id,
@@ -926,24 +956,7 @@ static void en_update_sonic(struct game * const g)
 	struct entity const * platform = &entities[platform_id];
 	int animno = ent->animno;
 	if (GAME_PLATFORM_CONTACT == ent->contact) {
-		ent->frameno = 0;
-		ent->tickno = 0;
-		ent->yv00 = 0;
-		ent->yvel = 0;
-		ent->yold = 0;
-		float const contact = (
-				platform->ypos - 0.5f * platform->height
-		);
-		if (contact != (ent->ypos + 0.5f * ent->height)) {
-			ent->contact = !GAME_PLATFORM_CONTACT;
-			ent->falling = GAME_ENTITY_FALLING;
-			ent->frameno = g->frameno;
-			ent->tickno = 1;
-			ent->yv00 = 0;
-			ent->yvel = 0;
-			ent->yold = ent->ypos;
-			ent->animno = EN_SONIC_SPIN_AN;
-		}
+		en_check_falling(g, platform_id, ent->id);
 	} else {
 		ent->animno = EN_SONIC_SPIN_AN;
 		if (!ent->tickno) {
