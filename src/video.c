@@ -180,13 +180,7 @@ void vid_check_gw(struct game * const g)
 void vid_draw_gw(struct game const * const g)
 {
 	XClearWindow(g->display, g->window);
-	struct entity const * const entities = g->ents;
-	struct entity const * const camera = &entities[EN_CAMERA_ID];
-	struct entity const * const sonic = &entities[EN_SONIC_ID];
-	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
-	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
-	struct entity const * motobug = &entities[EN_ENEMY_MOTOBUG_ALPHA_ID];
-
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	XSetForeground(
 			g->display,
 			g->gc,
@@ -201,63 +195,22 @@ void vid_draw_gw(struct game const * const g)
 			camera->view.width,
 			camera->view.height
 		      );
-
-	XPutImage(
-			g->display,
-			g->window,
-			g->gc,
-			beta_platform->framebuffer,
-			beta_platform->view.xoff,
-			beta_platform->view.yoff,
-			beta_platform->view.xscr,
-			beta_platform->view.yscr,
-			beta_platform->view.width,
-			beta_platform->view.height
-		 );
-
-	XPutImage(
-			g->display,
-			g->window,
-			g->gc,
-			zeta_platform->framebuffer,
-			zeta_platform->view.xoff,
-			zeta_platform->view.yoff,
-			zeta_platform->view.xscr,
-			zeta_platform->view.yscr,
-			zeta_platform->view.width,
-			zeta_platform->view.height
-		 );
-
-	for (int id = EN_ENEMY_MOTOBUG_ALPHA_ID; id <= EN_ENEMY_MOTOBUG_KAPPA_ID; ++id) {
-		motobug = &g->ents[id];
+	struct entity const * const entities = g->ents;
+	for (int id = (EN_CAMERA_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
+		struct entity const * const ent = &g->ents[id];
 		XPutImage(
 				g->display,
 				g->window,
 				g->gc,
-				motobug->framebuffer,
-				motobug->view.xoff,
-				motobug->view.yoff,
-				motobug->view.xscr,
-				motobug->view.yscr,
-				motobug->view.width,
-				motobug->view.height
+				ent->framebuffer,
+				ent->view.xoff,
+				ent->view.yoff,
+				ent->view.xscr,
+				ent->view.yscr,
+				ent->view.width,
+				ent->view.height
 			 );
 	}
-
-	int const animno = sonic->animno;
-	int const aframecur = sonic->animations[animno].aframecur;
-	XPutImage(
-			g->display,
-			g->window,
-			g->gc,
-			sonic->framebuffer,
-			sonic->view.xoff,
-			sonic->view.yoff,
-			sonic->view.xscr,
-			sonic->view.yscr,
-			sonic->view.width,
-			sonic->view.height
-		 );
 	XFlush(g->display);
 }
 
