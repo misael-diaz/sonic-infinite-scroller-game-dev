@@ -585,7 +585,7 @@ static void en_init_sonic(struct game * const g)
 {
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	sonic->xold = EN_IGNORE_PROPERTY;
 	sonic->xvel = GAME_SONIC_XVEL;
@@ -608,10 +608,10 @@ static void en_init_sonic(struct game * const g)
 	sonic->tickno = 0;
 	sonic->view.xref = (0.5f * width_game_window);
 	sonic->view.yref = (0.5f * height_game_window);
-	sonic->xpos = camera->xpos;
+	sonic->xpos = beta_platform->xpos;
 	sonic->ypos = (
-		camera->ypos +
-		(0.5f * camera->height) +
+		beta_platform->ypos -
+		(0.5f * beta_platform->height) -
 		(0.5f * sonic->height)
 	);
 	sonic->yold = sonic->ypos;
@@ -644,7 +644,6 @@ static void en_init_platform(
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
-	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
@@ -667,16 +666,23 @@ static void en_init_platform(
 	platform->tickno = EN_IGNORE_PROPERTY;
 	platform->view.xref = (0.5f * width_game_window);
 	platform->view.yref = (0.5f * height_game_window);
-	platform->ypos = (
-			sonic->ypos +
-			(0.5f * sonic->height) +
-			(0.5f * platform->height)
-	);
 	if (EN_PLATFORM_BETA_ID == id_platform) {
-		platform->xpos = camera->xpos;
+		platform->xpos = camera->xpos + GAME_PLATFORM_XREL;
+		platform->ypos = (
+				camera->ypos +
+				GAME_PLATFORM_YREL
+		);
 	} else if (EN_PLATFORM_ZETA_ID == id_platform) {
-		platform->xpos = camera->xpos + platform->width;
-		platform->ypos += GAME_PLATFORM_SHIFT_YPOS;
+		platform->xpos = (
+				camera->xpos +
+				platform->width +
+				GAME_PLATFORM_XREL
+		);
+		platform->ypos = (
+				camera->ypos +
+				GAME_PLATFORM_YREL +
+				GAME_PLATFORM_SHIFT_YPOS
+		);
 	}
 	en_set_view(g, platform->id);
 }
