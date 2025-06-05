@@ -70,8 +70,12 @@ The animation was done with the code at commit [d1c00fa9fad4549984be17578ade3558
 
 My fifth animation, sonic destroying a motobug:
 
-https://youtu.be/
-
 [![Watch the Video](https://img.youtube.com/vi/qsgNFFoKFGs/hqdefault.jpg)](https://youtu.be/qsgNFFoKFGs)
 
 The animation was done with the code at commit [3fc8e80bb0a7108f000110d7d98e82d2bb0797f1](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/3fc8e80bb0a7108f000110d7d98e82d2bb0797f1).
+
+My sixth animation, sonic destroying multiple motobugs without landing:
+
+[![Watch the Video](https://img.youtube.com/vi/SNlcBOAgi9k/hqdefault.jpg)](https://youtu.be/SNlcBOAgi9k)
+
+The animation was done with the code at commit [a90ece4649ebeaeef3c1e15abeba03b26b6462aa](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/a90ece4649ebeaeef3c1e15abeba03b26b6462aa).
