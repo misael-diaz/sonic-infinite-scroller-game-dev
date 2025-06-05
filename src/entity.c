@@ -1000,6 +1000,7 @@ static void en_update_enemy(
 	struct entity * const ent = &g->ents[id_enemy];
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	float const time_step = GAME_PERIOD_SEC;
 	int const platform_id = en_map_platform(g, ent->id);
 	struct entity const * const platform = &g->ents[platform_id];
 	float const dx = sonic->xpos - ent->xpos;
@@ -1031,6 +1032,7 @@ static void en_update_enemy(
 		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
 		ent->frameno = 0;
 	}
+	ent->xpos += (time_step * ent->xvel);
 	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
 }
