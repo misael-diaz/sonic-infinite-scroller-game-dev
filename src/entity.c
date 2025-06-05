@@ -577,8 +577,13 @@ static void en_init_camera(struct game * const g)
 	camera->view.yscr = camera->view.yedg + camera->view.yref;
 	camera->view.xoff = 0;
 	camera->view.yoff = 0;
-	camera->view.width = camera->width;
-	camera->view.height = camera->height;
+	if (GAME_CAMERA_VISIBLE == camera->visible) {
+		camera->view.width = camera->width;
+		camera->view.height = camera->height;
+	} else {
+		camera->view.width = 0;
+		camera->view.height = 0;
+	}
 }
 
 static void en_init_sonic(struct game * const g)

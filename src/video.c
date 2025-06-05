@@ -187,22 +187,20 @@ void vid_draw_gw(struct game const * const g)
 	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
 	struct entity const * motobug = &entities[EN_ENEMY_MOTOBUG_ALPHA_ID];
 
-	if (GAME_CAMERA_VISIBLE == camera->visible) {
-		XSetForeground(
-				g->display,
-				g->gc,
-				g->gray.pixel
-			      );
-		XFillRectangle(
-				g->display,
-				g->window,
-				g->gc,
-				camera->view.xscr,
-				camera->view.yscr,
-				camera->view.width,
-				camera->view.height
-			      );
-	}
+	XSetForeground(
+			g->display,
+			g->gc,
+			g->gray.pixel
+		      );
+	XFillRectangle(
+			g->display,
+			g->window,
+			g->gc,
+			camera->view.xscr,
+			camera->view.yscr,
+			camera->view.width,
+			camera->view.height
+		      );
 
 	XPutImage(
 			g->display,
