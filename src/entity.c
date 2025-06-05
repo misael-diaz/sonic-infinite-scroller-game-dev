@@ -859,20 +859,30 @@ static void en_update_camera(struct game * const g)
 	ent->ypos += (time_step * ent->yvel);
 }
 
+static int en_map_platform(
+		struct game * const g,
+		int const id
+)
+{
+	int platform_id = EN_PLATFORM_BETA_ID;
+	struct entity const * const platform = &g->ents[platform_id];
+	struct entity const * const ent = &g->ents[id];
+	if (
+		((platform->xpos - 0.5f * platform->width) > ent->xpos) ||
+		((platform->xpos + 0.5f * platform->width) <= ent->xpos)
+	   ) {
+		platform_id = EN_PLATFORM_ZETA_ID;
+	}
+	return platform_id;
+}
+
 static void en_update_sonic(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
-	int platform_id = EN_PLATFORM_BETA_ID;
 	struct entity * const entities = g->ents;
 	struct entity * const ent = &entities[EN_SONIC_ID];
+	int const platform_id = en_map_platform(g, ent->id);
 	struct entity const * platform = &entities[platform_id];
-	if (
-		((platform->xpos - 0.5f * platform->width) > ent->xpos) ||
-		((platform->xpos + 0.5f * platform->width) < ent->xpos)
-	   ) {
-		platform_id = EN_PLATFORM_ZETA_ID;
-		platform = &entities[platform_id];
-	}
 	int animno = ent->animno;
 	if (GAME_PLATFORM_CONTACT == ent->contact) {
 		float const contact = (
