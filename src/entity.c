@@ -600,7 +600,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->height = sonic->animations[0].aframes[0].height;
 	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
 	sonic->visible = EN_IGNORE_PROPERTY;
-	sonic->falling = !GAME_SONIC_FALLING;
+	sonic->falling = !GAME_ENTITY_FALLING;
 	sonic->contact = GAME_PLATFORM_CONTACT;
 	sonic->explode = EN_IGNORE_PROPERTY;
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
@@ -876,6 +876,47 @@ static int en_map_platform(
 	return platform_id;
 }
 
+static void en_apply_gravity(
+		struct game * const gp,
+		int const platform_id,
+		int const id
+)
+{
+	struct entity const * const platform = &gp->ents[platform_id];
+	struct entity * const ent = &gp->ents[id];
+	float const game_period = GAME_PERIOD_SEC;
+	float const time = (
+			(gp->frameno - ent->frameno) * game_period
+	);
+	float const t = time;
+	float const g = GAME_GRAVITY_ACCELERATION;
+	float const floor = (
+			platform->ypos -
+			(0.5f * platform->height) -
+			(0.5f * ent->height)
+	);
+	ent->yvel = (ent->yv00 + g * t);
+	ent->ypos = (
+			ent->yold +
+			(ent->yv00 * t) +
+			(0.5f * g * t * t)
+	);
+	ent->ypos = MIN(ent->ypos, floor);
+	if (floor == ent->ypos) {
+		if (EN_SONIC_TAG == ent->tag) {
+			ent->animno = EN_SONIC_RUN_AN;
+		}
+		ent->falling = !GAME_ENTITY_FALLING;
+		ent->contact = GAME_PLATFORM_CONTACT;
+		ent->yvel = 0;
+		ent->yv00 = 0;
+		ent->frameno = 0;
+		ent->tickno = 0;
+	} else {
+		ent->tickno++;
+	}
+}
+
 static void en_update_sonic(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
@@ -885,66 +926,37 @@ static void en_update_sonic(struct game * const g)
 	struct entity const * platform = &entities[platform_id];
 	int animno = ent->animno;
 	if (GAME_PLATFORM_CONTACT == ent->contact) {
+		ent->frameno = 0;
+		ent->tickno = 0;
+		ent->yv00 = 0;
+		ent->yvel = 0;
+		ent->yold = 0;
 		float const contact = (
 				platform->ypos - 0.5f * platform->height
 		);
 		if (contact != (ent->ypos + 0.5f * ent->height)) {
 			ent->contact = !GAME_PLATFORM_CONTACT;
-			ent->falling = GAME_SONIC_FALLING;
+			ent->falling = GAME_ENTITY_FALLING;
+			ent->frameno = g->frameno;
+			ent->tickno = 1;
 			ent->yv00 = 0;
+			ent->yvel = 0;
 			ent->yold = ent->ypos;
-			animno = EN_SONIC_SPIN_AN;
-			ent->animno = animno;
+			ent->animno = EN_SONIC_SPIN_AN;
 		}
-		ent->frameno = 0;
-		ent->tickno = 0;
-		ent->yv00 = 0;
-		ent->yvel = 0;
 	} else {
-		animno = EN_SONIC_SPIN_AN;
+		ent->animno = EN_SONIC_SPIN_AN;
 		if (!ent->tickno) {
 			ent->frameno = g->frameno;
-			if (GAME_SONIC_FALLING == ent->falling) {
-				ent->yv00 = 0;
-			} else {
-				ent->yv00 = -((float)GAME_SONIC_JUMP_VEL);
-			}
+			ent->yv00 = -((float)GAME_SONIC_JUMP_VEL);
 			ent->yold = ent->ypos;
 			ent->tickno++;
 		} else {
-			float const game_period = GAME_PERIOD_SEC;
-			float const time = (
-					(g->frameno - ent->frameno) * game_period
-			);
-			float const t = time;
-			float const g = GAME_GRAVITY_ACCELERATION;
-			float const floor = (
-					platform->ypos -
-					(0.5f * platform->height) -
-					(0.5f * ent->height)
-			);
-			ent->yvel = (ent->yv00 + g * t);
-			ent->ypos = (
-					ent->yold +
-					(ent->yv00 * t) +
-					(0.5f * g * t * t)
-			);
-			ent->ypos = MIN(ent->ypos, floor);
-			if (floor == ent->ypos) {
-				animno = EN_SONIC_RUN_AN;
-				ent->falling = !GAME_SONIC_FALLING;
-				ent->contact = GAME_PLATFORM_CONTACT;
-				ent->yvel = 0;
-				ent->yv00 = 0;
-				ent->frameno = 0;
-				ent->tickno = 0;
-			} else {
-				ent->tickno++;
-			}
+			en_apply_gravity(g, platform_id, ent->id);
 		}
 	}
 	ent->xpos += (time_step * ent->xvel);
-	en_update_animation(g, ent->id, animno);
+	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
 }
 
