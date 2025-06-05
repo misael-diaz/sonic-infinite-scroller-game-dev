@@ -448,9 +448,6 @@ void en_set_view(
 			(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
 	);
 	if ((xmin > (ent->view.xedg + ent->width)) || (xmax < ent->view.xedg)) {
-		if (EN_SONIC_ID == ent->id) {
-			return;
-		}
 		ent->view.xedg = 0;
 		ent->view.yedg = 0;
 		ent->view.xscr = 0;
@@ -462,9 +459,6 @@ void en_set_view(
 		return;
 	}
 	if ((ymin > (ent->view.yedg + ent->height)) || (ymax < ent->view.yedg)) {
-		if (EN_SONIC_ID == ent->id) {
-			return;
-		}
 		ent->view.xedg = 0;
 		ent->view.yedg = 0;
 		ent->view.xscr = 0;
@@ -524,7 +518,7 @@ void en_set_view(
 	ent->view.yedg = en_clamp(ent->view.yedg, ymin, ymax);
 	ent->view.xscr = ent->view.xedg + ent->view.xref;
 	ent->view.yscr = ent->view.yedg + ent->view.yref;
-	if (EN_ENEMY_TAG == ent->tag) {
+	if ((EN_ENEMY_TAG == ent->tag) || (EN_SONIC_TAG == ent->tag)) {
 		int const animno = ent->animno;
 		int const aframecur = ent->animations[animno].aframecur;
 		ent->view.xoff += ent->animations[animno].aframes[aframecur].xof;

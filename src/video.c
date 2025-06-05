@@ -248,20 +248,17 @@ void vid_draw_gw(struct game const * const g)
 
 	int const animno = sonic->animno;
 	int const aframecur = sonic->animations[animno].aframecur;
-	// TODO: handle the xoff and yoff for sonic when he goes outside the screen but
-	//       for now we are going to assume that he's on screen always, we have yet
-	//       to get to that point; also you will have to modify the widht and height
 	XPutImage(
 			g->display,
 			g->window,
 			g->gc,
 			sonic->framebuffer,
-			sonic->animations[animno].aframes[aframecur].xof,
-			sonic->animations[animno].aframes[aframecur].yof,
+			sonic->view.xoff,
+			sonic->view.yoff,
 			sonic->view.xscr,
 			sonic->view.yscr,
-			sonic->animations[animno].aframes[aframecur].width,
-			sonic->animations[animno].aframes[aframecur].height
+			sonic->view.width,
+			sonic->view.height
 		 );
 	XFlush(g->display);
 }
