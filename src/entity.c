@@ -417,21 +417,13 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_KAPPA_ID);
 }
 
-void en_set_view(
+static void en_set_view(
 		struct game * const g,
 		int const id
 )
 {
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity * const ent = &g->ents[id];
-	ent->view.N[EN_ENVIEW_E].x = 1;
-	ent->view.N[EN_ENVIEW_E].y = 0;
-	ent->view.N[EN_ENVIEW_N].x = 0;
-	ent->view.N[EN_ENVIEW_N].y = 1;
-	ent->view.N[EN_ENVIEW_W].x =-1;
-	ent->view.N[EN_ENVIEW_W].y = 0;
-	ent->view.N[EN_ENVIEW_S].x = 0;
-	ent->view.N[EN_ENVIEW_S].y =-1;
 	ent->view.xrel = ent->xpos - camera->xpos;
 	ent->view.yrel = ent->ypos - camera->ypos;
 
@@ -524,6 +516,23 @@ void en_set_view(
 		ent->view.xoff += ent->animations[animno].aframes[aframecur].xof;
 		ent->view.yoff += ent->animations[animno].aframes[aframecur].yof;
 	}
+}
+
+static void en_init_view(
+		struct game * const g,
+		int const id
+)
+{
+	struct entity * const ent = &g->ents[id];
+	ent->view.N[EN_ENVIEW_E].x = 1;
+	ent->view.N[EN_ENVIEW_E].y = 0;
+	ent->view.N[EN_ENVIEW_N].x = 0;
+	ent->view.N[EN_ENVIEW_N].y = 1;
+	ent->view.N[EN_ENVIEW_W].x =-1;
+	ent->view.N[EN_ENVIEW_W].y = 0;
+	ent->view.N[EN_ENVIEW_S].x = 0;
+	ent->view.N[EN_ENVIEW_S].y =-1;
+	en_set_view(g, id);
 }
 
 static void en_init_camera(struct game * const g)
@@ -622,7 +631,7 @@ static void en_init_sonic(struct game * const g)
 		(0.5f * sonic->height)
 	);
 	sonic->yold = sonic->ypos;
-	en_set_view(g, sonic->id);
+	en_init_view(g, sonic->id);
 }
 
 static void en_init_platform(
@@ -692,7 +701,7 @@ static void en_init_platform(
 				GAME_PLATFORM_SHIFT_YPOS
 		);
 	}
-	en_set_view(g, platform->id);
+	en_init_view(g, platform->id);
 }
 
 static void en_init_enemy(
@@ -753,7 +762,7 @@ static void en_init_enemy(
 		(0.5f * enemy->height)
 	);
 	enemy->yold = enemy->ypos;
-	en_set_view(g, enemy->id);
+	en_init_view(g, enemy->id);
 }
 
 void en_init(struct game * const g)
