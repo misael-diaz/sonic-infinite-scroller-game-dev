@@ -549,6 +549,7 @@ static void en_init_camera(struct game * const g)
 	camera->visible = !GAME_CAMERA_VISIBLE;
 	camera->falling = EN_IGNORE_PROPERTY;
 	camera->contact = EN_IGNORE_PROPERTY;
+	camera->hitting = EN_IGNORE_PROPERTY;
 	camera->explode = EN_IGNORE_PROPERTY;
 	camera->frameno = EN_CAMERA_DEFAULT_AF;
 	camera->animno = EN_CAMERA_DEFAULT_AN;
@@ -607,6 +608,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->visible = EN_IGNORE_PROPERTY;
 	sonic->falling = !GAME_ENTITY_FALLING;
 	sonic->contact = GAME_PLATFORM_CONTACT;
+	sonic->hitting = !GAME_ENEMY_HITTING;
 	sonic->explode = EN_IGNORE_PROPERTY;
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
 	sonic->animno = EN_SONIC_RUN_AN;
@@ -665,6 +667,7 @@ static void en_init_platform(
 	platform->visible = EN_IGNORE_PROPERTY;
 	platform->falling = EN_IGNORE_PROPERTY;
 	platform->contact = EN_IGNORE_PROPERTY;
+	platform->hitting = EN_IGNORE_PROPERTY;
 	platform->explode = EN_IGNORE_PROPERTY;
 	platform->frameno = EN_PLATFORM_DEFAULT_AF;
 	platform->animno = EN_PLATFORM_DEFAULT_AN;
@@ -736,6 +739,7 @@ static void en_init_enemy(
 	enemy->visible = EN_IGNORE_PROPERTY;
 	enemy->falling = EN_IGNORE_PROPERTY;
 	enemy->contact = GAME_PLATFORM_CONTACT;
+	enemy->hitting = EN_IGNORE_PROPERTY;
 	enemy->explode = !GAME_ENEMY_EXPLODE;
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
@@ -940,6 +944,7 @@ static void en_apply_gravity(
 	if (floor == ent->ypos) {
 		if (EN_SONIC_TAG == ent->tag) {
 			ent->animno = EN_SONIC_RUN_AN;
+			ent->hitting = !GAME_ENEMY_HITTING;
 		}
 		ent->falling = !GAME_ENTITY_FALLING;
 		ent->contact = GAME_PLATFORM_CONTACT;
@@ -948,7 +953,39 @@ static void en_apply_gravity(
 		ent->frameno = 0;
 		ent->tickno = 0;
 	} else {
+		if (EN_SONIC_TAG == ent->tag) {
+			if (GAME_ENEMY_HITTING == ent->hitting) {
+				if (0 < ent->yvel) {
+					ent->hitting = !GAME_ENEMY_HITTING;
+				}
+			}
+		}
 		ent->tickno++;
+	}
+}
+
+static void en_enemy_hitting(struct game * const g)
+{
+	struct entity * const sonic = &g->ents[EN_SONIC_ID];
+	for (int id = EN_ENEMY_MOTOBUG_ALPHA_ID; id <= EN_ENEMY_MOTOBUG_KAPPA_ID; ++id) {
+		struct entity const * const enemy = &g->ents[id];
+		float const contact = (sonic->reff + enemy->reff);
+		float const contact2 = (contact * contact);
+		float const dx = sonic->xpos - enemy->xpos;
+		float const dy = sonic->ypos - enemy->ypos;
+		float const r2 = (dx * dx) + (dy * dy);
+		if (
+			(contact2 >= r2) &&
+			(enemy->ypos > sonic->ypos) &&
+			(0 < sonic->yvel)
+		   ) {
+			sonic->hitting = GAME_ENEMY_HITTING;
+			sonic->yold = sonic->ypos;
+			sonic->yv00 = -(sonic->yvel);
+			sonic->frameno = g->frameno;
+			sonic->tickno = 1;
+			break;
+		}
 	}
 }
 
@@ -960,6 +997,11 @@ static void en_update_sonic(struct game * const g)
 	int const platform_id = en_map_platform(g, ent->id);
 	struct entity const * platform = &entities[platform_id];
 	int animno = ent->animno;
+
+	if ((!GAME_ENEMY_HITTING) == ent->hitting) {
+		en_enemy_hitting(g);
+	}
+
 	if (GAME_PLATFORM_CONTACT == ent->contact) {
 		en_check_falling(g, platform_id, ent->id);
 	} else {

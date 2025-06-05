@@ -86,6 +86,7 @@ struct entity {
 	int visible;
 	int falling;
 	int contact;
+	int hitting;
 	int explode;
 	int frameno;
 	int animno;
