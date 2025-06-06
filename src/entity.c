@@ -619,6 +619,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->contact = GAME_PLATFORM_CONTACT;
 	sonic->hitting = !GAME_ENEMY_HITTING;
 	sonic->explode = EN_IGNORE_PROPERTY;
+	sonic->frameid = EN_IGNORE_PROPERTY;
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
 	sonic->animno = EN_SONIC_RUN_AN;
 	sonic->tickno = 0;
@@ -678,6 +679,7 @@ static void en_init_platform(
 	platform->contact = EN_IGNORE_PROPERTY;
 	platform->hitting = EN_IGNORE_PROPERTY;
 	platform->explode = EN_IGNORE_PROPERTY;
+	platform->frameid = EN_IGNORE_PROPERTY;
 	platform->frameno = EN_PLATFORM_DEFAULT_AF;
 	platform->animno = EN_PLATFORM_DEFAULT_AN;
 	platform->tickno = EN_IGNORE_PROPERTY;
@@ -750,6 +752,7 @@ static void en_init_enemy(
 	enemy->contact = GAME_PLATFORM_CONTACT;
 	enemy->hitting = EN_IGNORE_PROPERTY;
 	enemy->explode = !GAME_ENEMY_EXPLODE;
+	enemy->frameid = g->frameno;
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 	enemy->tickno = EN_IGNORE_PROPERTY;
@@ -1059,6 +1062,7 @@ static void en_update_enemy(
 	float const time_step = GAME_PERIOD_SEC;
 	int const platform_id = en_map_platform(g, ent->id);
 	struct entity const * const platform = &g->ents[platform_id];
+	float const game_period = GAME_PERIOD_SEC;
 	float const dx = sonic->xpos - ent->xpos;
 	float const dy = sonic->ypos - ent->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
@@ -1082,10 +1086,13 @@ static void en_update_enemy(
 	}
 
 	if (xmin >= ent->xpos) {
+		float const time = (g->frameno - ent->frameid) * game_period;
 		ent->xpos += (2.0f * platform->width);
+		ent->xpos -= (time * ent->xvel);
 		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
 		ent->explode = !GAME_ENEMY_EXPLODE;
 		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
+		ent->frameid = g->frameno;
 		ent->frameno = 0;
 	}
 	ent->xpos += (time_step * ent->xvel);

@@ -88,6 +88,7 @@ struct entity {
 	int contact;
 	int hitting;
 	int explode;
+	int frameid;
 	int frameno;
 	int animno;
 	int tickno;
