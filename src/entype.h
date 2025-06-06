@@ -76,8 +76,8 @@ struct entity {
 	float yvel;
 	float xv00;
 	float yv00;
-	float xmin;
-	float ymin;
+	float xscr;
+	float yscr;
 	float xmax;
 	float ymax;
 	float reff;

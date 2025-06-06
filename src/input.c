@@ -34,6 +34,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define KBD_DOWN XKeysymToKeycode(dpy, XK_Down)
 #define KBD_UP XKeysymToKeycode(dpy, XK_Up)
 #define KBD_TAB XKeysymToKeycode(dpy, XK_Tab)
+#define KBD_M XKeysymToKeycode(dpy, XK_M)
+#define KBD_B XKeysymToKeycode(dpy, XK_B)
 
 // Window Manager Protocol Message Handling Resource:
 // https://tronche.com/gui/x/xlib/events/client-communication/client-message.html
@@ -42,6 +44,8 @@ int in_handle_input(struct game * const g)
 	int rc = 0;
 	XEvent ev = {};
 	Display *dpy = g->display;
+	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	char const * const msg_close_req = "in_handle_input: closing-game-window";
 	char const * const msg_unhandled_req = (
 			"in_handle_input: WARNING unhandled-request"
@@ -82,29 +86,84 @@ int in_handle_input(struct game * const g)
 				rc = 1;
 				break;
 			} else if (KBD_LEFT == ev.xkey.keycode) {
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					camera->xvel = -GAME_CAMERA_HOVER_XVEL;
+				}
 				fprintf(stdout, "%s\n", "left-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_RIGHT == ev.xkey.keycode) {
-				struct entity * const sonic = &g->ents[EN_SONIC_ID];
-				sonic->animno = EN_SONIC_RUN_AN;
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					camera->xvel = GAME_CAMERA_HOVER_XVEL;
+				} else {
+					sonic->animno = EN_SONIC_RUN_AN;
+				}
 				fprintf(stdout, "%s\n", "right-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_DOWN == ev.xkey.keycode) {
-				struct entity * const sonic = &g->ents[EN_SONIC_ID];
-				sonic->animno = EN_SONIC_SPIN_AN;
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					camera->yvel = GAME_CAMERA_HOVER_YVEL;
+				} else {
+					sonic->animno = EN_SONIC_SPIN_AN;
+				}
 				fprintf(stdout, "%s\n", "down-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_UP == ev.xkey.keycode) {
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					camera->yvel = -GAME_CAMERA_HOVER_YVEL;
+				}
 				fprintf(stdout, "%s\n", "up-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
-				struct entity * const sonic = &g->ents[EN_SONIC_ID];
-				sonic->contact = !GAME_PLATFORM_CONTACT;
+				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
+					sonic->contact = !GAME_PLATFORM_CONTACT;
+				}
 				fprintf(stdout, "%s\n", "tab-key pressed");
+				rc = 0;
+				break;
+			} else if (KBD_M == ev.xkey.keycode) {
+				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
+					g->oldframeno = g->frameno;
+					camera->xold = camera->xpos;
+					camera->yold = camera->ypos;
+					camera->xv00 = camera->xvel;
+					camera->yv00 = camera->yvel;
+					camera->xscr = camera->view.xscr;
+					camera->yscr = camera->view.yscr;
+					camera->width = camera->view.width;
+					camera->height = camera->view.height;
+					camera->xvel = 0;
+					camera->yvel = 0;
+				} else {
+					g->frameno = g->oldframeno;
+					camera->xpos = camera->xold;
+					camera->ypos = camera->yold;
+					camera->xvel = camera->xv00;
+					camera->yvel = camera->yv00;
+					camera->view.xscr = camera->xscr;
+					camera->view.yscr = camera->yscr;
+					camera->view.width = camera->width;
+					camera->view.height = camera->height;
+				}
+				g->mode ^= GAME_CAMERA_VIEW_MODE;
+				fprintf(stdout, "%s\n", "M-key pressed");
+				rc = 0;
+				break;
+			} else if (KBD_B == ev.xkey.keycode) {
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					camera->xpos = camera->xold;
+					camera->ypos = camera->yold;
+					camera->xvel = camera->xv00;
+					camera->yvel = camera->yv00;
+					camera->view.xscr = camera->xscr;
+					camera->view.yscr = camera->yscr;
+					camera->view.width = camera->width;
+					camera->view.height = camera->height;
+				}
+				fprintf(stdout, "%s\n", "M-key pressed");
 				rc = 0;
 				break;
 			}
@@ -127,6 +186,10 @@ int in_handle_input(struct game * const g)
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
 				fprintf(stdout, "%s\n", "tab-key released");
+				rc = 0;
+				break;
+			} else if (KBD_M == ev.xkey.keycode) {
+				fprintf(stdout, "%s\n", "M-key released");
 				rc = 0;
 				break;
 			}

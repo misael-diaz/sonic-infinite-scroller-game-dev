@@ -542,14 +542,12 @@ static void en_init_camera(struct game * const g)
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
 	camera->xpos = (0.5f * width_game_window);
 	camera->ypos = (0.5f * height_game_window);
-	camera->xold = EN_IGNORE_PROPERTY;
-	camera->yold = EN_IGNORE_PROPERTY;
+	camera->xold = GAME_CAMERA_XVEL;
+	camera->yold = GAME_CAMERA_YVEL;
 	camera->xvel = GAME_CAMERA_XVEL;
 	camera->yvel = GAME_CAMERA_YVEL;
 	camera->xv00 = GAME_CAMERA_XVEL;
 	camera->yv00 = GAME_CAMERA_YVEL;
-	camera->xmin = EN_IGNORE_PROPERTY;
-	camera->ymin = EN_IGNORE_PROPERTY;
 	camera->xmax = EN_IGNORE_PROPERTY;
 	camera->ymax = EN_IGNORE_PROPERTY;
 	camera->width = camera->animations[0].aframes[0].width;
@@ -585,6 +583,8 @@ static void en_init_camera(struct game * const g)
 	);
 	camera->view.xscr = camera->view.xedg + camera->view.xref;
 	camera->view.yscr = camera->view.yedg + camera->view.yref;
+	camera->xscr = camera->view.xscr;
+	camera->yscr = camera->view.yscr;
 	camera->view.xoff = 0;
 	camera->view.yoff = 0;
 	if (GAME_CAMERA_VISIBLE == camera->visible) {
@@ -607,9 +607,9 @@ static void en_init_sonic(struct game * const g)
 	sonic->yvel = GAME_SONIC_YVEL;
 	sonic->xv00 = GAME_SONIC_XVEL;
 	sonic->yv00 = GAME_SONIC_YVEL;
-	sonic->xmin = EN_IGNORE_PROPERTY;
+	sonic->xscr = EN_IGNORE_PROPERTY;
+	sonic->yscr = EN_IGNORE_PROPERTY;
 	sonic->xmax = EN_IGNORE_PROPERTY;
-	sonic->ymin = EN_IGNORE_PROPERTY;
 	sonic->ymax = EN_IGNORE_PROPERTY;
 	sonic->width = sonic->animations[0].aframes[0].width;
 	sonic->height = sonic->animations[0].aframes[0].height;
@@ -666,8 +666,8 @@ static void en_init_platform(
 	platform->yvel = GAME_PLATFORM_YVEL;
 	platform->xv00 = EN_IGNORE_PROPERTY;
 	platform->yv00 = EN_IGNORE_PROPERTY;
-	platform->xmin = EN_IGNORE_PROPERTY;
-	platform->ymin = EN_IGNORE_PROPERTY;
+	platform->xscr = EN_IGNORE_PROPERTY;
+	platform->yscr = EN_IGNORE_PROPERTY;
 	platform->xmax = EN_IGNORE_PROPERTY;
 	platform->ymax = EN_IGNORE_PROPERTY;
 	platform->width = platform->animations[0].aframes[0].width;
@@ -738,9 +738,9 @@ static void en_init_enemy(
 	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
 	enemy->xv00 = GAME_ENEMY_MOTOBUG_XVEL;
 	enemy->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
-	enemy->xmin = EN_IGNORE_PROPERTY;
+	enemy->xscr = EN_IGNORE_PROPERTY;
+	enemy->yscr = EN_IGNORE_PROPERTY;
 	enemy->xmax = EN_IGNORE_PROPERTY;
-	enemy->ymin = EN_IGNORE_PROPERTY;
 	enemy->ymax = EN_IGNORE_PROPERTY;
 	enemy->width = enemy->animations[0].aframes[0].width;
 	enemy->height = enemy->animations[0].aframes[0].height;
@@ -1095,6 +1095,19 @@ static void en_update_enemy(
 
 void en_update(struct game * const g)
 {
+	float const time_step = GAME_PERIOD_SEC;
+	if (GAME_CAMERA_VIEW_MODE == g->mode) {
+		struct entity * const camera = &g->ents[EN_CAMERA_ID];
+		camera->xpos += (time_step * camera->xvel);
+		camera->ypos += (time_step * camera->yvel);
+		camera->xvel = 0;
+		camera->yvel = 0;
+		for (int i = (EN_CAMERA_ID + 1); i != EN_MAXNUMOF_ENT; ++i) {
+			struct entity * const ent = &g->ents[i];
+			en_set_view(g, ent->id);
+		}
+		return;
+	}
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];

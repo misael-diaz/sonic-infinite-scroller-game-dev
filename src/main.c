@@ -55,7 +55,9 @@ int main(void)
 		.screen_depth = 0,
 		.protocolno = GAME_SUPPORTED_PROTOCOLS_NUM,
 		.screeno = 0,
-		.entno = EN_MAXNUMOF_ENT
+		.entno = EN_MAXNUMOF_ENT,
+		.mode = !GAME_CAMERA_VIEW_MODE,
+		.init = !GAME_INITED_GW
 	};
 	sys_init_random();
 	vid_init_gw(&g);
