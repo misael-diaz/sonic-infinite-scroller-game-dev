@@ -35,6 +35,11 @@ int main(void)
 {
 	struct game g = {
 		.ents = {},
+		.platform_ids = {
+			EN_PLATFORM_BETA_ID,
+			EN_PLATFORM_ZETA_ID,
+			EN_PLATFORM_IOTA_ID
+		},
 		.supported_protocols = {
 			GAME_PROTOCOL_NM,
 			GAME_DELETE_WINDOW_NM,
@@ -54,7 +59,10 @@ int main(void)
 		.screen_height = 0,
 		.screen_depth = 0,
 		.protocolno = GAME_SUPPORTED_PROTOCOLS_NUM,
+		.sorted_platforms = !GAME_SORTED_PLATFORMS,
+		.oldframeno = 0,
 		.screeno = 0,
+		.frameno = 0,
 		.entno = EN_MAXNUMOF_ENT,
 		.mode = !GAME_CAMERA_VIEW_MODE,
 		.init = !GAME_INITED_GW

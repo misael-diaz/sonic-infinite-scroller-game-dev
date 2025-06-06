@@ -5,7 +5,6 @@
 
 void en_init(struct game * const g);
 void en_update(struct game * const g);
-void en_handle_collisions(struct game * const g);
 
 #endif
 

@@ -6,6 +6,7 @@
 
 struct game {
 	struct entity ents[EN_MAXNUMOF_ENT];
+	int platform_ids[EN_MAXNUMOF_PLATFORMS];
 	char *supported_protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	Atom protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	char const *error;
@@ -24,6 +25,7 @@ struct game {
 	int screen_height;
 	int screen_depth;
 	int protocolno;
+	int sorted_platforms;
 	int oldframeno;
 	int screeno;
 	int frameno;

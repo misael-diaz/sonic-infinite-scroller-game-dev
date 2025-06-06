@@ -32,6 +32,71 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define MIN(x, y) ((x) < (y))? (x) : (y)
 #define MAX(x, y) ((x) > (y))? (x) : (y)
 
+static int en_compare_platforms(
+		struct entity const * const platform_1,
+		struct entity const * const platform_2
+)
+{
+	int const x1 = platform_1->xpos;
+	int const y1 = platform_1->ypos;
+	int const x2 = platform_2->xpos;
+	int const y2 = platform_2->ypos;
+	if (x1 != x2) {
+		return (x1 - x2);
+	} else {
+		return (y1 - y2);
+	}
+}
+
+static void en_sort_platforms(struct game * const g)
+{
+	int * const ids = g->platform_ids;
+	int const numel = EN_MAXNUMOF_PLATFORMS;
+	// loop-invariant: the elements in the arange [0, i) are sorted
+	for (int i = 0; i != numel; ++i) {
+		int loc = (i - 1);
+		int const id_platform = ids[i];
+		struct entity const * const in = &g->ents[id_platform];
+		while ((0 <= loc) && (0 < en_compare_platforms(&g->ents[ids[loc]], in))) {
+			ids[loc + 1] = ids[loc];
+			--loc;
+		}
+		ids[loc + 1] = id_platform;
+	}
+
+	for (int i = 0; i != numel; ++i) {
+		int const id_platform = g->platform_ids[i];
+		struct entity const * const platform = &g->ents[id_platform];
+		if (EN_PLATFORM_TAG != platform->tag) {
+			fprintf(stderr,
+				"%s\n",
+				"en_sort_platforms: "
+				"ImplPlatformEntityError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for (int i = 0; i != (numel - 1); ++i) {
+		int const id_platform = g->platform_ids[i];
+		int const id_next_platform = g->platform_ids[i + 1];
+		struct entity const * const platform = &g->ents[id_platform];
+		struct entity const * const next_platform = &g->ents[id_next_platform];
+		if (0 < en_compare_platforms(platform, next_platform)) {
+			fprintf(stderr,
+				"%s\n",
+				"en_sort_platforms: "
+				"ImplPlatformSortingError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	g->sorted_platforms = GAME_SORTED_PLATFORMS;
+}
+
 static float en_clamp(
 		float const val,
 		float const min,
@@ -74,6 +139,10 @@ static void en_tag_entity(struct game * const g)
 		} else if (EN_PLATFORM_ZETA_ID == i) {
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_ZETA_ID;
+			++count;
+		} else if (EN_PLATFORM_IOTA_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_IOTA_ID;
 			++count;
 		} else if (EN_ENEMY_MOTOBUG_ALPHA_ID == i) {
 			ent->tag = EN_ENEMY_TAG;
@@ -362,6 +431,7 @@ static void en_init_aframes(struct game * const g)
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_IOTA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -410,6 +480,7 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_IOTA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -642,7 +713,8 @@ static void en_init_platform(
 {
 	if (
 		(EN_PLATFORM_BETA_ID != id_platform) &&
-		(EN_PLATFORM_ZETA_ID != id_platform)
+		(EN_PLATFORM_ZETA_ID != id_platform) &&
+		(EN_PLATFORM_IOTA_ID != id_platform)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init_platform: InvalidPlatformIdError");
 		graph_unloadall_graphics(g);
@@ -695,6 +767,17 @@ static void en_init_platform(
 		platform->xpos = (
 				camera->xpos +
 				platform->width +
+				GAME_PLATFORM_XREL
+		);
+		platform->ypos = (
+				camera->ypos +
+				GAME_PLATFORM_YREL +
+				GAME_PLATFORM_SHIFT_YPOS
+		);
+	} else if (EN_PLATFORM_IOTA_ID == id_platform) {
+		platform->xpos = (
+				camera->xpos +
+				(2.0f * platform->width) +
 				GAME_PLATFORM_XREL
 		);
 		platform->ypos = (
@@ -758,7 +841,11 @@ static void en_init_enemy(
 	enemy->tickno = EN_IGNORE_PROPERTY;
 	enemy->view.xref = (0.5f * width_game_window);
 	enemy->view.yref = (0.5f * height_game_window);
-	enemy->xpos = zeta_platform->xpos + enemy->id * 2.0f * enemy->width;
+	enemy->xpos = (
+			zeta_platform->xpos -
+			(0.5f * zeta_platform->width) +
+			(enemy->id * 2.0f * enemy->width)
+	);
 	enemy->ypos = (
 		zeta_platform->ypos -
 		(0.5f * zeta_platform->height) -
@@ -771,6 +858,7 @@ static void en_init_enemy(
 void en_init(struct game * const g)
 {
 	int count = 0;
+	int platform_count = 0;
 	if ((0 >= g->entno) || (EN_MAXNUMOF_ENT < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
 		graph_unloadall_graphics(g);
@@ -796,12 +884,13 @@ void en_init(struct game * const g)
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			en_init_platform(g, i);
 			++count;
+			++platform_count;
 		} else if (EN_ENEMY_TAG == ent->tag) {
 			en_init_enemy(g, i);
 			++count;
 		}
 	}
-	if (EN_MAXNUMOF_ENT != count) {
+	if ((EN_MAXNUMOF_ENT != count) || (EN_MAXNUMOF_PLATFORMS != platform_count)) {
 		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
 		goto handle_err;
 	}
@@ -882,19 +971,35 @@ static void en_update_camera(struct game * const g)
 
 static int en_map_platform(
 		struct game * const g,
-		int const id
+		int const entid
 )
 {
-	int platform_id = EN_PLATFORM_BETA_ID;
-	struct entity const * const platform = &g->ents[platform_id];
-	struct entity const * const ent = &g->ents[id];
-	if (
-		((platform->xpos - 0.5f * platform->width) > ent->xpos) ||
-		((platform->xpos + 0.5f * platform->width) <= ent->xpos)
-	   ) {
-		platform_id = EN_PLATFORM_ZETA_ID;
+	if ((!GAME_SORTED_PLATFORMS) == g->sorted_platforms) {
+		fprintf(stderr, "%s\n", "en_map_platform: ImplGameLogicError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
 	}
-	return platform_id;
+	struct entity const * const ent = &g->ents[entid];
+	int id_platform = -1;
+	for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+		int const id = g->platform_ids[i];
+		struct entity const * const platform = &g->ents[id];
+		if (
+			((platform->xpos - 0.5f * platform->width) <= ent->xpos) &&
+			((platform->xpos + 0.5f * platform->width) > ent->xpos)
+		   ) {
+			id_platform = id;
+			break;
+		}
+	}
+	if (-1 == id_platform) {
+		fprintf(stderr, "%s\n", "en_map_platform: UXPlatformMappingError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+	return id_platform;
 }
 
 static void en_check_falling(
@@ -1045,7 +1150,7 @@ static void en_update_platform(
 		0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
 	);
 	if (xmin >= (ent->xpos + (0.5f * ent->width))) {
-		ent->xpos += (2.0f * ent->width);
+		ent->xpos += (EN_MAXNUMOF_PLATFORMS * ent->width);
 		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
 	}
 	en_set_view(g, ent->id);
@@ -1115,6 +1220,7 @@ void en_update(struct game * const g)
 		}
 		return;
 	}
+	en_sort_platforms(g);
 	for (int i = 0; i != g->entno; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
