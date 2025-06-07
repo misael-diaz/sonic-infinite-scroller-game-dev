@@ -662,6 +662,8 @@ static void en_init_camera(struct game * const g)
 	camera->contact = EN_IGNORE_PROPERTY;
 	camera->hitting = EN_IGNORE_PROPERTY;
 	camera->explode = EN_IGNORE_PROPERTY;
+	camera->frameid = EN_IGNORE_PROPERTY;
+	camera->platfno = EN_IGNORE_PROPERTY;
 	camera->frameno = EN_CAMERA_DEFAULT_AF;
 	camera->animno = EN_CAMERA_DEFAULT_AN;
 	camera->tickno = EN_IGNORE_PROPERTY;
@@ -724,6 +726,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->hitting = !GAME_ENEMY_HITTING;
 	sonic->explode = EN_IGNORE_PROPERTY;
 	sonic->frameid = EN_IGNORE_PROPERTY;
+	sonic->platfno = EN_IGNORE_PROPERTY;
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
 	sonic->animno = EN_SONIC_RUN_AN;
 	sonic->tickno = 0;
@@ -899,10 +902,10 @@ static void en_init_enemy(
 	float const height_game_window = g->screen_height;
 	struct entity const * const rho_platform = &g->ents[EN_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
-	enemy->xvel = GAME_ENEMY_MOTOBUG_XVEL;
+	enemy->xvel = -(4.0f * GAME_ENEMY_MOTOBUG_XVEL);
 	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
-	enemy->xv00 = GAME_ENEMY_MOTOBUG_XVEL;
-	enemy->yv00 = GAME_ENEMY_MOTOBUG_YVEL;
+	enemy->xv00 = enemy->xvel;
+	enemy->yv00 = enemy->yvel;
 	enemy->xscr = EN_IGNORE_PROPERTY;
 	enemy->yscr = EN_IGNORE_PROPERTY;
 	enemy->xmax = EN_IGNORE_PROPERTY;
@@ -916,6 +919,7 @@ static void en_init_enemy(
 	enemy->hitting = EN_IGNORE_PROPERTY;
 	enemy->explode = !GAME_ENEMY_EXPLODE;
 	enemy->frameid = g->frameno;
+	enemy->platfno = EN_PLATFORM_RHO_ID;
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 	enemy->tickno = EN_IGNORE_PROPERTY;
@@ -1256,8 +1260,9 @@ static void en_update_enemy(
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
-	int const platform_id = en_map_platform(g, ent->id);
-	struct entity const * const platform = &g->ents[platform_id];
+	int const last = (EN_MAXNUMOF_PLATFORMS - 1);
+	struct entity const * left_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * right_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	float const game_period = GAME_PERIOD_SEC;
 	float const dx = sonic->xpos - ent->xpos;
@@ -1274,27 +1279,21 @@ static void en_update_enemy(
 		}
 	}
 
-	if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
-		if (GAME_PLATFORM_CONTACT == ent->contact) {
-			en_check_falling(g, platform_id, ent->id);
-		} else {
-			en_apply_gravity(g, platform_id, ent->id);
-		}
-	}
-
 	if (xmin >= ent->xpos) {
-		//float const time = (g->frameno - ent->frameid) * game_period;
-		if (EN_PLATFORM_ETA_ID == platform_id) {
+		if (EN_PLATFORM_ETA_ID == ent->platfno) {
 			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
+			ent->xvel = -(4.0f * GAME_ENEMY_MOTOBUG_XVEL);
+			ent->platfno = EN_PLATFORM_RHO_ID;
 		} else {
 			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
+			ent->xvel = (1.0f * GAME_ENEMY_MOTOBUG_XVEL);
+			ent->platfno = EN_PLATFORM_ETA_ID;
 		}
 		ent->xpos = (
 			warp_platform->xpos -
 			(0.5f * warp_platform->width) +
 			((ent->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * ent->width)
 		);
-		//ent->xpos -= (time * ent->xvel);
 		ent->ypos = (
 				warp_platform->ypos -
 				(0.5f * warp_platform->width) -
@@ -1304,8 +1303,49 @@ static void en_update_enemy(
 		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
 		ent->frameid = g->frameno;
 		ent->frameno = 0;
+	} else {
+		int const platform_id = en_map_platform(g, ent->id);
+		struct entity const * const platform = &g->ents[platform_id];
+		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
+			if (GAME_PLATFORM_CONTACT == ent->contact) {
+				en_check_falling(g, platform_id, ent->id);
+			} else {
+				en_apply_gravity(g, platform_id, ent->id);
+			}
+		}
+
+		float min = +INFINITY;
+		for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+			int const id_platform = g->platform_ids[i];
+			left_platform = &g->ents[id_platform];
+			float const edge = (
+				left_platform->xpos -
+				0.5f * left_platform->width
+			);
+			if (min > edge) {
+				min = edge;
+			}
+		}
+
+		float max = -INFINITY;
+		for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+			int const id_platform = g->platform_ids[i];
+			right_platform = &g->ents[id_platform];
+			float const edge = (
+				right_platform->xpos +
+				0.5f * right_platform->width
+			);
+			if (max < edge) {
+				max = edge;
+			}
+		}
+		ent->xpos += (time_step * ent->xvel);
+		ent->xpos = en_clamp(
+			ent->xpos,
+			min,
+			max
+		);
 	}
-	//ent->xpos += (time_step * ent->xvel);
 	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
 }
