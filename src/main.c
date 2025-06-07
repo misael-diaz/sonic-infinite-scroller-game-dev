@@ -38,7 +38,12 @@ int main(void)
 		.platform_ids = {
 			EN_PLATFORM_BETA_ID,
 			EN_PLATFORM_ZETA_ID,
-			EN_PLATFORM_IOTA_ID
+			EN_PLATFORM_IOTA_ID,
+			EN_PLATFORM_ETA_ID,
+			EN_PLATFORM_RHO_ID,
+			EN_PLATFORM_TAU_ID,
+			EN_PLATFORM_PHI_ID,
+			EN_PLATFORM_CHI_ID
 		},
 		.supported_protocols = {
 			GAME_PROTOCOL_NM,
