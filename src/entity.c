@@ -771,6 +771,8 @@ static void en_init_platform(
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * const iota_platform = &g->ents[EN_PLATFORM_IOTA_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
@@ -822,28 +824,16 @@ static void en_init_platform(
 				GAME_PLATFORM_YREL
 		);
 	} else if (EN_PLATFORM_ETA_ID == id_platform) {
-		platform->xpos = (
-				camera->xpos +
-				platform->width +
-				GAME_PLATFORM_XREL
-		);
+		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
-				camera->ypos +
-				GAME_PLATFORM_YREL -
-				(4.0f * platform->height) -
-				GAME_PLATFORM_SHIFT_YPOS
+				beta_platform->ypos -
+				(4.0f * platform->height)
 		);
 	} else if (EN_PLATFORM_RHO_ID == id_platform) {
-		platform->xpos = (
-				camera->xpos +
-				platform->width +
-				GAME_PLATFORM_XREL
-		);
+		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
-				camera->ypos +
-				GAME_PLATFORM_YREL -
-				(8.0f * platform->height) -
-				(2.0f * GAME_PLATFORM_SHIFT_YPOS)
+				iota_platform->ypos -
+				(4.0f * platform->height)
 		);
 	} else if (EN_PLATFORM_TAU_ID == id_platform) {
 		platform->xpos = (
@@ -1236,6 +1226,8 @@ static void en_update_platform(
 {
 	struct entity * const entities = g->ents;
 	struct entity const * const camera = &entities[EN_CAMERA_ID];
+	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
+	struct entity const * const iota_platform = &entities[EN_PLATFORM_IOTA_ID];
 	struct entity * const ent = &entities[id_platform];
 	float const xmin = (
 		camera->xpos +
@@ -1244,6 +1236,13 @@ static void en_update_platform(
 	if (xmin >= (ent->xpos + (0.5f * ent->width))) {
 		ent->xpos += (6.0f * ent->width);
 		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
+	}
+	if (EN_PLATFORM_ETA_ID == ent->id) {
+		ent->xpos = beta_platform->xpos;
+		ent->ypos = beta_platform->ypos - (4.0f * ent->height);
+	} else if (EN_PLATFORM_RHO_ID == ent->id) {
+		ent->xpos = iota_platform->xpos;
+		ent->ypos = iota_platform->ypos - (4.0f * ent->height);
 	}
 	en_set_view(g, ent->id);
 }
