@@ -772,7 +772,7 @@ static void en_init_platform(
 	float const height_game_window = g->screen_height;
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	struct entity const * const iota_platform = &g->ents[EN_PLATFORM_IOTA_ID];
+	struct entity const * const chi_platform = &g->ents[EN_PLATFORM_CHI_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
@@ -830,9 +830,9 @@ static void en_init_platform(
 				(4.0f * platform->height)
 		);
 	} else if (EN_PLATFORM_RHO_ID == id_platform) {
-		platform->xpos = iota_platform->xpos;
+		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
-				iota_platform->ypos -
+				chi_platform->ypos -
 				(4.0f * platform->height)
 		);
 	} else if (EN_PLATFORM_TAU_ID == id_platform) {
@@ -897,7 +897,7 @@ static void en_init_enemy(
 
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
-	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	struct entity const * const rho_platform = &g->ents[EN_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
 	enemy->xvel = GAME_ENEMY_MOTOBUG_XVEL;
 	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
@@ -922,13 +922,13 @@ static void en_init_enemy(
 	enemy->view.xref = (0.5f * width_game_window);
 	enemy->view.yref = (0.5f * height_game_window);
 	enemy->xpos = (
-			zeta_platform->xpos -
-			(0.5f * zeta_platform->width) +
-			(enemy->id * 2.0f * enemy->width)
+			rho_platform->xpos -
+			(0.5f * rho_platform->width) +
+			((enemy->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * enemy->width)
 	);
 	enemy->ypos = (
-		zeta_platform->ypos -
-		(0.5f * zeta_platform->height) -
+		rho_platform->ypos -
+		(0.5f * rho_platform->height) -
 		(0.5f * enemy->height)
 	);
 	enemy->yold = enemy->ypos;
@@ -1227,7 +1227,7 @@ static void en_update_platform(
 	struct entity * const entities = g->ents;
 	struct entity const * const camera = &entities[EN_CAMERA_ID];
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
-	struct entity const * const iota_platform = &entities[EN_PLATFORM_IOTA_ID];
+	struct entity const * const chi_platform = &entities[EN_PLATFORM_CHI_ID];
 	struct entity * const ent = &entities[id_platform];
 	float const xmin = (
 		camera->xpos +
@@ -1241,8 +1241,8 @@ static void en_update_platform(
 		ent->xpos = beta_platform->xpos;
 		ent->ypos = beta_platform->ypos - (4.0f * ent->height);
 	} else if (EN_PLATFORM_RHO_ID == ent->id) {
-		ent->xpos = iota_platform->xpos;
-		ent->ypos = iota_platform->ypos - (4.0f * ent->height);
+		ent->xpos = chi_platform->xpos;
+		ent->ypos = chi_platform->ypos - (4.0f * ent->height);
 	}
 	en_set_view(g, ent->id);
 }
@@ -1258,6 +1258,7 @@ static void en_update_enemy(
 	float const time_step = GAME_PERIOD_SEC;
 	int const platform_id = en_map_platform(g, ent->id);
 	struct entity const * const platform = &g->ents[platform_id];
+	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	float const game_period = GAME_PERIOD_SEC;
 	float const dx = sonic->xpos - ent->xpos;
 	float const dy = sonic->ypos - ent->ypos;
@@ -1282,16 +1283,29 @@ static void en_update_enemy(
 	}
 
 	if (xmin >= ent->xpos) {
-		float const time = (g->frameno - ent->frameid) * game_period;
-		ent->xpos += (2.0f * platform->width);
-		ent->xpos -= (time * ent->xvel);
-		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
+		//float const time = (g->frameno - ent->frameid) * game_period;
+		if (EN_PLATFORM_ETA_ID == platform_id) {
+			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
+		} else {
+			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
+		}
+		ent->xpos = (
+			warp_platform->xpos -
+			(0.5f * warp_platform->width) +
+			((ent->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * ent->width)
+		);
+		//ent->xpos -= (time * ent->xvel);
+		ent->ypos = (
+				warp_platform->ypos -
+				(0.5f * warp_platform->width) -
+				(0.5f * ent->height)
+		);
 		ent->explode = !GAME_ENEMY_EXPLODE;
 		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
 		ent->frameid = g->frameno;
 		ent->frameno = 0;
 	}
-	ent->xpos += (time_step * ent->xvel);
+	//ent->xpos += (time_step * ent->xvel);
 	en_update_animation(g, ent->id, ent->animno);
 	en_set_view(g, ent->id);
 }
