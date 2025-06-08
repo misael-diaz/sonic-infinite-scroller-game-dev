@@ -1020,7 +1020,7 @@ static void en_update_animation(
 	struct animation const * const anims = ent->animations;
 	struct animation const * const an = &anims[animno];
 	if ((EN_ENEMY_TAG == ent->tag) && (GAME_ENEMY_EXPLODE == ent->explode)) {
-		int const ticks = (g->frameno - ent->frameno);
+		int const ticks = (g->frameno - ent->frameid);
 		int aframecur = 0;
 		if (an->tickcount_aframe_sequence <= ticks) {
 			aframecur = (an->count - 1);
@@ -1299,7 +1299,7 @@ static void en_update_enemy(
 		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
 			ent->explode = GAME_ENEMY_EXPLODE;
 			ent->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
-			ent->frameno = g->frameno;
+			ent->frameid = g->frameno;
 			ent->xvel = 0;
 		}
 	}
@@ -1326,7 +1326,7 @@ static void en_update_enemy(
 		);
 		ent->explode = !GAME_ENEMY_EXPLODE;
 		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
-		ent->frameid = g->frameno;
+		ent->frameid = 0;
 		ent->frameno = 0;
 	} else {
 		int min = EN_IGNORE_PROPERTY;
