@@ -1165,7 +1165,23 @@ static void en_apply_gravity(
 			(ent->yv00 * t) +
 			(0.5f * g * t * t)
 	);
-	ent->ypos = MIN(ent->ypos, floor);
+	if (platform->platfno) {
+		int const platfno = platform->platfno;
+		int const id = gp->platform_ids[platfno - 1];
+		struct entity const * const ceiling_platform = &gp->ents[id];
+		if (platform->xpos == ceiling_platform->xpos) {
+			int const ceiling = (
+				ceiling_platform->ypos +
+				0.5f * ceiling_platform->height +
+				0.5f * ent->height
+			) + 1;
+			ent->ypos = en_clamp(ent->ypos, floor, ceiling);
+		} else {
+			ent->ypos = MIN(ent->ypos, floor);
+		}
+	} else {
+		ent->ypos = MIN(ent->ypos, floor);
+	}
 	if (floor == ent->ypos) {
 		if (EN_SONIC_TAG == ent->tag) {
 			ent->animno = EN_SONIC_RUN_AN;
