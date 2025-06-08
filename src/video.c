@@ -195,7 +195,6 @@ void vid_draw_gw(struct game const * const g)
 			camera->view.width,
 			camera->view.height
 		      );
-	struct entity const * const entities = g->ents;
 	for (int id = (EN_CAMERA_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
 		struct entity const * const ent = &g->ents[id];
 		XPutImage(

@@ -73,6 +73,7 @@ void g_loop(struct game * const g)
 void g_pause(struct game const * const g)
 {
 	char c = 0;
+	fprintf(stdout, "g_pause: frameno %d\n", g->frameno);
 	fprintf(stdout, "g_pause: Press Any Key To Continue\n");
 	fread(&c, sizeof(c), 1, stdin);
 }

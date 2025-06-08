@@ -1042,8 +1042,6 @@ static void en_update_camera(struct game * const g)
 	struct entity * const entities = g->ents;
 	struct entity * const ent = &entities[EN_CAMERA_ID];
 	struct entity * const sonic = &entities[EN_SONIC_ID];
-	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
-	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
 	float const beacon_ypos = (
 			sonic->ypos -
 			(0.5f * sonic->height) -
@@ -1236,8 +1234,6 @@ static void en_update_sonic(struct game * const g)
 	struct entity * const entities = g->ents;
 	struct entity * const ent = &entities[EN_SONIC_ID];
 	int const platform_id = en_map_platform(g, ent->id);
-	struct entity const * platform = &entities[platform_id];
-	int animno = ent->animno;
 
 	if ((!GAME_ENEMY_HITTING) == ent->hitting) {
 		en_enemy_hitting(g);
@@ -1302,9 +1298,7 @@ static void en_update_enemy(
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
-	int const last = (EN_MAXNUMOF_PLATFORMS - 1);
 	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	float const game_period = GAME_PERIOD_SEC;
 	float const dx = sonic->xpos - ent->xpos;
 	float const dy = sonic->ypos - ent->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
