@@ -97,6 +97,13 @@ static void en_sort_platforms(struct game * const g)
 		}
 	}
 
+	for (int i = 0; i != numel; ++i) {
+		int const platfno = i;
+		int const id_platform = g->platform_ids[platfno];
+		struct entity * const platform = &g->ents[id_platform];
+		platform->platfno = platfno;
+	}
+
 	g->sorted_platforms = GAME_SORTED_PLATFORMS;
 }
 
@@ -795,6 +802,7 @@ static void en_init_platform(
 	platform->hitting = EN_IGNORE_PROPERTY;
 	platform->explode = EN_IGNORE_PROPERTY;
 	platform->frameid = EN_IGNORE_PROPERTY;
+	platform->platfno = 0;
 	platform->frameno = EN_PLATFORM_DEFAULT_AF;
 	platform->animno = EN_PLATFORM_DEFAULT_AN;
 	platform->tickno = EN_IGNORE_PROPERTY;
@@ -902,7 +910,7 @@ static void en_init_enemy(
 	float const height_game_window = g->screen_height;
 	struct entity const * const rho_platform = &g->ents[EN_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
-	enemy->xvel = -(4.0f * GAME_ENEMY_MOTOBUG_XVEL);
+	enemy->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
 	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
 	enemy->xv00 = enemy->xvel;
 	enemy->yv00 = enemy->yvel;
@@ -1261,8 +1269,6 @@ static void en_update_enemy(
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
 	int const last = (EN_MAXNUMOF_PLATFORMS - 1);
-	struct entity const * left_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	struct entity const * right_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	float const game_period = GAME_PERIOD_SEC;
 	float const dx = sonic->xpos - ent->xpos;
@@ -1276,17 +1282,18 @@ static void en_update_enemy(
 			ent->explode = GAME_ENEMY_EXPLODE;
 			ent->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
 			ent->frameno = g->frameno;
+			ent->xvel = 0;
 		}
 	}
 
 	if (xmin >= ent->xpos) {
 		if (EN_PLATFORM_ETA_ID == ent->platfno) {
 			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
-			ent->xvel = -(4.0f * GAME_ENEMY_MOTOBUG_XVEL);
+			ent->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
 			ent->platfno = EN_PLATFORM_RHO_ID;
 		} else {
 			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
-			ent->xvel = (1.0f * GAME_ENEMY_MOTOBUG_XVEL);
+			ent->xvel = GAME_ENEMY_MOTOBUG_XVEL;
 			ent->platfno = EN_PLATFORM_ETA_ID;
 		}
 		ent->xpos = (
@@ -1296,7 +1303,7 @@ static void en_update_enemy(
 		);
 		ent->ypos = (
 				warp_platform->ypos -
-				(0.5f * warp_platform->width) -
+				(0.5f * warp_platform->height) -
 				(0.5f * ent->height)
 		);
 		ent->explode = !GAME_ENEMY_EXPLODE;
@@ -1304,8 +1311,11 @@ static void en_update_enemy(
 		ent->frameid = g->frameno;
 		ent->frameno = 0;
 	} else {
+		int min = EN_IGNORE_PROPERTY;
+		int max = EN_IGNORE_PROPERTY;
 		int const platform_id = en_map_platform(g, ent->id);
-		struct entity const * const platform = &g->ents[platform_id];
+		struct entity const * platform = &g->ents[platform_id];
+		int const platform_next_id = g->platform_ids[(platform->platfno) + 1];
 		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
 			if (GAME_PLATFORM_CONTACT == ent->contact) {
 				en_check_falling(g, platform_id, ent->id);
@@ -1314,31 +1324,86 @@ static void en_update_enemy(
 			}
 		}
 
-		float min = +INFINITY;
-		for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
-			int const id_platform = g->platform_ids[i];
-			left_platform = &g->ents[id_platform];
-			float const edge = (
-				left_platform->xpos -
-				0.5f * left_platform->width
-			);
-			if (min > edge) {
-				min = edge;
+		int id = EN_IGNORE_PROPERTY;
+		if (
+			(platform_id == EN_PLATFORM_ETA_ID) ||
+			(platform_id == EN_PLATFORM_RHO_ID)
+		   ) {
+			id = platform_next_id;
+		} else {
+			id = platform_id;
+		}
+		platform = &g->ents[id];
+		if (EN_PLATFORM_TAG != platform->tag) {
+			fprintf(stderr, "%s\n", "en_update_enemy: UXPlatformTagError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+		if (0 > ent->xvel) {
+			max = ((platform->xpos + 0.5f * platform->width) - 1);
+			for (int i = platform->platfno; i >= 0; --i) {
+				int const id_platform = g->platform_ids[i];
+				struct entity const * const other = &g->ents[id_platform];
+				if (platform->ypos == other->ypos) {
+					id = id_platform;
+				}
 			}
+			platform = &g->ents[id];
+			if (EN_PLATFORM_TAG != platform->tag) {
+				fprintf(stderr,
+					"%s\n",
+					"en_update_enemy: "
+					"UXLeveledPlatformTagError");
+				graph_unloadall_graphics(g);
+				vid_close_gw(g);
+				exit(EXIT_FAILURE);
+			} else if (
+					(EN_PLATFORM_ETA_ID == platform->id) ||
+					(EN_PLATFORM_RHO_ID == platform->id)
+				  ) {
+				fprintf(stderr,
+					"%s\n",
+					"en_update_enemy: "
+					"UXLeveledPlatformIdError");
+				graph_unloadall_graphics(g);
+				vid_close_gw(g);
+				exit(EXIT_FAILURE);
+			}
+			min = (platform->xpos - 0.5f * platform->width);
+		} else {
+			min = (platform->xpos - 0.5f * platform->width);
+			for (int i = platform->platfno; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+				int const id_platform = g->platform_ids[i];
+				struct entity const * const other = &g->ents[id_platform];
+				if (platform->ypos == other->ypos) {
+					id = id_platform;
+				}
+			}
+			platform = &g->ents[id];
+			if (EN_PLATFORM_TAG != platform->tag) {
+				fprintf(stderr,
+					"%s\n",
+					"en_update_enemy: "
+					"UXLeveledPlatformTagError");
+				graph_unloadall_graphics(g);
+				vid_close_gw(g);
+				exit(EXIT_FAILURE);
+			} else if (
+					(EN_PLATFORM_ETA_ID == platform->id) ||
+					(EN_PLATFORM_RHO_ID == platform->id)
+				  ) {
+				fprintf(stderr,
+					"%s\n",
+					"en_update_enemy: "
+					"UXLeveledPlatformIdError");
+				graph_unloadall_graphics(g);
+				vid_close_gw(g);
+				exit(EXIT_FAILURE);
+			}
+			max = ((platform->xpos + 0.5f * platform->width) - 1);
 		}
 
-		float max = -INFINITY;
-		for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
-			int const id_platform = g->platform_ids[i];
-			right_platform = &g->ents[id_platform];
-			float const edge = (
-				right_platform->xpos +
-				0.5f * right_platform->width
-			);
-			if (max < edge) {
-				max = edge;
-			}
-		}
 		ent->xpos += (time_step * ent->xvel);
 		ent->xpos = en_clamp(
 			ent->xpos,
