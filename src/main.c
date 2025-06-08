@@ -43,7 +43,8 @@ int main(void)
 			EN_PLATFORM_RHO_ID,
 			EN_PLATFORM_TAU_ID,
 			EN_PLATFORM_PHI_ID,
-			EN_PLATFORM_CHI_ID
+			EN_PLATFORM_CHI_ID,
+			EN_PLATFORM_PSI_ID
 		},
 		.supported_protocols = {
 			GAME_PROTOCOL_NM,
