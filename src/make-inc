@@ -33,26 +33,26 @@ $(ANIMATION_TYPE_H) \
 $(ENTITY_TYPE_H) \
 $(GAME_TYPE_H)
 
-SYSTEM_H = system.h
 GRAPHIC_H = graphic.h
-ENTITY_H = entity.h
+SYSTEM_H = system.h
 VIDEO_H = video.h
 INPUT_H = input.h
+ENTITY_H = entity.h
 GAME_H = game.h
 
-SYSTEM_SRC = system.c
-INPUT_SRC = input.c
-VIDEO_SRC = video.c
 GRAPHIC_SRC = graphic.c
+SYSTEM_SRC = system.c
+VIDEO_SRC = video.c
+INPUT_SRC = input.c
 ENTITY_SRC = entity.c
 GAME_SRC = game.c
 MAIN_SRC = main.c
 
-SYSTEM_OBJ = ../obj/system.o
 GRAPHIC_OBJ = ../obj/graphic.o
-ENTITY_OBJ = ../obj/entity.o
+SYSTEM_OBJ = ../obj/system.o
 VIDEO_OBJ = ../obj/video.o
 INPUT_OBJ = ../obj/input.o
+ENTITY_OBJ = ../obj/entity.o
 GAME_OBJ = ../obj/game.o
 MAIN_OBJ = ../obj/main.o
 
