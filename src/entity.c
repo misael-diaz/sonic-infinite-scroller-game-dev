@@ -1443,6 +1443,9 @@ static void en_update_enemy(
 			min,
 			max
 		);
+		if ((min == enemy->xpos) || (max == enemy->xpos)) {
+			enemy->xvel = -(enemy->xvel);
+		}
 	}
 	en_update_animation(g, enemy->id, enemy->animno);
 	en_set_view(g, enemy->id);
