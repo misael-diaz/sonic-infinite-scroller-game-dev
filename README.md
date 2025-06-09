@@ -1,10 +1,12 @@
 # Sonic Infinite Scroller Game Dev
 
+**Academic Purpose Game Development Only**
+
 The inspiration to build a sonic game came in part from Paul Cockcrell's
 [codecamp](https://github.com/paulcockrell/sonic-infinite-scroller). He shows how to
 build a infinite scroller sonic game with the KaPlay library that runs on the browser.
-Even though I am not using his source code, I have read the learning resources for
-building the game.
+Even though I am not using his source code, I have read some of his learning resources
+for building this game.
 
 ## Motivation
 
