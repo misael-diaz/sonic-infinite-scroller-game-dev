@@ -1061,21 +1061,13 @@ static void en_update_camera(struct game * const g)
 	float const overlap = 0.5f * (ent->height + sonic->height);
 	float const overlap2 = overlap * overlap;
 	float yvel = 0;
-	if (((12.0f * overlap2) >= r2) && (overlap2 < r2)) {
+	if ((!GAME_PLATFORM_CONTACT) == sonic->contact) {
+		yvel = 0.9995f * (sonic->yvel + gc * t);
+	} else if (overlap2 < r2) {
 		if (0 > sonic->view.yrel) {
 			yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
 		} else {
 			yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
-		}
-	} else if (((12.0f * overlap2) < r2)) {
-		if ((!GAME_PLATFORM_CONTACT) == sonic->contact) {
-			yvel = 1.00005f * (sonic->yvel + gc * t);
-		} else {
-			if (0 > sonic->view.yrel) {
-				yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
-			} else {
-				yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
-			}
 		}
 	} else {
 		yvel = 0;
