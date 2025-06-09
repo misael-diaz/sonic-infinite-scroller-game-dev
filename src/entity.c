@@ -1042,23 +1042,23 @@ static void en_update_camera(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
 	struct entity * const entities = g->ents;
-	struct entity * const ent = &entities[EN_CAMERA_ID];
+	struct entity * const camera = &entities[EN_CAMERA_ID];
 	struct entity * const sonic = &entities[EN_SONIC_ID];
 	float const gc = GAME_GRAVITY_ACCELERATION;
 	float const t = GAME_PERIOD_SEC;
 	float const beacon_ypos = (
 			sonic->ypos -
 			(0.5f * sonic->height) -
-			(ent->height)
+			(camera->height)
 	);
 	float const base = (
 			(0.5f * sonic->height)
 	);
-	float const dist = ((ent->ypos - beacon_ypos) / base);
+	float const dist = ((camera->ypos - beacon_ypos) / base);
 	float const d2 = (dist * dist);
-	float const r = (ent->ypos - sonic->ypos);
+	float const r = (camera->ypos - sonic->ypos);
 	float const r2 = (r * r);
-	float const overlap = 0.5f * (ent->height + sonic->height);
+	float const overlap = 0.5f * (camera->height + sonic->height);
 	float const overlap2 = overlap * overlap;
 	float yvel = 0;
 	if ((!GAME_PLATFORM_CONTACT) == sonic->contact) {
@@ -1072,9 +1072,9 @@ static void en_update_camera(struct game * const g)
 	} else {
 		yvel = 0;
 	}
-	ent->yvel = yvel;
-	ent->xpos += (time_step * ent->xvel);
-	ent->ypos += (time_step * ent->yvel);
+	camera->yvel = yvel;
+	camera->xpos += (time_step * camera->xvel);
+	camera->ypos += (time_step * camera->yvel);
 }
 
 // for the purposes of mapping we are okay if the entity overlaps the platform
