@@ -18,14 +18,29 @@ include make-inc
 
 all: $(BIN)
 
-# MISSING A LOT OF DEP RULES EVERYWHERE
-# MAYBE ADD BUNDLES FOR DEFS AND TYPE HEADERS
+$(SYSTEM_OBJ): \
+	$(GMDEFS_H) \
+	$(SYSTEM_H) \
+	$(SYSTEM_SRC)
+	$(CC) $(CCOPT) -c $(SYSTEM_SRC) -o $(SYSTEM_OBJ)
 $(GRAPHIC_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
 	$(GRAPHIC_H) \
 	$(GRAPHIC_SRC)
 	$(CC) $(CCOPT) -c $(GRAPHIC_SRC) -o $(GRAPHIC_OBJ)
+$(VIDEO_OBJ): \
+	$(DEFS_H) \
+	$(TYPES_H) \
+	$(VIDEO_H) \
+	$(VIDEO_SRC)
+	$(CC) $(CCOPT) -c $(VIDEO_SRC) -o $(VIDEO_OBJ)
+$(INPUT_OBJ): \
+	$(DEFS_H) \
+	$(TYPES_H) \
+	$(INPUT_H) \
+	$(INPUT_SRC)
+	$(CC) $(CCOPT) -c $(INPUT_SRC) -o $(INPUT_OBJ)
 $(ENTITY_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
@@ -34,56 +49,40 @@ $(ENTITY_OBJ): \
 	$(ENTITY_H) \
 	$(ENTITY_SRC)
 	$(CC) $(CCOPT) -c $(ENTITY_SRC) -o $(ENTITY_OBJ)
-$(SYSTEM_OBJ): \
-	$(GMDEFS_H) \
-	$(SYSTEM_H) \
-	$(SYSTEM_SRC)
-	$(CC) $(CCOPT) -c $(SYSTEM_SRC) -o $(SYSTEM_OBJ)
-$(INPUT_OBJ): \
-	$(DEFS_H) \
-	$(TYPES_H) \
-	$(INPUT_H) \
-	$(INPUT_SRC)
-	$(CC) $(CCOPT) -c $(INPUT_SRC) -o $(INPUT_OBJ)
-$(VIDEO_OBJ): \
-	$(DEFS_H) \
-	$(TYPES_H) \
-	$(VIDEO_H) \
-	$(VIDEO_SRC)
-	$(CC) $(CCOPT) -c $(VIDEO_SRC) -o $(VIDEO_OBJ)
 $(GAME_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
 	$(SYSTEM_H) \
-	$(INPUT_H) \
 	$(VIDEO_H) \
+	$(INPUT_H) \
 	$(GAME_H) \
 	$(GAME_SRC)
 	$(CC) $(CCOPT) -c $(GAME_SRC) -o $(GAME_OBJ)
 $(MAIN_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
-	$(SYSTEM_H) \
-	$(INPUT_H) \
-	$(VIDEO_H) \
 	$(GRAPHIC_H) \
+	$(SYSTEM_H) \
+	$(VIDEO_H) \
+	$(INPUT_H) \
 	$(ENTITY_H) \
 	$(GAME_H) \
-	$(SYSTEM_OBJ) \
-	$(GRAPHIC_OBJ) \
-	$(ENTITY_OBJ) \
-	$(INPUT_OBJ) \
-	$(VIDEO_OBJ) \
-	$(GAME_OBJ) \
 	$(MAIN_SRC)
 	$(CC) $(CCOPT) -c $(MAIN_SRC) -o $(MAIN_OBJ)
-$(BIN): $(MAIN_OBJ)
+$(BIN): \
+	$(GRAPHIC_OBJ) \
+	$(SYSTEM_OBJ) \
+	$(VIDEO_OBJ) \
+	$(INPUT_OBJ) \
+	$(ENTITY_OBJ) \
+	$(GAME_OBJ) \
+	$(MAIN_OBJ)
 	$(CC) $(CCOPT) \
-		$(ENTITY_OBJ) \
-		$(SYSTEM_OBJ) \
-		$(INPUT_OBJ) \
-		$(VIDEO_OBJ) \
 		$(GRAPHIC_OBJ) \
+		$(SYSTEM_OBJ) \
+		$(VIDEO_OBJ) \
+		$(INPUT_OBJ) \
+		$(ENTITY_OBJ) \
 		$(GAME_OBJ) \
 		$(MAIN_OBJ) \
 		-o \
