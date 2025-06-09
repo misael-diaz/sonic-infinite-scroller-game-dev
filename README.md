@@ -24,7 +24,7 @@ to this day ... and now after years of writing code I can now attempt to build m
 game.
 
 And there are of course legendary devs like the primeagen whose advice is to go build
-something for yourself to acquire knowledge, skills and, experience. Certainly, as
+something for yourself to acquire knowledge, skills, and experience. Certainly, as
 basic as this game may be, building it has required me to research topics that I have not
 considered before like the X11 window system and some Linux kernel documentation for
 handling keyboard events (even if the latter is not actually used in this game it was a
