@@ -25,6 +25,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include "system.h"
 #include "graphic.h"
 #include "video.h"
 #include "entity.h"
@@ -925,7 +926,10 @@ static void en_init_enemy(
 	float const height_game_window = g->screen_height;
 	struct entity const * const rho_platform = &g->ents[EN_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
-	enemy->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
+	enemy->xvel = -sys_random(
+		GAME_ENEMY_MOTOBUG_MIN_XVEL,
+		GAME_ENEMY_MOTOBUG_MAX_XVEL
+	);
 	enemy->yvel = GAME_ENEMY_MOTOBUG_YVEL;
 	enemy->xv00 = enemy->xvel;
 	enemy->yv00 = enemy->yvel;
@@ -1352,11 +1356,17 @@ static void en_update_enemy(
 	if (xmin >= enemy->xpos) {
 		if (EN_PLATFORM_ETA_ID == enemy->platfno) {
 			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
-			enemy->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
+			enemy->xvel = -sys_random(
+				GAME_ENEMY_MOTOBUG_MIN_XVEL,
+				GAME_ENEMY_MOTOBUG_MAX_XVEL
+			);
 			enemy->platfno = EN_PLATFORM_RHO_ID;
 		} else {
 			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
-			enemy->xvel = GAME_ENEMY_MOTOBUG_XVEL;
+			enemy->xvel = sys_random(
+				GAME_ENEMY_MOTOBUG_MIN_XVEL,
+				GAME_ENEMY_MOTOBUG_MAX_XVEL
+			);
 			enemy->platfno = EN_PLATFORM_ETA_ID;
 		}
 		enemy->xpos = (

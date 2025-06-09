@@ -41,8 +41,17 @@ float sys_random(
 		float const max
 )
 {
+	float _min = 0;
+	float _max = 0;
+	if (max > min) {
+		_min = min;
+		_max = max;
+	} else {
+		_min = max;
+		_max = min;
+	}
 	float const rand_max_inv = (1.0 / RAND_MAX);
-	float const r = min + (max - min) * (random() * rand_max_inv);
+	float const r = _min + (_max - _min) * (random() * rand_max_inv);
 	return r;
 }
 

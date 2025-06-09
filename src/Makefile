@@ -44,6 +44,7 @@ $(INPUT_OBJ): \
 $(ENTITY_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
+	$(SYSTEM_H) \
 	$(GRAPHIC_H) \
 	$(VIDEO_H) \
 	$(ENTITY_H) \
