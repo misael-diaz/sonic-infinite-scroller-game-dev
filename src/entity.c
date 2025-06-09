@@ -215,11 +215,12 @@ static void en_load_graphic(struct game * const g)
 		struct entity * const ent = &entities[i];
 		struct graphic * const graphicp = &ent->graphic;
 		if (EN_CAMERA_TAG == ent->tag) {
-			memset(&ent->graphic, 0, sizeof(ent->graphic));
-			ent->graphic.name = GAME_CAMERA_NOGRAPHIC_FP;
-			ent->graphic.data = NULL;
-			ent->graphic.loaded = !GAME_LOADED_GRAPHIC;
-			ent->graphic.binded = !GAME_LOADED_GRAPHIC;
+			struct entity * const camera = ent;
+			memset(&camera->graphic, 0, sizeof(camera->graphic));
+			camera->graphic.name = GAME_CAMERA_NOGRAPHIC_FP;
+			camera->graphic.data = NULL;
+			camera->graphic.loaded = !GAME_LOADED_GRAPHIC;
+			camera->graphic.binded = !GAME_LOADED_GRAPHIC;
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			graphicp->name = GAME_SONIC_GRAPHIC_FP;
@@ -1020,14 +1021,15 @@ static void en_update_animation(
 	struct animation const * const anims = ent->animations;
 	struct animation const * const an = &anims[animno];
 	if ((EN_ENEMY_TAG == ent->tag) && (GAME_ENEMY_EXPLODE == ent->explode)) {
-		int const ticks = (g->frameno - ent->frameid);
+		struct entity * const enemy = ent;
+		int const ticks = (g->frameno - enemy->frameid);
 		int aframecur = 0;
 		if (an->tickcount_aframe_sequence <= ticks) {
 			aframecur = (an->count - 1);
 		} else {
 			aframecur = (ticks / an->tickcount_aframe);
 		}
-		ent->animations[animno].aframecur = aframecur;
+		enemy->animations[animno].aframecur = aframecur;
 		return;
 	}
 	int const rem = g->frameno % an->tickcount_aframe_sequence;
@@ -1133,7 +1135,8 @@ static void en_check_falling(
 		ent->yvel = 0;
 		ent->yold = ent->ypos;
 		if (EN_SONIC_TAG == ent->tag) {
-			ent->animno = EN_SONIC_SPIN_AN;
+			struct entity * const sonic = ent;
+			sonic->animno = EN_SONIC_SPIN_AN;
 		}
 	}
 }
@@ -1182,8 +1185,9 @@ static void en_apply_gravity(
 	}
 	if (floor == ent->ypos) {
 		if (EN_SONIC_TAG == ent->tag) {
-			ent->animno = EN_SONIC_RUN_AN;
-			ent->hitting = !GAME_ENEMY_HITTING;
+			struct entity * const sonic = ent;
+			sonic->animno = EN_SONIC_RUN_AN;
+			sonic->hitting = !GAME_ENEMY_HITTING;
 		}
 		ent->falling = !GAME_ENTITY_FALLING;
 		ent->contact = GAME_PLATFORM_CONTACT;
@@ -1193,9 +1197,10 @@ static void en_apply_gravity(
 		ent->tickno = 0;
 	} else {
 		if (EN_SONIC_TAG == ent->tag) {
-			if (GAME_ENEMY_HITTING == ent->hitting) {
-				if (0 < ent->yvel) {
-					ent->hitting = !GAME_ENEMY_HITTING;
+			struct entity * const sonic = ent;
+			if (GAME_ENEMY_HITTING == sonic->hitting) {
+				if (0 < sonic->yvel) {
+					sonic->hitting = !GAME_ENEMY_HITTING;
 				}
 			}
 		}
