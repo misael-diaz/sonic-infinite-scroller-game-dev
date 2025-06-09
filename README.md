@@ -42,11 +42,16 @@ spirit) the original games that they made for Sega Genesis.
 
 ## Graphics/Sprites/Assets
 
-We do not host the graphics needed to run this game. If you would like to play this
+Sega owns the copyright for all the game graphics borrowed from the original Sega Genesis
+games.
+
+We do *not* host the graphics needed to run this game. If you would like to play this
 game you may download the graphics from the
 [sprites database](https://www.spritedatabase.net/) and also you will have to read
 some of the source code to organize them in the way that the code expects. I know,
-sounds like a lot of work for someone who just wants to play a game.
+sounds like a lot of work for someone who just wants to play a game but that's how this
+has to be done to avoid legal issues.
+
 You may also want to check Paul's game-dev
 [codecamp](https://github.com/paulcockrell/sonic-infinite-scroller) to get an idea of
 the ordering. You can also play his game in your browser if you would like to get a
