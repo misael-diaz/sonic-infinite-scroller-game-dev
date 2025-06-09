@@ -1232,29 +1232,29 @@ static void en_update_sonic(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
 	struct entity * const entities = g->ents;
-	struct entity * const ent = &entities[EN_SONIC_ID];
-	int const platform_id = en_map_platform(g, ent->id);
+	struct entity * const sonic = &entities[EN_SONIC_ID];
+	int const platform_id = en_map_platform(g, sonic->id);
 
-	if ((!GAME_ENEMY_HITTING) == ent->hitting) {
+	if ((!GAME_ENEMY_HITTING) == sonic->hitting) {
 		en_enemy_hitting(g);
 	}
 
-	if (GAME_PLATFORM_CONTACT == ent->contact) {
-		en_check_falling(g, platform_id, ent->id);
+	if (GAME_PLATFORM_CONTACT == sonic->contact) {
+		en_check_falling(g, platform_id, sonic->id);
 	} else {
-		ent->animno = EN_SONIC_SPIN_AN;
-		if (!ent->tickno) {
-			ent->frameno = g->frameno;
-			ent->yv00 = -((float)GAME_SONIC_JUMP_VEL);
-			ent->yold = ent->ypos;
-			ent->tickno++;
+		sonic->animno = EN_SONIC_SPIN_AN;
+		if (!sonic->tickno) {
+			sonic->frameno = g->frameno;
+			sonic->yv00 = -((float)GAME_SONIC_JUMP_VEL);
+			sonic->yold = sonic->ypos;
+			sonic->tickno++;
 		} else {
-			en_apply_gravity(g, platform_id, ent->id);
+			en_apply_gravity(g, platform_id, sonic->id);
 		}
 	}
-	ent->xpos += (time_step * ent->xvel);
-	en_update_animation(g, ent->id, ent->animno);
-	en_set_view(g, ent->id);
+	sonic->xpos += (time_step * sonic->xvel);
+	en_update_animation(g, sonic->id, sonic->animno);
+	en_set_view(g, sonic->id);
 }
 
 static void en_update_platform(
