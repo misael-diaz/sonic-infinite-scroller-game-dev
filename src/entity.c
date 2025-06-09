@@ -1294,61 +1294,61 @@ static void en_update_enemy(
 		int const id_enemy
 )
 {
-	struct entity * const ent = &g->ents[id_enemy];
+	struct entity * const enemy = &g->ents[id_enemy];
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
 	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	float const dx = sonic->xpos - ent->xpos;
-	float const dy = sonic->ypos - ent->ypos;
+	float const dx = sonic->xpos - enemy->xpos;
+	float const dy = sonic->ypos - enemy->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
-	float const contact = (sonic->reff + ent->reff);
+	float const contact = (sonic->reff + enemy->reff);
 	float const contact2 = (contact * contact);
 	float const xmin = (camera->xpos + (0.5f * (-(GAME_CAMERA_VIEW_WIDTH))));
 	if (contact2 >= r2) {
-		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
-			ent->explode = GAME_ENEMY_EXPLODE;
-			ent->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
-			ent->frameid = g->frameno;
-			ent->xvel = 0;
+		if ((!GAME_ENEMY_EXPLODE) == enemy->explode) {
+			enemy->explode = GAME_ENEMY_EXPLODE;
+			enemy->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
+			enemy->frameid = g->frameno;
+			enemy->xvel = 0;
 		}
 	}
 
-	if (xmin >= ent->xpos) {
-		if (EN_PLATFORM_ETA_ID == ent->platfno) {
+	if (xmin >= enemy->xpos) {
+		if (EN_PLATFORM_ETA_ID == enemy->platfno) {
 			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
-			ent->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
-			ent->platfno = EN_PLATFORM_RHO_ID;
+			enemy->xvel = -GAME_ENEMY_MOTOBUG_XVEL;
+			enemy->platfno = EN_PLATFORM_RHO_ID;
 		} else {
 			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
-			ent->xvel = GAME_ENEMY_MOTOBUG_XVEL;
-			ent->platfno = EN_PLATFORM_ETA_ID;
+			enemy->xvel = GAME_ENEMY_MOTOBUG_XVEL;
+			enemy->platfno = EN_PLATFORM_ETA_ID;
 		}
-		ent->xpos = (
+		enemy->xpos = (
 			warp_platform->xpos -
 			(0.5f * warp_platform->width) +
-			((ent->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * ent->width)
+			((enemy->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * enemy->width)
 		);
-		ent->ypos = (
+		enemy->ypos = (
 				warp_platform->ypos -
 				(0.5f * warp_platform->height) -
-				(0.5f * ent->height)
+				(0.5f * enemy->height)
 		);
-		ent->explode = !GAME_ENEMY_EXPLODE;
-		ent->animno = EN_ENEMY_MOTOBUG_RUN_AN;
-		ent->frameid = 0;
-		ent->frameno = 0;
+		enemy->explode = !GAME_ENEMY_EXPLODE;
+		enemy->animno = EN_ENEMY_MOTOBUG_RUN_AN;
+		enemy->frameid = 0;
+		enemy->frameno = 0;
 	} else {
 		int min = EN_IGNORE_PROPERTY;
 		int max = EN_IGNORE_PROPERTY;
-		int const platform_id = en_map_platform(g, ent->id);
+		int const platform_id = en_map_platform(g, enemy->id);
 		struct entity const * platform = &g->ents[platform_id];
 		int const platform_next_id = g->platform_ids[(platform->platfno) + 1];
-		if ((!GAME_ENEMY_EXPLODE) == ent->explode) {
-			if (GAME_PLATFORM_CONTACT == ent->contact) {
-				en_check_falling(g, platform_id, ent->id);
+		if ((!GAME_ENEMY_EXPLODE) == enemy->explode) {
+			if (GAME_PLATFORM_CONTACT == enemy->contact) {
+				en_check_falling(g, platform_id, enemy->id);
 			} else {
-				en_apply_gravity(g, platform_id, ent->id);
+				en_apply_gravity(g, platform_id, enemy->id);
 			}
 		}
 
@@ -1368,7 +1368,7 @@ static void en_update_enemy(
 			vid_close_gw(g);
 			exit(EXIT_FAILURE);
 		}
-		if (0 > ent->xvel) {
+		if (0 > enemy->xvel) {
 			max = ((platform->xpos + 0.5f * platform->width) - 1);
 			for (int i = platform->platfno; i >= 0; --i) {
 				int const id_platform = g->platform_ids[i];
@@ -1432,15 +1432,15 @@ static void en_update_enemy(
 			max = ((platform->xpos + 0.5f * platform->width) - 1);
 		}
 
-		ent->xpos += (time_step * ent->xvel);
-		ent->xpos = en_clamp(
-			ent->xpos,
+		enemy->xpos += (time_step * enemy->xvel);
+		enemy->xpos = en_clamp(
+			enemy->xpos,
 			min,
 			max
 		);
 	}
-	en_update_animation(g, ent->id, ent->animno);
-	en_set_view(g, ent->id);
+	en_update_animation(g, enemy->id, enemy->animno);
+	en_set_view(g, enemy->id);
 }
 
 void en_update(struct game * const g)
