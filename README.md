@@ -16,6 +16,20 @@ and learn something useful. Developing a game basically from the ground up witho
 relying on (game-dev) frameworks is challenging and that is something that I wanted to
 do for a long time to test myself.
 
+Other reasons for doing this takes me back to one conversation I had with my uncle
+when I was a teen, he said that if liked games so much I should consider creating my own
+games. Even though that conversation and many others did not direct me towards a computer
+science related field (I did not even liked computers back then) his advice has remained
+to this day ... and now after years of writing code I can now attempt to build my own
+game.
+
+And there are of course legendary devs like the primeagen whose advice is to go build
+something for yourself to acquire knowledge, skills and, experience. Certainly, as
+basic as this game may be, building it has required me to research topics that I have not
+considered before like the X11 window system and some Linux kernel documentation for
+handling keyboard events (even if the latter is not actually used in this game it was a
+good experience to study the respective documentation).
+
 ## Credits
 
 This fan made game would not have been possible without the Sonic Team efforts and Sega.
