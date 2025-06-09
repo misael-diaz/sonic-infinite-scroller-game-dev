@@ -3,25 +3,6 @@
 
 #include "gmdefs.h"
 
-#define EN_MAXNUMOF_ENT 16
-#define EN_MAXNUMOF_PLATFORMS 9
-#define EN_CAMERA_ID 0
-#define EN_PLATFORM_BETA_ID 1
-#define EN_PLATFORM_ZETA_ID 2
-#define EN_PLATFORM_IOTA_ID 3
-#define EN_PLATFORM_TAU_ID 4
-#define EN_PLATFORM_PHI_ID 5
-#define EN_PLATFORM_CHI_ID 6
-#define EN_PLATFORM_ETA_ID 7
-#define EN_PLATFORM_RHO_ID 8
-#define EN_PLATFORM_PSI_ID 9
-#define EN_ENEMY_MOTOBUG_ALPHA_ID 10
-#define EN_ENEMY_MOTOBUG_GAMMA_ID 11
-#define EN_ENEMY_MOTOBUG_DELTA_ID 12
-#define EN_ENEMY_MOTOBUG_THETA_ID 13
-#define EN_ENEMY_MOTOBUG_KAPPA_ID 14
-#define EN_SONIC_ID 15
-
 #define EN_ENVIEW_NUMFACES 4
 
 /* if a property is set to this that means that it has no meaning for that entity */

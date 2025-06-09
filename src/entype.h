@@ -16,6 +16,28 @@ enum entag {
 	EN_MAXNUMOF_TAG
 };
 
+enum enid {
+	EN_CAMERA_ID,
+	EN_PLATFORM_BETA_ID,
+	EN_PLATFORM_ZETA_ID,
+	EN_PLATFORM_IOTA_ID,
+	EN_PLATFORM_TAU_ID,
+	EN_PLATFORM_PHI_ID,
+	EN_PLATFORM_CHI_ID,
+	EN_PLATFORM_ETA_ID,
+	EN_PLATFORM_RHO_ID,
+	EN_PLATFORM_PSI_ID,
+	EN_ENEMY_MOTOBUG_ALPHA_ID,
+	EN_ENEMY_MOTOBUG_GAMMA_ID,
+	EN_ENEMY_MOTOBUG_DELTA_ID,
+	EN_ENEMY_MOTOBUG_THETA_ID,
+	EN_ENEMY_MOTOBUG_KAPPA_ID,
+	EN_SONIC_ID,
+	EN_MAXNUMOF_ENT,
+	EN_MAXNUMOF_PLATFORMS = (EN_PLATFORM_PSI_ID - EN_PLATFORM_BETA_ID + 1),
+	EN_MAXNUMOF_ENEMIES = (EN_ENEMY_MOTOBUG_ALPHA_ID - EN_ENEMY_MOTOBUG_KAPPA_ID + 1)
+};
+
 struct vector {
 	float x;
 	float y;
@@ -63,7 +85,7 @@ struct enview {
 /*animations can share graphics this is why they are not nested in the animation struct*/
 struct entity {
 	enum entag tag;
-	int id;
+	enum enid id;
 	struct graphic graphic;
 	struct animation animations[EN_ANIMATIONS_COUNT];
 	struct enview view;

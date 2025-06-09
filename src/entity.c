@@ -758,7 +758,7 @@ static void en_init_sonic(struct game * const g)
 
 static void en_init_platform(
 		struct game * const g,
-		int const id_platform
+		enum enid const id_platform
 )
 {
 	if (
@@ -897,7 +897,7 @@ static void en_init_platform(
 
 static void en_init_enemy(
 		struct game * const g,
-		int const id_enemy
+		enum enid const id_enemy
 )
 {
 	if (
