@@ -1294,6 +1294,34 @@ static void en_update_platform(
 	en_set_view(g, platform->id);
 }
 
+static void en_check_notwarp_platform(
+		struct game * const g,
+		int const id_platform
+)
+{
+	struct entity const * const platform = &g->ents[id_platform];
+	if (EN_PLATFORM_TAG != platform->tag) {
+		fprintf(stderr,
+			"%s\n",
+			"en_check_notwarp_platform: "
+			"UXLeveledPlatformTagError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	} else if (
+			(EN_PLATFORM_ETA_ID == platform->id) ||
+			(EN_PLATFORM_RHO_ID == platform->id)
+		  ) {
+		fprintf(stderr,
+			"%s\n",
+			"en_check_notwarp_platform: "
+			"UXLeveledPlatformIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+}
+
 static void en_update_enemy(
 		struct game * const g,
 		int const id_enemy
@@ -1383,26 +1411,7 @@ static void en_update_enemy(
 				}
 			}
 			platform = &g->ents[id];
-			if (EN_PLATFORM_TAG != platform->tag) {
-				fprintf(stderr,
-					"%s\n",
-					"en_update_enemy: "
-					"UXLeveledPlatformTagError");
-				graph_unloadall_graphics(g);
-				vid_close_gw(g);
-				exit(EXIT_FAILURE);
-			} else if (
-					(EN_PLATFORM_ETA_ID == platform->id) ||
-					(EN_PLATFORM_RHO_ID == platform->id)
-				  ) {
-				fprintf(stderr,
-					"%s\n",
-					"en_update_enemy: "
-					"UXLeveledPlatformIdError");
-				graph_unloadall_graphics(g);
-				vid_close_gw(g);
-				exit(EXIT_FAILURE);
-			}
+			en_check_notwarp_platform(g, id);
 			min = (platform->xpos - 0.5f * platform->width);
 		} else {
 			min = (platform->xpos - 0.5f * platform->width);
@@ -1414,26 +1423,7 @@ static void en_update_enemy(
 				}
 			}
 			platform = &g->ents[id];
-			if (EN_PLATFORM_TAG != platform->tag) {
-				fprintf(stderr,
-					"%s\n",
-					"en_update_enemy: "
-					"UXLeveledPlatformTagError");
-				graph_unloadall_graphics(g);
-				vid_close_gw(g);
-				exit(EXIT_FAILURE);
-			} else if (
-					(EN_PLATFORM_ETA_ID == platform->id) ||
-					(EN_PLATFORM_RHO_ID == platform->id)
-				  ) {
-				fprintf(stderr,
-					"%s\n",
-					"en_update_enemy: "
-					"UXLeveledPlatformIdError");
-				graph_unloadall_graphics(g);
-				vid_close_gw(g);
-				exit(EXIT_FAILURE);
-			}
+			en_check_notwarp_platform(g, id);
 			max = ((platform->xpos + 0.5f * platform->width) - 1);
 		}
 
