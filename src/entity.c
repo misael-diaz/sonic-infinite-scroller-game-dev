@@ -1044,6 +1044,8 @@ static void en_update_camera(struct game * const g)
 	struct entity * const entities = g->ents;
 	struct entity * const ent = &entities[EN_CAMERA_ID];
 	struct entity * const sonic = &entities[EN_SONIC_ID];
+	float const gc = GAME_GRAVITY_ACCELERATION;
+	float const t = GAME_PERIOD_SEC;
 	float const beacon_ypos = (
 			sonic->ypos -
 			(0.5f * sonic->height) -
@@ -1066,7 +1068,15 @@ static void en_update_camera(struct game * const g)
 			yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
 		}
 	} else if (((12.0f * overlap2) < r2)) {
-		yvel = 1.005f * sonic->yvel;
+		if ((!GAME_PLATFORM_CONTACT) == sonic->contact) {
+			yvel = 1.00005f * (sonic->yvel + gc * t);
+		} else {
+			if (0 > sonic->view.yrel) {
+				yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
+			} else {
+				yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
+			}
+		}
 	} else {
 		yvel = 0;
 	}
