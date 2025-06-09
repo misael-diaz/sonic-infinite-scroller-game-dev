@@ -1267,26 +1267,26 @@ static void en_update_platform(
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
 	struct entity const * const chi_platform = &entities[EN_PLATFORM_CHI_ID];
-	struct entity * const ent = &entities[id_platform];
+	struct entity * const platform = &entities[id_platform];
 	float const xmin = (
 		camera->xpos +
 		0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
 	);
-	if (xmin >= (ent->xpos + (0.5f * ent->width))) {
-		ent->xpos += (6.0f * ent->width);
-		ent->ypos += GAME_PLATFORM_SHIFT_YPOS;
+	if (xmin >= (platform->xpos + (0.5f * platform->width))) {
+		platform->xpos += (6.0f * platform->width);
+		platform->ypos += GAME_PLATFORM_SHIFT_YPOS;
 	}
-	if (EN_PLATFORM_ETA_ID == ent->id) {
-		ent->xpos = beta_platform->xpos;
-		ent->ypos = beta_platform->ypos - (4.0f * ent->height);
-	} else if (EN_PLATFORM_RHO_ID == ent->id) {
-		ent->xpos = chi_platform->xpos;
-		ent->ypos = chi_platform->ypos - (4.0f * ent->height);
-	} else if (EN_PLATFORM_PSI_ID == ent->id) {
-		ent->xpos = zeta_platform->xpos;
-		ent->ypos = zeta_platform->ypos - (8.0f * ent->height);
+	if (EN_PLATFORM_ETA_ID == platform->id) {
+		platform->xpos = beta_platform->xpos;
+		platform->ypos = beta_platform->ypos - (4.0f * platform->height);
+	} else if (EN_PLATFORM_RHO_ID == platform->id) {
+		platform->xpos = chi_platform->xpos;
+		platform->ypos = chi_platform->ypos - (4.0f * platform->height);
+	} else if (EN_PLATFORM_PSI_ID == platform->id) {
+		platform->xpos = zeta_platform->xpos;
+		platform->ypos = zeta_platform->ypos - (8.0f * platform->height);
 	}
-	en_set_view(g, ent->id);
+	en_set_view(g, platform->id);
 }
 
 static void en_update_enemy(
