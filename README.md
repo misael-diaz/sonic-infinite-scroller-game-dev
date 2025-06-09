@@ -44,7 +44,7 @@ We do not host the graphics needed to run this game. If you would like to play t
 game you may download the graphics from the
 [sprites database](https://www.spritedatabase.net/) and also you will have to read
 some of the source code to organize them in the way that the code expects. I know,
-sounds like a lot of work for someone that just wants to play a game.
+sounds like a lot of work for someone who just wants to play a game.
 You may also want to check Paul's game-dev
 [codecamp](https://github.com/paulcockrell/sonic-infinite-scroller) to get an idea of
 the ordering. You can also play his game in your browser if you would like to get a
