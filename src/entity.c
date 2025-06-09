@@ -1142,34 +1142,34 @@ static void en_check_falling(
 }
 
 static void en_apply_gravity(
-		struct game * const gp,
+		struct game * const g,
 		int const platform_id,
 		int const id
 )
 {
-	struct entity const * const platform = &gp->ents[platform_id];
-	struct entity * const ent = &gp->ents[id];
+	struct entity const * const platform = &g->ents[platform_id];
+	struct entity * const ent = &g->ents[id];
 	float const game_period = GAME_PERIOD_SEC;
 	float const time = (
-			(gp->frameno - ent->frameno) * game_period
+			(g->frameno - ent->frameno) * game_period
 	);
 	float const t = time;
-	float const g = GAME_GRAVITY_ACCELERATION;
+	float const gc = GAME_GRAVITY_ACCELERATION;
 	float const floor = (
 			platform->ypos -
 			(0.5f * platform->height) -
 			(0.5f * ent->height)
 	);
-	ent->yvel = (ent->yv00 + g * t);
+	ent->yvel = (ent->yv00 + gc * t);
 	ent->ypos = (
 			ent->yold +
 			(ent->yv00 * t) +
-			(0.5f * g * t * t)
+			(0.5f * gc * t * t)
 	);
 	if (platform->platfno) {
 		int const platfno = platform->platfno;
-		int const id = gp->platform_ids[platfno - 1];
-		struct entity const * const ceiling_platform = &gp->ents[id];
+		int const id = g->platform_ids[platfno - 1];
+		struct entity const * const ceiling_platform = &g->ents[id];
 		if (platform->xpos == ceiling_platform->xpos) {
 			int const ceiling = (
 				ceiling_platform->ypos +
