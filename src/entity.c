@@ -1111,13 +1111,13 @@ static int en_map_platform(
 }
 
 static void en_check_falling(
-		struct game * const gp,
+		struct game * const g,
 		int const platform_id,
 		int const id
 )
 {
-	struct entity const * const platform = &gp->ents[platform_id];
-	struct entity * const ent = &gp->ents[id];
+	struct entity const * const platform = &g->ents[platform_id];
+	struct entity * const ent = &g->ents[id];
 	ent->frameno = 0;
 	ent->tickno = 0;
 	ent->yv00 = 0;
@@ -1129,7 +1129,7 @@ static void en_check_falling(
 	if (contact != (ent->ypos + 0.5f * ent->height)) {
 		ent->contact = !GAME_PLATFORM_CONTACT;
 		ent->falling = GAME_ENTITY_FALLING;
-		ent->frameno = gp->frameno;
+		ent->frameno = g->frameno;
 		ent->tickno = 1;
 		ent->yv00 = 0;
 		ent->yvel = 0;
