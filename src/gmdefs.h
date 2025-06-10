@@ -49,7 +49,7 @@
 #define GAME_PLATFORM_SHIFT_YPOS 4000
 #define GAME_SORTED_PLATFORMS 1
 
-#define GAME_SONIC_JUMP_VEL 2300
+#define GAME_SONIC_JUMP_VEL 3000
 
 /* if set sonic is in contact with a platform (has no meaning for other entities) */
 
