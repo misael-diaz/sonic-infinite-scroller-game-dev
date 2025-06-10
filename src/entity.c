@@ -1017,9 +1017,9 @@ static void en_init_platform(
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	} else if (EN_PLATFORM_XI_ID == id_platform) {
-		platform->xpos = beta_platform->xpos;
+		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
-				beta_platform->ypos -
+				iota_platform->ypos -
 				(10.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
@@ -1499,9 +1499,9 @@ static void en_update_platform(
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	} else if (EN_PLATFORM_XI_ID == platform->id) {
-		platform->xpos = beta_platform->xpos;
+		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
-			beta_platform->ypos -
+			iota_platform->ypos -
 			(10.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
