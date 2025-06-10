@@ -52,7 +52,8 @@ int main(void)
 			EN_PLATFORM_UPSILON_ID,
 			EN_PLATFORM_MU_ID,
 			EN_PLATFORM_NU_ID,
-			EN_PLATFORM_PI_ID
+			EN_PLATFORM_PI_ID,
+			EN_PLATFORM_XI_ID
 		},
 		.supported_protocols = {
 			GAME_PROTOCOL_NM,
