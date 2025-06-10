@@ -207,6 +207,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_NU_ID;
 			++count;
+		} else if (EN_PLATFORM_PI_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_PI_ID;
+			++count;
 		} else if (EN_ENEMY_MOTOBUG_ALPHA_ID == i) {
 			ent->tag = EN_ENEMY_TAG;
 			ent->id = EN_ENEMY_MOTOBUG_ALPHA_ID;
@@ -509,6 +513,7 @@ static void en_init_aframes(struct game * const g)
 	en_init_platform_aframes(g, EN_PLATFORM_UPSILON_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_MU_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_NU_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_PI_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -571,6 +576,7 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_PLATFORM_UPSILON_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_MU_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_NU_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_PI_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -821,7 +827,8 @@ static void en_init_platform(
 		(EN_PLATFORM_SIGMA_ID   != id_platform) &&
 		(EN_PLATFORM_UPSILON_ID != id_platform) &&
 		(EN_PLATFORM_MU_ID      != id_platform) &&
-		(EN_PLATFORM_NU_ID      != id_platform)
+		(EN_PLATFORM_NU_ID      != id_platform) &&
+		(EN_PLATFORM_PI_ID      != id_platform)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init_platform: InvalidPlatformIdError");
 		graph_unloadall_graphics(g);
@@ -992,6 +999,13 @@ static void en_init_platform(
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
+				(4.0f * platform->height) -
+				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_PI_ID == id_platform) {
+		platform->xpos = chi_platform->xpos;
+		platform->ypos = (
+				chi_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
@@ -1460,6 +1474,13 @@ static void en_update_platform(
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 			tau_platform->ypos -
+			(4.0f * platform->height) -
+			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_PI_ID == platform->id) {
+		platform->xpos = chi_platform->xpos;
+		platform->ypos = (
+			chi_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
