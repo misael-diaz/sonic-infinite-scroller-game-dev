@@ -195,6 +195,18 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_SIGMA_ID;
 			++count;
+		} else if (EN_PLATFORM_UPSILON_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_UPSILON_ID;
+			++count;
+		} else if (EN_PLATFORM_MU_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_MU_ID;
+			++count;
+		} else if (EN_PLATFORM_NU_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_NU_ID;
+			++count;
 		} else if (EN_ENEMY_MOTOBUG_ALPHA_ID == i) {
 			ent->tag = EN_ENEMY_TAG;
 			ent->id = EN_ENEMY_MOTOBUG_ALPHA_ID;
@@ -494,6 +506,9 @@ static void en_init_aframes(struct game * const g)
 	en_init_platform_aframes(g, EN_PLATFORM_LAMBDA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_OMICRON_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_SIGMA_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_UPSILON_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_MU_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_NU_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -553,6 +568,9 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_PLATFORM_LAMBDA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_OMICRON_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_SIGMA_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_UPSILON_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_MU_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_NU_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -800,7 +818,10 @@ static void en_init_platform(
 		(EN_PLATFORM_EPSILON_ID != id_platform) &&
 		(EN_PLATFORM_LAMBDA_ID  != id_platform) &&
 		(EN_PLATFORM_OMICRON_ID != id_platform) &&
-		(EN_PLATFORM_SIGMA_ID != id_platform)
+		(EN_PLATFORM_SIGMA_ID   != id_platform) &&
+		(EN_PLATFORM_UPSILON_ID != id_platform) &&
+		(EN_PLATFORM_MU_ID      != id_platform) &&
+		(EN_PLATFORM_NU_ID      != id_platform)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init_platform: InvalidPlatformIdError");
 		graph_unloadall_graphics(g);
@@ -821,9 +842,9 @@ static void en_init_platform(
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	struct entity const * const iota_platform = &g->ents[EN_PLATFORM_IOTA_ID];
 	struct entity const * const tau_platform = &g->ents[EN_PLATFORM_TAU_ID];
 	struct entity const * const chi_platform = &g->ents[EN_PLATFORM_CHI_ID];
-	struct entity const * const psi_platform = &g->ents[EN_PLATFORM_PSI_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
@@ -922,36 +943,57 @@ static void en_init_platform(
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
-				(16.0f * platform->height) -
+				(10.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
 	} else if (EN_PLATFORM_EPSILON_ID == id_platform) {
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 				zeta_platform->ypos -
-				(24.0f * platform->height) -
+				(18.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
 	} else if (EN_PLATFORM_LAMBDA_ID == id_platform) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
-				(24.0f * platform->height) -
+				(22.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
 	} else if (EN_PLATFORM_OMICRON_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
-				(32.0f * platform->height) -
+				(26.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
 	} else if (EN_PLATFORM_SIGMA_ID == id_platform) {
-		platform->xpos = psi_platform->xpos;
+		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
-				psi_platform->ypos -
-				(40.0f * platform->height) -
-				GAME_PLATFORM_SHIFT_YPOS
+				beta_platform->ypos -
+				(4.0f * platform->height) -
+				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_UPSILON_ID == id_platform) {
+		platform->xpos = zeta_platform->xpos;
+		platform->ypos = (
+				zeta_platform->ypos -
+				(4.0f * platform->height) -
+				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_MU_ID == id_platform) {
+		platform->xpos = iota_platform->xpos;
+		platform->ypos = (
+				iota_platform->ypos -
+				(4.0f * platform->height) -
+				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_NU_ID == id_platform) {
+		platform->xpos = tau_platform->xpos;
+		platform->ypos = (
+				tau_platform->ypos -
+				(4.0f * platform->height) -
+				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	}
 	en_init_view(g, platform->id);
@@ -1347,6 +1389,7 @@ static void en_update_platform(
 	struct entity const * const camera = &entities[EN_CAMERA_ID];
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
+	struct entity const * const iota_platform = &entities[EN_PLATFORM_IOTA_ID];
 	struct entity const * const tau_platform = &entities[EN_PLATFORM_TAU_ID];
 	struct entity const * const chi_platform = &entities[EN_PLATFORM_CHI_ID];
 	struct entity * const platform = &entities[id_platform];
@@ -1397,7 +1440,28 @@ static void en_update_platform(
 		platform->ypos = (
 			beta_platform->ypos -
 			(4.0f * platform->height) -
-			3.0f * GAME_PLATFORM_SHIFT_YPOS
+			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_UPSILON_ID == platform->id) {
+		platform->xpos = zeta_platform->xpos;
+		platform->ypos = (
+			zeta_platform->ypos -
+			(4.0f * platform->height) -
+			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_MU_ID == platform->id) {
+		platform->xpos = iota_platform->xpos;
+		platform->ypos = (
+			iota_platform->ypos -
+			(4.0f * platform->height) -
+			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_PLATFORM_NU_ID == platform->id) {
+		platform->xpos = tau_platform->xpos;
+		platform->ypos = (
+			tau_platform->ypos -
+			(4.0f * platform->height) -
+			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	}
 	en_set_view(g, platform->id);
