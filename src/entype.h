@@ -114,6 +114,7 @@ struct entity {
 	int visible;
 	int falling;
 	int contact;
+	int clamped;
 	int hitting;
 	int explode;
 	int frameid;

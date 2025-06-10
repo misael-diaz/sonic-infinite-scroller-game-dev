@@ -762,6 +762,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->visible = EN_IGNORE_PROPERTY;
 	sonic->falling = !GAME_ENTITY_FALLING;
 	sonic->contact = GAME_PLATFORM_CONTACT;
+	sonic->clamped = !GAME_PLATFORM_CLAMPED;
 	sonic->hitting = !GAME_ENEMY_HITTING;
 	sonic->explode = EN_IGNORE_PROPERTY;
 	sonic->frameid = EN_IGNORE_PROPERTY;
@@ -838,6 +839,7 @@ static void en_init_platform(
 	platform->visible = EN_IGNORE_PROPERTY;
 	platform->falling = EN_IGNORE_PROPERTY;
 	platform->contact = EN_IGNORE_PROPERTY;
+	platform->clamped = EN_IGNORE_PROPERTY;
 	platform->hitting = EN_IGNORE_PROPERTY;
 	platform->explode = EN_IGNORE_PROPERTY;
 	platform->frameid = EN_IGNORE_PROPERTY;
@@ -996,6 +998,7 @@ static void en_init_enemy(
 	enemy->visible = EN_IGNORE_PROPERTY;
 	enemy->falling = EN_IGNORE_PROPERTY;
 	enemy->contact = GAME_PLATFORM_CONTACT;
+	enemy->clamped = !GAME_PLATFORM_CLAMPED;
 	enemy->hitting = EN_IGNORE_PROPERTY;
 	enemy->explode = !GAME_ENEMY_EXPLODE;
 	enemy->frameid = g->frameno;
@@ -1118,7 +1121,10 @@ static void en_update_camera(struct game * const g)
 	float const overlap = 0.5f * (camera->height + sonic->height);
 	float const overlap2 = overlap * overlap;
 	float yvel = 0;
-	if ((!GAME_PLATFORM_CONTACT) == sonic->contact) {
+	if (
+		((!GAME_PLATFORM_CONTACT) == sonic->contact) &&
+		((!GAME_PLATFORM_CLAMPED) == sonic->clamped)
+	   ) {
 		yvel = 0.9995f * (sonic->yvel + gc * t);
 	} else if (overlap2 < r2) {
 		if (0 > sonic->view.yrel) {
@@ -1236,6 +1242,11 @@ static void en_apply_gravity(
 				0.5f * ent->height
 			) + 1;
 			ent->ypos = en_clamp(ent->ypos, floor, ceiling);
+			if (ceiling == ent->ypos) {
+				ent->clamped = GAME_PLATFORM_CLAMPED;
+			} else {
+				ent->clamped = !GAME_PLATFORM_CLAMPED;
+			}
 		} else {
 			ent->ypos = MIN(ent->ypos, floor);
 		}
