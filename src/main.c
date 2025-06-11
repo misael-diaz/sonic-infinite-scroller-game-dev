@@ -55,6 +55,13 @@ int main(void)
 			EN_PLATFORM_PI_ID,
 			EN_PLATFORM_XI_ID
 		},
+		.enemy_ids = {
+			EN_ENEMY_MOTOBUG_ALPHA_ID,
+			EN_ENEMY_MOTOBUG_GAMMA_ID,
+			EN_ENEMY_MOTOBUG_DELTA_ID,
+			EN_ENEMY_MOTOBUG_THETA_ID,
+			EN_ENEMY_MOTOBUG_KAPPA_ID
+		},
 		.supported_protocols = {
 			GAME_PROTOCOL_NM,
 			GAME_DELETE_WINDOW_NM,
@@ -76,6 +83,7 @@ int main(void)
 		.protocolno = GAME_SUPPORTED_PROTOCOLS_NUM,
 		.sorted_platforms = !GAME_SORTED_PLATFORMS,
 		.oldframeno = 0,
+		.enemyno = 0,
 		.screeno = 0,
 		.frameno = 0,
 		.entno = EN_MAXNUMOF_ENT,

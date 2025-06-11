@@ -36,6 +36,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define KBD_TAB XKeysymToKeycode(dpy, XK_Tab)
 #define KBD_M XKeysymToKeycode(dpy, XK_M)
 #define KBD_B XKeysymToKeycode(dpy, XK_B)
+#define KBD_E XKeysymToKeycode(dpy, XK_E)
 
 // Window Manager Protocol Message Handling Resource:
 // https://tronche.com/gui/x/xlib/events/client-communication/client-message.html
@@ -124,6 +125,18 @@ int in_handle_input(struct game * const g)
 				fprintf(stdout, "%s\n", "tab-key pressed");
 				rc = 0;
 				break;
+			} else if (KBD_E == ev.xkey.keycode) {
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					int const enemyno = g->enemyno;
+					int const id = g->enemy_ids[enemyno];
+					struct entity const * const enemy = &g->ents[id];
+					camera->xpos = enemy->xpos;
+					camera->ypos = enemy->ypos;
+					g->enemyno++;
+					if (EN_MAXNUMOF_ENEMIES == g->enemyno) {
+						g->enemyno = 0;
+					}
+				}
 			} else if (KBD_M == ev.xkey.keycode) {
 				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
 					g->oldframeno = g->frameno;
