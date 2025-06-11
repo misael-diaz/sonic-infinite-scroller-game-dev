@@ -81,6 +81,12 @@ The game requires the following libraries and build tools for compiling the game
 Under GNU/Linux all that you probably have to install is the `libpng` library, for the
 other ones are installed by default.
 
+In debian based distros you may install it (as root) via the package manager:
+
+```sh
+apt install libpng-dev
+```
+
 To compile the game source code open a terminal and execute the following commands:
 
 ```sh
@@ -93,8 +99,12 @@ to build the game from source code with GNU make and to play the game just execu
 ```
 
 The path is important because the game expects the graphics to be located at the
-`public/graphics` directory. As mentioned earlier you must supply them yourself as
-these are not hosted here.
+`public/graphics` directory. Please look at the `gmdefs.h` header file for more info.
+As mentioned earlier you must supply them yourself as these are not hosted here.
+
+The game starts right away, there's no menu, and there's just the one level that never
+ends (hence the use of infinity for naming this game) as shown in the videos below.
+Enjoy!
 
 ## References
 
