@@ -70,8 +70,8 @@ The following features are implemented in this game:
 - handles player keyboard input
 
 These features were implemented with basic algorithms and data structures so this
-could be used as a demo to show students how can they apply what they learn at
-their first algorithms and computer programming course to build something fun
+could be used as a demo that show students how can they apply what they learn in
+their first algorithms and computer programming courses to build something fun
 for themselves.
 
 ## Playing the Game
