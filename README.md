@@ -94,17 +94,21 @@ apt install libpng-dev
 
 To compile the game source code open a terminal and execute the following commands:
 
+Use the following command to build the game from source code with GNU make:
+
 ```sh
 make clean && make
 ```
-to build the game from source code with GNU make and to play the game just execute
+
+and to play the game just execute:
 
 ```sh
 ./bin/sonic-infinite-scroller-game.bin
 ```
 
-The path is important because the game expects the graphics to be located at the
-`public/graphics` directory. Please look at the `gmdefs.h` header file for more info.
+The path here is important because the game expects the graphics to be located at the
+`public/graphics` directory, which must be present at the top level of this repository.
+Please look at the `gmdefs.h` header file for more info.
 As mentioned earlier you must supply them yourself as these are not hosted here.
 
 The game starts right away, there's no menu, and there's just the one level that never
