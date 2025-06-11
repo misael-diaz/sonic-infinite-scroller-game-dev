@@ -58,6 +58,17 @@ the ordering. You can also play his game in your browser if you would like to ge
 feeling of how this game plays.
 Cheers!
 
+## Game Features
+
+The following features are implemented in this game:
+
+- projectile motion
+- entity collision detection
+- implements parallax effect
+- efficient entity drawing, only visible entities are drawn on the screen
+- game clocks nearly at a framerate of 60 Hz
+- handles player keyboard input
+
 ## References
 
 I am using the [Xlib Programming Manual](https://tronche.com/gui/x/xlib/) as the main
