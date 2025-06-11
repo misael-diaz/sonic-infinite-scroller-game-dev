@@ -953,70 +953,70 @@ static void en_init_platform(
 				camera->ypos +
 				GAME_PLATFORM_YREL
 		);
-	} else if (EN_PLATFORM_PSI_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_PSI_ID == id_platform) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
 				(10.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_EPSILON_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_EPSILON_ID == id_platform) {
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 				zeta_platform->ypos -
 				(18.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_LAMBDA_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_LAMBDA_ID == id_platform) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
 				(22.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_OMICRON_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_OMICRON_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
 				(26.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_SIGMA_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_SIGMA_ID == id_platform) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_UPSILON_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_UPSILON_ID == id_platform) {
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 				zeta_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_MU_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_MU_ID == id_platform) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_NU_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_NU_ID == id_platform) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_PI_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_PI_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_XI_ID == id_platform) {
+	} else if (EN_SKY_PLATFORM_XI_ID == id_platform) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
@@ -1435,70 +1435,70 @@ static void en_update_platform(
 	} else if (EN_WARP_PLATFORM_RHO_ID == platform->id) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = chi_platform->ypos - (4.0f * platform->height);
-	} else if (EN_PLATFORM_PSI_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_PSI_ID == platform->id) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 			beta_platform->ypos -
 			(10.0f * platform->height) -
 			GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_EPSILON_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_EPSILON_ID == platform->id) {
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 			zeta_platform->ypos -
 			(18.0f * platform->height) -
 			GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_LAMBDA_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_LAMBDA_ID == platform->id) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 			tau_platform->ypos -
 			(22.0f * platform->height) -
 			GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_OMICRON_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_OMICRON_ID == platform->id) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 			chi_platform->ypos -
 			(26.0f * platform->height) -
 			GAME_PLATFORM_SHIFT_YPOS
 		);
-	} else if (EN_PLATFORM_SIGMA_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_SIGMA_ID == platform->id) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 			beta_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_UPSILON_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_UPSILON_ID == platform->id) {
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 			zeta_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_MU_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_MU_ID == platform->id) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 			iota_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_NU_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_NU_ID == platform->id) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 			tau_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_PI_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_PI_ID == platform->id) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 			chi_platform->ypos -
 			(4.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
-	} else if (EN_PLATFORM_XI_ID == platform->id) {
+	} else if (EN_SKY_PLATFORM_XI_ID == platform->id) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 			iota_platform->ypos -
