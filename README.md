@@ -69,6 +69,33 @@ The following features are implemented in this game:
 - game clocks nearly at a framerate of 60 Hz
 - handles player keyboard input
 
+## Playing the Game
+
+The game requires the following libraries and build tools for compiling the game:
+
+- Xlib
+- libpng
+- make
+- gcc
+
+Under GNU/Linux all that you probably have to install is the `libpng` library, for the
+other ones are installed by default.
+
+To compile the game source code open a terminal and execute the following commands:
+
+```sh
+make clean && make
+```
+to build the game from source code with GNU make and to play the game just execute
+
+```sh
+./bin/sonic-infinite-scroller-game.bin
+```
+
+The path is important because the game expects the graphics to be located at the
+`public/graphics` directory. As mentioned earlier you must supply them yourself as
+these are not hosted here.
+
 ## References
 
 I am using the [Xlib Programming Manual](https://tronche.com/gui/x/xlib/) as the main
