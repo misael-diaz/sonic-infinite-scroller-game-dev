@@ -115,6 +115,35 @@ The game starts right away, there's no menu, and there's just the one level that
 ends (hence the use of infinity for naming this game) as shown in the videos below.
 Enjoy!
 
+## Game Controls
+
+This is a game that has two modes, the normal mode which allows you to control sonic
+to some extent and the camera mode which allows you to move the camera around. The
+latter mode is useful for debugging the game and maybe has some use for level design.
+
+**Normal mode controls:**
+
+In this mode you can make sonic morph into a ball or jump.
+
+- arrow-right-key: sonic runs
+- arrow-down-key: sonic spins
+- tab-key: sonic jumps
+- m-key: toggles between normal and camera modes
+
+As you see you can practically play the game with just the `tab-key`. This is quite
+limiting in comparison to the original Sega Genesis games but the intention was never to
+create a clone of those games.
+
+**Camera mode controls:**
+
+In this mode you control the camera placement as the world remains static:
+
+- the arrow keys move the camera in the respective directions
+- b-key: places at the camera at the beacon just above sonic
+- e-key: cycles the camera position over the enemies
+- p-key: cycles the camera position over the platforms
+- m-key: toggles between normal and camera modes
+
 ## References
 
 I am using the [Xlib Programming Manual](https://tronche.com/gui/x/xlib/) as the main
