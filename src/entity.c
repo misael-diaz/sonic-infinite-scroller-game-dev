@@ -1414,7 +1414,7 @@ static void en_update_platform(
 )
 {
 	struct entity * const entities = g->ents;
-	struct entity const * const camera = &entities[EN_CAMERA_ID];
+	struct entity const * const sonic = &entities[EN_SONIC_ID];
 	struct entity const * const beta_platform = &entities[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &entities[EN_PLATFORM_ZETA_ID];
 	struct entity const * const iota_platform = &entities[EN_PLATFORM_IOTA_ID];
@@ -1422,7 +1422,7 @@ static void en_update_platform(
 	struct entity const * const chi_platform = &entities[EN_PLATFORM_CHI_ID];
 	struct entity * const platform = &entities[id_platform];
 	float const xmin = (
-		camera->xpos +
+		sonic->xpos +
 		0.5f * (-(GAME_CAMERA_VIEW_WIDTH))
 	);
 	if (xmin >= (platform->xpos + (0.5f * platform->width))) {
@@ -1543,7 +1543,6 @@ static void en_update_enemy(
 )
 {
 	struct entity * const enemy = &g->ents[id_enemy];
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
 	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
@@ -1552,7 +1551,7 @@ static void en_update_enemy(
 	float const r2 = (dx * dx) + (dy * dy);
 	float const contact = (sonic->reff + enemy->reff);
 	float const contact2 = (contact * contact);
-	float const xmin = (camera->xpos + (0.5f * (-(GAME_CAMERA_VIEW_WIDTH))));
+	float const xmin = (sonic->xpos + (0.5f * (-(GAME_CAMERA_VIEW_WIDTH))));
 	if (contact2 >= r2) {
 		if ((!GAME_ENEMY_EXPLODE) == enemy->explode) {
 			enemy->explode = GAME_ENEMY_EXPLODE;
