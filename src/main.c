@@ -83,6 +83,7 @@ int main(void)
 		.protocolno = GAME_SUPPORTED_PROTOCOLS_NUM,
 		.sorted_platforms = !GAME_SORTED_PLATFORMS,
 		.oldframeno = 0,
+		.platformno = 0,
 		.enemyno = 0,
 		.screeno = 0,
 		.frameno = 0,

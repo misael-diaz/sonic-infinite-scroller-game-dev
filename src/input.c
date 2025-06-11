@@ -37,6 +37,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define KBD_M XKeysymToKeycode(dpy, XK_M)
 #define KBD_B XKeysymToKeycode(dpy, XK_B)
 #define KBD_E XKeysymToKeycode(dpy, XK_E)
+#define KBD_P XKeysymToKeycode(dpy, XK_P)
 
 // Window Manager Protocol Message Handling Resource:
 // https://tronche.com/gui/x/xlib/events/client-communication/client-message.html
@@ -135,6 +136,22 @@ int in_handle_input(struct game * const g)
 					g->enemyno++;
 					if (EN_MAXNUMOF_ENEMIES == g->enemyno) {
 						g->enemyno = 0;
+					}
+				}
+			} else if (KBD_P == ev.xkey.keycode) {
+				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+					int const platformno = g->platformno;
+					int const id = g->platform_ids[platformno];
+					struct entity const * const ents = g->ents;
+					struct entity const * const platform = &ents[id];
+					camera->xpos = platform->xpos;
+					camera->ypos = platform->ypos;
+					fprintf(stdout, "platform-id: %d\n", id);
+					fprintf(stdout, "x: %f\t", platform->xpos);
+					fprintf(stdout, "y: %f\n", platform->ypos);
+					g->platformno++;
+					if (EN_MAXNUMOF_PLATFORMS == g->platformno) {
+						g->platformno = 0;
 					}
 				}
 			} else if (KBD_M == ev.xkey.keycode) {

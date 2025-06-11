@@ -28,6 +28,7 @@ struct game {
 	int protocolno;
 	int sorted_platforms;
 	int oldframeno;
+	int platformno;
 	int enemyno;
 	int screeno;
 	int frameno;
