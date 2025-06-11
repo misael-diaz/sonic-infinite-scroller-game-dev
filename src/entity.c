@@ -1055,7 +1055,7 @@ static void en_init_enemy(
 
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
-	struct entity const * const rho_platform = &g->ents[EN_PLATFORM_RHO_ID];
+	struct entity const * const warp_platform = &g->ents[EN_WARP_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
 	enemy->xvel = -sys_random(
 		GAME_ENEMY_MOTOBUG_MIN_XVEL,
@@ -1078,20 +1078,20 @@ static void en_init_enemy(
 	enemy->hitting = EN_IGNORE_PROPERTY;
 	enemy->explode = !GAME_ENEMY_EXPLODE;
 	enemy->frameid = g->frameno;
-	enemy->platfno = EN_PLATFORM_RHO_ID;
+	enemy->platfno = EN_WARP_PLATFORM_RHO_ID;
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 	enemy->tickno = EN_IGNORE_PROPERTY;
 	enemy->view.xref = (0.5f * width_game_window);
 	enemy->view.yref = (0.5f * height_game_window);
 	enemy->xpos = (
-			rho_platform->xpos -
-			(0.5f * rho_platform->width) +
+			warp_platform->xpos -
+			(0.5f * warp_platform->width) +
 			((enemy->id - EN_ENEMY_MOTOBUG_ALPHA_ID) * 1.5f * enemy->width)
 	);
 	enemy->ypos = (
-		rho_platform->ypos -
-		(0.5f * rho_platform->height) -
+		warp_platform->ypos -
+		(0.5f * warp_platform->height) -
 		(0.5f * enemy->height)
 	);
 	enemy->yold = enemy->ypos;
@@ -1429,10 +1429,10 @@ static void en_update_platform(
 		platform->xpos += (6.0f * platform->width);
 		platform->ypos += GAME_PLATFORM_SHIFT_YPOS;
 	}
-	if (EN_PLATFORM_ETA_ID == platform->id) {
+	if (EN_WARP_PLATFORM_ETA_ID == platform->id) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = beta_platform->ypos - (4.0f * platform->height);
-	} else if (EN_PLATFORM_RHO_ID == platform->id) {
+	} else if (EN_WARP_PLATFORM_RHO_ID == platform->id) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = chi_platform->ypos - (4.0f * platform->height);
 	} else if (EN_PLATFORM_PSI_ID == platform->id) {
@@ -1524,8 +1524,8 @@ static void en_check_notwarp_platform(
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
 	} else if (
-			(EN_PLATFORM_ETA_ID == platform->id) ||
-			(EN_PLATFORM_RHO_ID == platform->id)
+			(EN_WARP_PLATFORM_ETA_ID == platform->id) ||
+			(EN_WARP_PLATFORM_RHO_ID == platform->id)
 		  ) {
 		fprintf(stderr,
 			"%s\n",
@@ -1562,20 +1562,20 @@ static void en_update_enemy(
 	}
 
 	if (xmin >= enemy->xpos) {
-		if (EN_PLATFORM_ETA_ID == enemy->platfno) {
-			warp_platform = &g->ents[EN_PLATFORM_RHO_ID];
+		if (EN_WARP_PLATFORM_ETA_ID == enemy->platfno) {
+			warp_platform = &g->ents[EN_WARP_PLATFORM_RHO_ID];
 			enemy->xvel = -sys_random(
 				GAME_ENEMY_MOTOBUG_MIN_XVEL,
 				GAME_ENEMY_MOTOBUG_MAX_XVEL
 			);
-			enemy->platfno = EN_PLATFORM_RHO_ID;
+			enemy->platfno = EN_WARP_PLATFORM_RHO_ID;
 		} else {
-			warp_platform = &g->ents[EN_PLATFORM_ETA_ID];
+			warp_platform = &g->ents[EN_WARP_PLATFORM_ETA_ID];
 			enemy->xvel = sys_random(
 				GAME_ENEMY_MOTOBUG_MIN_XVEL,
 				GAME_ENEMY_MOTOBUG_MAX_XVEL
 			);
-			enemy->platfno = EN_PLATFORM_ETA_ID;
+			enemy->platfno = EN_WARP_PLATFORM_ETA_ID;
 		}
 		enemy->xpos = (
 			warp_platform->xpos -
@@ -1607,8 +1607,8 @@ static void en_update_enemy(
 
 		int id = EN_IGNORE_PROPERTY;
 		if (
-			(platform_id == EN_PLATFORM_ETA_ID) ||
-			(platform_id == EN_PLATFORM_RHO_ID)
+			(platform_id == EN_WARP_PLATFORM_ETA_ID) ||
+			(platform_id == EN_WARP_PLATFORM_RHO_ID)
 		   ) {
 			id = platform_next_id;
 		} else {
