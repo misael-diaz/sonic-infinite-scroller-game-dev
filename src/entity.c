@@ -1545,7 +1545,7 @@ static void en_update_enemy(
 	struct entity * const enemy = &g->ents[id_enemy];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	float const time_step = GAME_PERIOD_SEC;
-	struct entity const * warp_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * warp_platform = NULL;
 	float const dx = sonic->xpos - enemy->xpos;
 	float const dy = sonic->ypos - enemy->ypos;
 	float const r2 = (dx * dx) + (dy * dy);
