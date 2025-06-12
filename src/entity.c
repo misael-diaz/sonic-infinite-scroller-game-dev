@@ -856,6 +856,8 @@ static void en_init_sonic(struct game * const g)
 	sonic->tickno = 0;
 	sonic->view.xref = (0.5f * width_game_window);
 	sonic->view.yref = (0.5f * height_game_window);
+	sonic->view.width = sonic->width;
+	sonic->view.height = sonic->height;
 	sonic->xpos = beta_platform->xpos;
 	sonic->ypos = (
 		beta_platform->ypos -
@@ -939,6 +941,8 @@ static void en_init_platform(
 	platform->tickno = EN_IGNORE_PROPERTY;
 	platform->view.xref = (0.5f * width_game_window);
 	platform->view.yref = (0.5f * height_game_window);
+	platform->view.width = platform->width;
+	platform->view.height = platform->height;
 	if (EN_PLATFORM_BETA_ID == id_platform) {
 		platform->xpos = camera->xpos + GAME_PLATFORM_XREL;
 		platform->ypos = (
@@ -1138,6 +1142,8 @@ static void en_init_enemy(
 	enemy->tickno = EN_IGNORE_PROPERTY;
 	enemy->view.xref = (0.5f * width_game_window);
 	enemy->view.yref = (0.5f * height_game_window);
+	enemy->view.width = enemy->width;
+	enemy->view.height = enemy->height;
 	enemy->xpos = (
 			warp_platform->xpos -
 			(0.5f * warp_platform->width) +
