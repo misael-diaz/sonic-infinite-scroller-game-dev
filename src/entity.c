@@ -744,20 +744,28 @@ static void en_set_mapview(
 		   );
 }
 
+static void en_init_norm(
+		struct enview * const view
+)
+{
+	view->N[EN_ENVIEW_E].x = 1;
+	view->N[EN_ENVIEW_E].y = 0;
+	view->N[EN_ENVIEW_N].x = 0;
+	view->N[EN_ENVIEW_N].y = 1;
+	view->N[EN_ENVIEW_W].x =-1;
+	view->N[EN_ENVIEW_W].y = 0;
+	view->N[EN_ENVIEW_S].x = 0;
+	view->N[EN_ENVIEW_S].y =-1;
+}
+
 static void en_init_view(
 		struct game * const g,
 		int const id
 )
 {
 	struct entity * const ent = &g->ents[id];
-	ent->view.N[EN_ENVIEW_E].x = 1;
-	ent->view.N[EN_ENVIEW_E].y = 0;
-	ent->view.N[EN_ENVIEW_N].x = 0;
-	ent->view.N[EN_ENVIEW_N].y = 1;
-	ent->view.N[EN_ENVIEW_W].x =-1;
-	ent->view.N[EN_ENVIEW_W].y = 0;
-	ent->view.N[EN_ENVIEW_S].x = 0;
-	ent->view.N[EN_ENVIEW_S].y =-1;
+	en_init_norm(&ent->view);
+	en_init_norm(&ent->mapview);
 	en_set_screenview(g, id);
 	en_set_mapview(g, id);
 }
