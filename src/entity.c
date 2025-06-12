@@ -716,6 +716,34 @@ static void en_set_screenview(
 	}
 }
 
+static void en_set_mapview(
+		struct game * const g,
+		int const id
+)
+{
+	float const xmin = (0.5f * (-(GAME_CAMERA_VIEW_WIDTH)));
+	float const xmax = (1.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
+	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
+	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity * const ent = &g->ents[id];
+	struct enview * const mapview = &ent->mapview;
+	float const width = ent->width;
+	float const height = ent->height;
+	ent->mapview.xrel = ent->xpos - camera->xpos;
+	ent->mapview.yrel = ent->ypos - camera->ypos;
+	en_set_view(
+			g,
+			mapview,
+			width,
+			height,
+			xmin,
+			xmax,
+			ymin,
+			ymax
+		   );
+}
+
 static void en_init_view(
 		struct game * const g,
 		int const id
@@ -731,6 +759,7 @@ static void en_init_view(
 	ent->view.N[EN_ENVIEW_S].x = 0;
 	ent->view.N[EN_ENVIEW_S].y =-1;
 	en_set_screenview(g, id);
+	en_set_mapview(g, id);
 }
 
 static void en_init_camera(struct game * const g)
@@ -1431,6 +1460,7 @@ static void en_update_sonic(struct game * const g)
 	sonic->xpos += (time_step * sonic->xvel);
 	en_update_animation(g, sonic->id, sonic->animno);
 	en_set_screenview(g, sonic->id);
+	en_set_mapview(g, sonic->id);
 }
 
 static void en_update_platform(
@@ -1532,6 +1562,7 @@ static void en_update_platform(
 		);
 	}
 	en_set_screenview(g, platform->id);
+	en_set_mapview(g, platform->id);
 }
 
 static void en_check_notwarp_platform(
@@ -1684,6 +1715,7 @@ static void en_update_enemy(
 	}
 	en_update_animation(g, enemy->id, enemy->animno);
 	en_set_screenview(g, enemy->id);
+	en_set_mapview(g, enemy->id);
 }
 
 void en_update(struct game * const g)
@@ -1698,6 +1730,7 @@ void en_update(struct game * const g)
 		for (int i = (EN_CAMERA_ID + 1); i != EN_MAXNUMOF_ENT; ++i) {
 			struct entity * const ent = &g->ents[i];
 			en_set_screenview(g, ent->id);
+			en_set_mapview(g, ent->id);
 		}
 		return;
 	}

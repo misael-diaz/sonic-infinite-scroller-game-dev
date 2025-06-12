@@ -110,6 +110,7 @@ struct entity {
 	struct graphic graphic;
 	struct animation animations[EN_ANIMATIONS_COUNT];
 	struct enview view;
+	struct enview mapview;
 	XImage *framebuffer;
 	float xpos;
 	float ypos;
