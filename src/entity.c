@@ -601,6 +601,8 @@ static void en_set_view(
 		float const ymax
 )
 {
+	float const window_height = (ymax - ymin);
+	float const window_width = (xmax - xmin);
 	view->xedg = (
 			view->xrel +
 			(0.5f * width) * view->N[EN_ENVIEW_W].x
@@ -649,7 +651,7 @@ static void en_set_view(
 		if (xmax > (view->xedg + width)) {
 			view->width = width - view->xoff;
 		} else {
-			view->width = GAME_CAMERA_VIEW_WIDTH;
+			view->width = window_width;
 		}
 	} else {
 		view->xoff = 0;
@@ -665,7 +667,7 @@ static void en_set_view(
 		if (ymax > (view->yedg + height)) {
 			view->height = height - view->yoff;
 		} else {
-			view->height = GAME_CAMERA_VIEW_HEIGHT;
+			view->height = window_height;
 		}
 	} else {
 		view->yoff = 0;
