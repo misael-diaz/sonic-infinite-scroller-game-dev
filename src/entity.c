@@ -592,7 +592,11 @@ static void en_init_framebuffers(struct game * const g)
 
 static void en_set_view(
 		struct game * const g,
-		int const id
+		int const id,
+		float const xmin,
+		float const xmax,
+		float const ymin,
+		float const ymax
 )
 {
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
@@ -600,10 +604,6 @@ static void en_set_view(
 	ent->view.xrel = ent->xpos - camera->xpos;
 	ent->view.yrel = ent->ypos - camera->ypos;
 
-	float const xmin = (0.5f * (-(GAME_CAMERA_VIEW_WIDTH)));
-	float const xmax = (0.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
-	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
-	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
 	ent->view.xedg = (
 			ent->view.xrel +
 			(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
@@ -683,6 +683,26 @@ static void en_set_view(
 	ent->view.yedg = en_clamp(ent->view.yedg, ymin, ymax);
 	ent->view.xscr = ent->view.xedg + ent->view.xref;
 	ent->view.yscr = ent->view.yedg + ent->view.yref;
+}
+
+static void en_set_screenview(
+		struct game * const g,
+		int const id
+)
+{
+	float const xmin = (0.5f * (-(GAME_CAMERA_VIEW_WIDTH)));
+	float const xmax = (0.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
+	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
+	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
+	struct entity * const ent = &g->ents[id];
+	en_set_view(
+			g,
+			id,
+			xmin,
+			xmax,
+			ymin,
+			ymax
+		   );
 	if ((EN_ENEMY_TAG == ent->tag) || (EN_SONIC_TAG == ent->tag)) {
 		int const animno = ent->animno;
 		int const aframecur = ent->animations[animno].aframecur;
@@ -705,7 +725,7 @@ static void en_init_view(
 	ent->view.N[EN_ENVIEW_W].y = 0;
 	ent->view.N[EN_ENVIEW_S].x = 0;
 	ent->view.N[EN_ENVIEW_S].y =-1;
-	en_set_view(g, id);
+	en_set_screenview(g, id);
 }
 
 static void en_init_camera(struct game * const g)
@@ -1405,7 +1425,7 @@ static void en_update_sonic(struct game * const g)
 	}
 	sonic->xpos += (time_step * sonic->xvel);
 	en_update_animation(g, sonic->id, sonic->animno);
-	en_set_view(g, sonic->id);
+	en_set_screenview(g, sonic->id);
 }
 
 static void en_update_platform(
@@ -1506,7 +1526,7 @@ static void en_update_platform(
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	}
-	en_set_view(g, platform->id);
+	en_set_screenview(g, platform->id);
 }
 
 static void en_check_notwarp_platform(
@@ -1658,7 +1678,7 @@ static void en_update_enemy(
 		}
 	}
 	en_update_animation(g, enemy->id, enemy->animno);
-	en_set_view(g, enemy->id);
+	en_set_screenview(g, enemy->id);
 }
 
 void en_update(struct game * const g)
@@ -1672,7 +1692,7 @@ void en_update(struct game * const g)
 		camera->yvel = 0;
 		for (int i = (EN_CAMERA_ID + 1); i != EN_MAXNUMOF_ENT; ++i) {
 			struct entity * const ent = &g->ents[i];
-			en_set_view(g, ent->id);
+			en_set_screenview(g, ent->id);
 		}
 		return;
 	}
