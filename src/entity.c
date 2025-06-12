@@ -592,54 +592,51 @@ static void en_init_framebuffers(struct game * const g)
 
 static void en_set_view(
 		struct game * const g,
-		int const id,
+		struct enview * const view,
+		float const width,
+		float const height,
 		float const xmin,
 		float const xmax,
 		float const ymin,
 		float const ymax
 )
 {
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
-	struct entity * const ent = &g->ents[id];
-	ent->view.xrel = ent->xpos - camera->xpos;
-	ent->view.yrel = ent->ypos - camera->ypos;
-
-	ent->view.xedg = (
-			ent->view.xrel +
-			(0.5f * ent->width) * ent->view.N[EN_ENVIEW_W].x
+	view->xedg = (
+			view->xrel +
+			(0.5f * width) * view->N[EN_ENVIEW_W].x
 	);
-	ent->view.yedg = (
-			ent->view.yrel +
-			(0.5f * ent->height) * ent->view.N[EN_ENVIEW_S].y
+	view->yedg = (
+			view->yrel +
+			(0.5f * height) * view->N[EN_ENVIEW_S].y
 	);
-	if ((xmin > (ent->view.xedg + ent->width)) || (xmax < ent->view.xedg)) {
-		ent->view.xedg = 0;
-		ent->view.yedg = 0;
-		ent->view.xscr = 0;
-		ent->view.yscr = 0;
-		ent->view.xoff = 0;
-		ent->view.yoff = 0;
-		ent->view.width = 0;
-		ent->view.height = 0;
+	if ((xmin > (view->xedg + width)) || (xmax < view->xedg)) {
+		view->xedg = 0;
+		view->yedg = 0;
+		view->xscr = 0;
+		view->yscr = 0;
+		view->xoff = 0;
+		view->yoff = 0;
+		view->width = 0;
+		view->height = 0;
 		return;
 	}
-	if ((ymin > (ent->view.yedg + ent->height)) || (ymax < ent->view.yedg)) {
-		ent->view.xedg = 0;
-		ent->view.yedg = 0;
-		ent->view.xscr = 0;
-		ent->view.yscr = 0;
-		ent->view.xoff = 0;
-		ent->view.yoff = 0;
-		ent->view.width = 0;
-		ent->view.height = 0;
+	if ((ymin > (view->yedg + height)) || (ymax < view->yedg)) {
+		view->xedg = 0;
+		view->yedg = 0;
+		view->xscr = 0;
+		view->yscr = 0;
+		view->xoff = 0;
+		view->yoff = 0;
+		view->width = 0;
+		view->height = 0;
 		return;
 	}
 
 	if (
-		(xmin > (ent->view.xedg + ent->width)) ||
-		(xmax < ent->view.xedg) ||
-		(ymin > (ent->view.yedg + ent->height)) ||
-		(xmax < ent->view.yedg)
+		(xmin > (view->xedg + width)) ||
+		(xmax < view->xedg) ||
+		(ymin > (view->yedg + height)) ||
+		(xmax < view->yedg)
 	   ) {
 		fprintf(stderr, "%s\n", "en_set_view: ImplCameraViewBoundsError");
 		graph_unloadall_graphics(g);
@@ -647,42 +644,42 @@ static void en_set_view(
 		exit(EXIT_FAILURE);
 	}
 
-	if (xmin > ent->view.xedg) {
-		ent->view.xoff = xmin - ent->view.xedg;
-		if (xmax > (ent->view.xedg + ent->width)) {
-			ent->view.width = ent->width - ent->view.xoff;
+	if (xmin > view->xedg) {
+		view->xoff = xmin - view->xedg;
+		if (xmax > (view->xedg + width)) {
+			view->width = width - view->xoff;
 		} else {
-			ent->view.width = GAME_CAMERA_VIEW_WIDTH;
+			view->width = GAME_CAMERA_VIEW_WIDTH;
 		}
 	} else {
-		ent->view.xoff = 0;
-		if (xmax > (ent->view.xedg + ent->width)) {
-			ent->view.width = ent->width;
+		view->xoff = 0;
+		if (xmax > (view->xedg + width)) {
+			view->width = width;
 		} else {
-			ent->view.width = xmax - ent->view.xedg;
+			view->width = xmax - view->xedg;
 		}
 	}
 
-	if (ymin > ent->view.yedg) {
-		ent->view.yoff = ymin - ent->view.yedg;
-		if (ymax > (ent->view.yedg + ent->height)) {
-			ent->view.height = ent->height - ent->view.yoff;
+	if (ymin > view->yedg) {
+		view->yoff = ymin - view->yedg;
+		if (ymax > (view->yedg + height)) {
+			view->height = height - view->yoff;
 		} else {
-			ent->view.height = GAME_CAMERA_VIEW_HEIGHT;
+			view->height = GAME_CAMERA_VIEW_HEIGHT;
 		}
 	} else {
-		ent->view.yoff = 0;
-		if (ymax > (ent->view.yedg + ent->height)) {
-			ent->view.height = ent->height;
+		view->yoff = 0;
+		if (ymax > (view->yedg + height)) {
+			view->height = height;
 		} else {
-			ent->view.height = ymax - ent->view.yedg;
+			view->height = ymax - view->yedg;
 		}
 	}
 
-	ent->view.xedg = en_clamp(ent->view.xedg, xmin, xmax);
-	ent->view.yedg = en_clamp(ent->view.yedg, ymin, ymax);
-	ent->view.xscr = ent->view.xedg + ent->view.xref;
-	ent->view.yscr = ent->view.yedg + ent->view.yref;
+	view->xedg = en_clamp(view->xedg, xmin, xmax);
+	view->yedg = en_clamp(view->yedg, ymin, ymax);
+	view->xscr = view->xedg + view->xref;
+	view->yscr = view->yedg + view->yref;
 }
 
 static void en_set_screenview(
@@ -694,10 +691,18 @@ static void en_set_screenview(
 	float const xmax = (0.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
 	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
 	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
+	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity * const ent = &g->ents[id];
+	struct enview * const view = &ent->view;
+	float const width = ent->width;
+	float const height = ent->height;
+	ent->view.xrel = ent->xpos - camera->xpos;
+	ent->view.yrel = ent->ypos - camera->ypos;
 	en_set_view(
 			g,
-			id,
+			view,
+			width,
+			height,
 			xmin,
 			xmax,
 			ymin,
