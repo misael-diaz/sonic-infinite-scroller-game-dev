@@ -122,8 +122,10 @@ struct entity {
 	float yv00;
 	float xscr;
 	float yscr;
-	float xmax;
-	float ymax;
+	float xmap;
+	float ymap;
+	float wmap;
+	float hmap;
 	float reff;
 	float width;
 	float height;

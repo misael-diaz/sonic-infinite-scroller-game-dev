@@ -181,6 +181,7 @@ void vid_draw_gw(struct game const * const g)
 {
 	XClearWindow(g->display, g->window);
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	XSetForeground(
 			g->display,
 			g->gc,
@@ -210,6 +211,36 @@ void vid_draw_gw(struct game const * const g)
 				ent->view.height
 			 );
 	}
+
+	for(int id = 0; id != EN_MAXNUMOF_PLATFORMS; ++id) {
+		int const id_platform = g->platform_ids[id];
+		struct entity const * const platform = &g->ents[id_platform];
+		XFillRectangle(
+				g->display,
+				g->window,
+				g->gc,
+				platform->mapview.xscr,
+				platform->mapview.yscr,
+				platform->mapview.width,
+				platform->mapview.height
+			      );
+	}
+
+	XSetForeground(
+			g->display,
+			g->gc,
+			g->blue.pixel
+		      );
+	XFillRectangle(
+			g->display,
+			g->window,
+			g->gc,
+			sonic->mapview.xscr,
+			sonic->mapview.yscr,
+			sonic->mapview.width,
+			sonic->mapview.height
+		      );
+
 	XFlush(g->display);
 }
 

@@ -638,7 +638,7 @@ static void en_set_view(
 		(xmin > (view->xedg + width)) ||
 		(xmax < view->xedg) ||
 		(ymin > (view->yedg + height)) ||
-		(xmax < view->yedg)
+		(ymax < view->yedg)
 	   ) {
 		fprintf(stderr, "%s\n", "en_set_view: ImplCameraViewBoundsError");
 		graph_unloadall_graphics(g);
@@ -723,17 +723,16 @@ static void en_set_mapview(
 		int const id
 )
 {
-	float const xmin = (0.5f * (-(GAME_CAMERA_VIEW_WIDTH)));
-	float const xmax = (1.5f * (+(GAME_CAMERA_VIEW_WIDTH)));
-	float const ymin = (0.5f * (-(GAME_CAMERA_VIEW_HEIGHT)));
-	float const ymax = (0.5f * (+(GAME_CAMERA_VIEW_HEIGHT)));
-	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	float const xmin = (0.5f * (-(GAME_LVLMAP_VIEW_WIDTH)));
+	float const xmax = (0.5f * (+(GAME_LVLMAP_VIEW_WIDTH)));
+	float const ymin = (0.5f * (-(GAME_LVLMAP_VIEW_HEIGHT)));
+	float const ymax = (0.5f * (+(GAME_LVLMAP_VIEW_HEIGHT)));
 	struct entity * const ent = &g->ents[id];
 	struct enview * const mapview = &ent->mapview;
-	float const width = ent->width;
-	float const height = ent->height;
-	ent->mapview.xrel = ent->xpos - camera->xpos;
-	ent->mapview.yrel = ent->ypos - camera->ypos;
+	float const width = ent->wmap;
+	float const height = ent->hmap;
+	ent->mapview.xrel = ent->xmap - ent->mapview.xref;
+	ent->mapview.yrel = ent->ymap - ent->mapview.yref;
 	en_set_view(
 			g,
 			mapview,
@@ -769,7 +768,9 @@ static void en_init_view(
 	en_init_norm(&ent->view);
 	en_init_norm(&ent->mapview);
 	en_set_screenview(g, id);
-	en_set_mapview(g, id);
+	if ((EN_PLATFORM_TAG == ent->tag) || (EN_SONIC_TAG == ent->tag)) {
+		en_set_mapview(g, id);
+	}
 }
 
 static void en_init_camera(struct game * const g)
@@ -785,8 +786,10 @@ static void en_init_camera(struct game * const g)
 	camera->yvel = GAME_CAMERA_YVEL;
 	camera->xv00 = GAME_CAMERA_XVEL;
 	camera->yv00 = GAME_CAMERA_YVEL;
-	camera->xmax = EN_IGNORE_PROPERTY;
-	camera->ymax = EN_IGNORE_PROPERTY;
+	camera->xmap = EN_IGNORE_PROPERTY;
+	camera->ymap = EN_IGNORE_PROPERTY;
+	camera->wmap = EN_IGNORE_PROPERTY;
+	camera->hmap = EN_IGNORE_PROPERTY;
 	camera->width = camera->animations[0].aframes[0].width;
 	camera->height = camera->animations[0].aframes[0].height;
 	camera->reff = 0.5f * (0.5f * (camera->width + camera->height));
@@ -839,17 +842,28 @@ static void en_init_sonic(struct game * const g)
 {
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
+	float const width_levelmap_window = GAME_LVLMAP_VIEW_WIDTH;
+	float const height_levelmap_window = GAME_LVLMAP_VIEW_HEIGHT;
+	if (
+		(GAME_CAMERA_VIEW_WIDTH != g->screen_width) ||
+		(GAME_CAMERA_VIEW_HEIGHT != g->screen_height)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_sonic: UXScreenDimsError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	sonic->xold = EN_IGNORE_PROPERTY;
+	sonic->wmap = GAME_LVLMAP_SONIC_WIDTH;
+	sonic->hmap = GAME_LVLMAP_SONIC_HEIGHT;
 	sonic->xvel = GAME_SONIC_XVEL;
 	sonic->yvel = GAME_SONIC_YVEL;
 	sonic->xv00 = GAME_SONIC_XVEL;
 	sonic->yv00 = GAME_SONIC_YVEL;
 	sonic->xscr = EN_IGNORE_PROPERTY;
 	sonic->yscr = EN_IGNORE_PROPERTY;
-	sonic->xmax = EN_IGNORE_PROPERTY;
-	sonic->ymax = EN_IGNORE_PROPERTY;
 	sonic->width = sonic->animations[0].aframes[0].width;
 	sonic->height = sonic->animations[0].aframes[0].height;
 	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
@@ -868,6 +882,10 @@ static void en_init_sonic(struct game * const g)
 	sonic->view.yref = (0.5f * height_game_window);
 	sonic->view.width = sonic->width;
 	sonic->view.height = sonic->height;
+	sonic->mapview.xref = (0.5f * width_levelmap_window);
+	sonic->mapview.yref = (0.5f * height_levelmap_window);
+	sonic->mapview.width = sonic->wmap;
+	sonic->mapview.height = sonic->hmap;
 	sonic->xpos = beta_platform->xpos;
 	sonic->ypos = (
 		beta_platform->ypos -
@@ -917,8 +935,19 @@ static void en_init_platform(
 		exit(EXIT_FAILURE);
 	}
 
+	if (
+		(GAME_CAMERA_VIEW_WIDTH != g->screen_width) ||
+		(GAME_CAMERA_VIEW_HEIGHT != g->screen_height)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_platform: UXScreenDimsError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
+	float const width_levelmap_window = GAME_LVLMAP_VIEW_WIDTH;
+	float const height_levelmap_window = GAME_LVLMAP_VIEW_HEIGHT;
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
@@ -933,10 +962,10 @@ static void en_init_platform(
 	platform->yv00 = EN_IGNORE_PROPERTY;
 	platform->xscr = EN_IGNORE_PROPERTY;
 	platform->yscr = EN_IGNORE_PROPERTY;
-	platform->xmax = EN_IGNORE_PROPERTY;
-	platform->ymax = EN_IGNORE_PROPERTY;
 	platform->width = platform->animations[0].aframes[0].width;
 	platform->height = platform->animations[0].aframes[0].height;
+	platform->wmap = GAME_LVLMAP_PLATFORM_WIDTH;
+	platform->hmap = GAME_LVLMAP_PLATFORM_HEIGHT;
 	platform->reff = EN_IGNORE_PROPERTY;
 	platform->visible = EN_IGNORE_PROPERTY;
 	platform->falling = EN_IGNORE_PROPERTY;
@@ -953,11 +982,23 @@ static void en_init_platform(
 	platform->view.yref = (0.5f * height_game_window);
 	platform->view.width = platform->width;
 	platform->view.height = platform->height;
+	platform->mapview.xref = (0.5f * width_levelmap_window);
+	platform->mapview.yref = (0.5f * height_levelmap_window);
+	platform->mapview.width = platform->wmap;
+	platform->mapview.height = platform->hmap;
 	if (EN_PLATFORM_BETA_ID == id_platform) {
 		platform->xpos = camera->xpos + GAME_PLATFORM_XREL;
 		platform->ypos = (
 				camera->ypos +
 				GAME_PLATFORM_YREL
+		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_ZETA_ID == id_platform) {
 		platform->xpos = (
@@ -969,6 +1010,14 @@ static void en_init_platform(
 				camera->ypos +
 				GAME_PLATFORM_YREL
 		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
+		);
 	} else if (EN_PLATFORM_IOTA_ID == id_platform) {
 		platform->xpos = (
 				camera->xpos +
@@ -979,17 +1028,35 @@ static void en_init_platform(
 				camera->ypos +
 				GAME_PLATFORM_YREL
 		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
+		);
 	} else if (EN_PLATFORM_ETA_ID == id_platform) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
 				(4.0f * platform->height)
 		);
+		platform->xmap = beta_platform->xmap;
+		platform->ymap = (
+				beta_platform->ymap -
+				GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_PLATFORM_RHO_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
 				(4.0f * platform->height)
+		);
+		platform->xmap = chi_platform->xmap;
+		platform->ymap = (
+				chi_platform->ymap -
+				GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_PLATFORM_TAU_ID == id_platform) {
 		platform->xpos = (
@@ -1001,6 +1068,14 @@ static void en_init_platform(
 				camera->ypos +
 				GAME_PLATFORM_YREL
 		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
+		);
 	} else if (EN_PLATFORM_PHI_ID == id_platform) {
 		platform->xpos = (
 				camera->xpos +
@@ -1010,6 +1085,14 @@ static void en_init_platform(
 		platform->ypos = (
 				camera->ypos +
 				GAME_PLATFORM_YREL
+		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_CHI_ID == id_platform) {
 		platform->xpos = (
@@ -1021,12 +1104,25 @@ static void en_init_platform(
 				camera->ypos +
 				GAME_PLATFORM_YREL
 		);
+		platform->xmap = (
+				(0.5f * platform->wmap) +
+				(id_platform - EN_PLATFORM_BETA_ID) * platform->wmap
+		);
+		platform->ymap = (
+				height_levelmap_window -
+				(0.5f * platform->hmap)
+		);
 	} else if (EN_SKY_PLATFORM_PSI_ID == id_platform) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
 				(10.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
+		);
+		platform->xmap = beta_platform->xmap;
+		platform->ymap = (
+			beta_platform->ymap -
+			2.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_EPSILON_ID == id_platform) {
 		platform->xpos = zeta_platform->xpos;
@@ -1035,12 +1131,22 @@ static void en_init_platform(
 				(18.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
+		platform->xmap = zeta_platform->xmap;
+		platform->ymap = (
+			zeta_platform->ymap -
+			3.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_SKY_PLATFORM_LAMBDA_ID == id_platform) {
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
 				(22.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
+		);
+		platform->xmap = tau_platform->xmap;
+		platform->ymap = (
+			tau_platform->ymap -
+			4.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_OMICRON_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
@@ -1049,12 +1155,22 @@ static void en_init_platform(
 				(26.0f * platform->height) -
 				GAME_PLATFORM_SHIFT_YPOS
 		);
+		platform->xmap = chi_platform->xmap;
+		platform->ymap = (
+			chi_platform->ymap -
+			5.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_SKY_PLATFORM_SIGMA_ID == id_platform) {
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+		platform->xmap = beta_platform->xmap;
+		platform->ymap = (
+			beta_platform->ymap -
+			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_UPSILON_ID == id_platform) {
 		platform->xpos = zeta_platform->xpos;
@@ -1063,12 +1179,22 @@ static void en_init_platform(
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
+		platform->xmap = zeta_platform->xmap;
+		platform->ymap = (
+			zeta_platform->ymap -
+			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_SKY_PLATFORM_MU_ID == id_platform) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+		platform->xmap = iota_platform->xmap;
+		platform->ymap = (
+			iota_platform->ymap -
+			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_NU_ID == id_platform) {
 		platform->xpos = tau_platform->xpos;
@@ -1077,6 +1203,11 @@ static void en_init_platform(
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
+		platform->xmap = tau_platform->xmap;
+		platform->ymap = (
+			tau_platform->ymap -
+			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_SKY_PLATFORM_PI_ID == id_platform) {
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
@@ -1084,12 +1215,22 @@ static void en_init_platform(
 				(4.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
+		platform->xmap = chi_platform->xmap;
+		platform->ymap = (
+			chi_platform->ymap -
+			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
 	} else if (EN_SKY_PLATFORM_XI_ID == id_platform) {
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
 				(10.0f * platform->height) -
 				(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+		platform->xmap = iota_platform->xmap;
+		platform->ymap = (
+			iota_platform->ymap -
+			7.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	}
 	en_init_view(g, platform->id);
@@ -1134,8 +1275,10 @@ static void en_init_enemy(
 	enemy->yv00 = enemy->yvel;
 	enemy->xscr = EN_IGNORE_PROPERTY;
 	enemy->yscr = EN_IGNORE_PROPERTY;
-	enemy->xmax = EN_IGNORE_PROPERTY;
-	enemy->ymax = EN_IGNORE_PROPERTY;
+	enemy->xmap = EN_IGNORE_PROPERTY;
+	enemy->ymap = EN_IGNORE_PROPERTY;
+	enemy->wmap = EN_IGNORE_PROPERTY;
+	enemy->hmap = EN_IGNORE_PROPERTY;
 	enemy->width = enemy->animations[0].aframes[0].width;
 	enemy->height = enemy->animations[0].aframes[0].height;
 	enemy->reff = 0.5f * (0.5f * (enemy->width + enemy->height));
@@ -1154,6 +1297,10 @@ static void en_init_enemy(
 	enemy->view.yref = (0.5f * height_game_window);
 	enemy->view.width = enemy->width;
 	enemy->view.height = enemy->height;
+	enemy->mapview.xref = EN_IGNORE_PROPERTY;
+	enemy->mapview.yref = EN_IGNORE_PROPERTY;
+	enemy->mapview.width = EN_IGNORE_PROPERTY;
+	enemy->mapview.height = EN_IGNORE_PROPERTY;
 	enemy->xpos = (
 			warp_platform->xpos -
 			(0.5f * warp_platform->width) +
@@ -1455,6 +1602,9 @@ static void en_update_sonic(struct game * const g)
 	struct entity * const entities = g->ents;
 	struct entity * const sonic = &entities[EN_SONIC_ID];
 	int const platform_id = en_map_platform(g, sonic->id);
+	struct entity const * const platform = &g->ents[platform_id];
+	sonic->xmap = platform->xmap;
+	sonic->ymap = platform->ymap;
 
 	if ((!GAME_ENEMY_HITTING) == sonic->hitting) {
 		en_enemy_hitting(g);
@@ -1578,7 +1728,6 @@ static void en_update_platform(
 		);
 	}
 	en_set_screenview(g, platform->id);
-	en_set_mapview(g, platform->id);
 }
 
 static void en_check_notwarp_platform(
@@ -1731,7 +1880,6 @@ static void en_update_enemy(
 	}
 	en_update_animation(g, enemy->id, enemy->animno);
 	en_set_screenview(g, enemy->id);
-	en_set_mapview(g, enemy->id);
 }
 
 void en_update(struct game * const g)
@@ -1746,7 +1894,6 @@ void en_update(struct game * const g)
 		for (int i = (EN_CAMERA_ID + 1); i != EN_MAXNUMOF_ENT; ++i) {
 			struct entity * const ent = &g->ents[i];
 			en_set_screenview(g, ent->id);
-			en_set_mapview(g, ent->id);
 		}
 		return;
 	}
