@@ -219,6 +219,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_PLATFORM_TAG;
 			ent->id = EN_PLATFORM_XI_ID;
 			++count;
+		} else if (EN_PLATFORM_OMEGA_ID == i) {
+			ent->tag = EN_PLATFORM_TAG;
+			ent->id = EN_PLATFORM_OMEGA_ID;
+			++count;
 		} else if (EN_ENEMY_MOTOBUG_ALPHA_ID == i) {
 			ent->tag = EN_ENEMY_TAG;
 			ent->id = EN_ENEMY_MOTOBUG_ALPHA_ID;
@@ -555,6 +559,7 @@ static void en_init_aframes(struct game * const g)
 	en_init_platform_aframes(g, EN_PLATFORM_NU_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_PI_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_XI_ID);
+	en_init_platform_aframes(g, EN_PLATFORM_OMEGA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -600,6 +605,7 @@ static void en_init_entity_framebuffer(
 static void en_init_framebuffers(struct game * const g)
 {
 	en_init_entity_framebuffer(g, EN_CAMERA_ID);
+	en_init_entity_framebuffer(g, EN_LVLMAP_ID);
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
@@ -619,6 +625,7 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_PLATFORM_NU_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_PI_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_XI_ID);
+	en_init_entity_framebuffer(g, EN_PLATFORM_OMEGA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -999,7 +1006,8 @@ static void en_init_platform(
 		(EN_PLATFORM_MU_ID      != id_platform) &&
 		(EN_PLATFORM_NU_ID      != id_platform) &&
 		(EN_PLATFORM_PI_ID      != id_platform) &&
-		(EN_PLATFORM_XI_ID      != id_platform)
+		(EN_PLATFORM_XI_ID      != id_platform) &&
+		(EN_PLATFORM_OMEGA_ID   != id_platform)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init_platform: InvalidPlatformIdError");
 		graph_unloadall_graphics(g);
@@ -1311,6 +1319,18 @@ static void en_init_platform(
 		platform->ymap = (
 			iota_platform->ymap -
 			7.0f * GAME_LVLMAP_PLATFORM_VSPACE
+		);
+	} else if (EN_SKY_PLATFORM_OMEGA_ID == id_platform) {
+		platform->xpos = beta_platform->xpos;
+		platform->ypos = (
+				beta_platform->ypos -
+				(4.0f * platform->height) -
+				(4.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+		platform->xmap = beta_platform->xmap;
+		platform->ymap = (
+			beta_platform->ymap -
+			9.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	}
 	en_init_view(g, platform->id);
@@ -1812,6 +1832,13 @@ static void en_update_platform(
 			iota_platform->ypos -
 			(10.0f * platform->height) -
 			(3.0f * GAME_PLATFORM_SHIFT_YPOS)
+		);
+	} else if (EN_SKY_PLATFORM_OMEGA_ID == platform->id) {
+		platform->xpos = beta_platform->xpos;
+		platform->ypos = (
+			beta_platform->ypos -
+			(4.0f * platform->height) -
+			(4.0f * GAME_PLATFORM_SHIFT_YPOS)
 		);
 	}
 	en_set_screenview(g, platform->id);
