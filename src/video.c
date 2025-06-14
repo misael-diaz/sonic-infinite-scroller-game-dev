@@ -183,6 +183,7 @@ void vid_draw_gw(struct game const * const g)
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
 	struct entity const * const lvlmap = &g->ents[EN_LVLMAP_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	struct entity const * const goal = &g->ents[EN_GOAL_ID];
 	XSetForeground(
 			g->display,
 			g->gc,
@@ -246,6 +247,21 @@ void vid_draw_gw(struct game const * const g)
 				platform->mapview.height
 			      );
 	}
+
+	XSetForeground(
+			g->display,
+			g->gc,
+			g->red.pixel
+		      );
+	XFillRectangle(
+			g->display,
+			g->window,
+			g->gc,
+			goal->mapview.xscr,
+			goal->mapview.yscr,
+			goal->mapview.width,
+			goal->mapview.height
+		      );
 
 	XSetForeground(
 			g->display,

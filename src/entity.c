@@ -143,6 +143,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_LVLMAP_TAG;
 			ent->id = EN_LVLMAP_ID;
 			++count;
+		} else if (EN_GOAL_ID == i) {
+			ent->tag = EN_GOAL_TAG;
+			ent->id = EN_GOAL_ID;
+			++count;
 		} else if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
@@ -278,6 +282,15 @@ static void en_load_graphic(struct game * const g)
 			lvlmap->graphic.data = NULL;
 			lvlmap->graphic.loaded = !GAME_LOADED_GRAPHIC;
 			lvlmap->graphic.binded = !GAME_BINDED_GRAPHIC;
+			++count;
+		} else if (EN_GOAL_TAG == ent->tag) {
+			graphicp->name = GAME_GOAL_GRAPHIC_FP;
+			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
+				fprintf(stderr,
+					"%s\n",
+					"en_load_graphic: UXLoadGraphicError");
+				goto handle_err;
+			}
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			graphicp->name = GAME_SONIC_GRAPHIC_FP;
@@ -437,6 +450,28 @@ static void en_init_sonic_aframes(struct game * const g)
 	}
 }
 
+static void en_init_goal_aframes(struct game * const g)
+{
+	struct entity * const goal = &g->ents[EN_GOAL_ID];
+	struct animation * const animations = goal->animations;
+	int const width_goal = goal->graphic.info.width;
+	int const height_goal = goal->graphic.info.height;
+	for (int animno = 0; animno != EN_ANIMATIONS_COUNT; ++animno) {
+		for (int aframeno = 0; aframeno != EN_AFRAME_COUNT; ++aframeno) {
+			animations[animno].aframes[aframeno].id = aframeno;
+			animations[animno].aframes[aframeno].xof = 0;
+			animations[animno].aframes[aframeno].yof = 0;
+			animations[animno].aframes[aframeno].width = width_goal;
+			animations[animno].aframes[aframeno].height = height_goal;
+		}
+		animations[animno].tickcount_aframe_sequence = EN_GOAL_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = EN_GOAL_AFRAME_COUNT;
+		animations[animno].name = EN_GOAL_FRAME_NAME;
+		animations[animno].count = EN_GOAL_AFRAME_COUNT;
+		animations[animno].id = animno;
+	}
+}
+
 // we set everything for completeness even if we just need a subset of the platform data
 static void en_init_platform_aframes(
 		struct game * const g,
@@ -544,6 +579,7 @@ static void en_init_aframes(struct game * const g)
 {
 	en_init_camera_aframes(g);
 	en_init_lvlmap_aframes(g);
+	en_init_goal_aframes(g);
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
@@ -611,6 +647,7 @@ static void en_init_framebuffers(struct game * const g)
 {
 	en_init_entity_framebuffer(g, EN_CAMERA_ID);
 	en_init_entity_framebuffer(g, EN_LVLMAP_ID);
+	en_init_entity_framebuffer(g, EN_GOAL_ID);
 	en_init_entity_framebuffer(g, EN_SONIC_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_BETA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ZETA_ID);
@@ -817,7 +854,11 @@ static void en_init_view(
 	en_init_norm(&ent->view);
 	en_init_norm(&ent->mapview);
 	en_set_screenview(g, id);
-	if ((EN_PLATFORM_TAG == ent->tag) || (EN_SONIC_TAG == ent->tag)) {
+	if (
+		(EN_PLATFORM_TAG == ent->tag) ||
+		(EN_SONIC_TAG == ent->tag) ||
+		(EN_GOAL_TAG == ent->tag)
+	   ) {
 		en_set_mapview(g, id);
 	}
 }
@@ -929,6 +970,66 @@ static void en_init_lvlmap(struct game * const g)
 	lvlmap->mapview.yoff = 0;
 	lvlmap->mapview.width = GAME_LVLMAP_VIEW_WIDTH;
 	lvlmap->mapview.height = GAME_LVLMAP_VIEW_HEIGHT;
+}
+
+static void en_init_goal(struct game * const g)
+{
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	float const width_levelmap_window = GAME_LVLMAP_VIEW_WIDTH;
+	float const height_levelmap_window = GAME_LVLMAP_VIEW_HEIGHT;
+	if (
+		(GAME_CAMERA_VIEW_WIDTH != g->screen_width) ||
+		(GAME_CAMERA_VIEW_HEIGHT != g->screen_height)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_goal: UXScreenDimsError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+	struct entity const * const alpha_platform = &g->ents[EN_PLATFORM_ALPHA_ID];
+	struct entity * const goal = &g->ents[EN_GOAL_ID];
+	goal->xpos = alpha_platform->xpos;
+	goal->ypos = (
+		alpha_platform->ypos -
+		(0.5f * alpha_platform->height) -
+		(0.5f * goal->height)
+	);
+	goal->xold = EN_IGNORE_PROPERTY;
+	goal->yold = EN_IGNORE_PROPERTY;
+	goal->xvel = EN_IGNORE_PROPERTY;
+	goal->yvel = EN_IGNORE_PROPERTY;
+	goal->xv00 = EN_IGNORE_PROPERTY;
+	goal->yv00 = EN_IGNORE_PROPERTY;
+	goal->xmap = alpha_platform->xmap;
+	goal->ymap = alpha_platform->ymap;
+	goal->wmap = GAME_LVLMAP_GOAL_WIDTH;
+	goal->hmap = GAME_LVLMAP_GOAL_HEIGHT;
+	goal->xscr = EN_IGNORE_PROPERTY;
+	goal->yscr = EN_IGNORE_PROPERTY;
+	goal->reff = EN_IGNORE_PROPERTY;
+	goal->width = goal->animations[0].aframes[0].width;
+	goal->height = goal->animations[0].aframes[0].height;
+	goal->visible = EN_IGNORE_PROPERTY;
+	goal->falling = EN_IGNORE_PROPERTY;
+	goal->contact = GAME_PLATFORM_CONTACT;
+	goal->clamped = EN_IGNORE_PROPERTY;
+	goal->hitting = EN_IGNORE_PROPERTY;
+	goal->explode = EN_IGNORE_PROPERTY;
+	goal->frameid = EN_IGNORE_PROPERTY;
+	goal->platfno = EN_IGNORE_PROPERTY;
+	goal->frameno = EN_GOAL_DEFAULT_AF;
+	goal->animno = EN_GOAL_DEFAULT_AN;
+	goal->tickno = EN_IGNORE_PROPERTY;
+	goal->view.xref = (0.5f * width_game_window);
+	goal->view.yref = (0.5f * height_game_window);
+	goal->view.width = goal->width;
+	goal->view.height = goal->height;
+	goal->mapview.xref = (0.5f * width_levelmap_window);
+	goal->mapview.yref = (0.5f * height_levelmap_window);
+	goal->mapview.width = goal->wmap;
+	goal->mapview.height = goal->hmap;
+	en_init_view(g, goal->id);
 }
 
 static void en_init_sonic(struct game * const g)
@@ -1463,6 +1564,9 @@ void en_init(struct game * const g)
 			++count;
 		} else if (EN_LVLMAP_TAG == ent->tag) {
 			en_init_lvlmap(g);
+			++count;
+		} else if (EN_GOAL_TAG == ent->tag) {
+			en_init_goal(g);
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			en_init_sonic(g);
@@ -2022,6 +2126,19 @@ static void en_update_enemy(
 	en_set_screenview(g, enemy->id);
 }
 
+static void en_update_goal(struct game * const g)
+{
+	struct entity * const goal = &g->ents[EN_GOAL_ID];
+	struct entity * const platform = &g->ents[EN_PLATFORM_ALPHA_ID];
+	goal->xpos = platform->xpos;
+	goal->ypos = (
+		platform->ypos -
+		(0.5f * platform->height) -
+		(0.5f * goal->height)
+	);
+	en_set_screenview(g, goal->id);
+}
+
 void en_update(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
@@ -2045,6 +2162,8 @@ void en_update(struct game * const g)
 			en_update_camera(g);
 		} else if (EN_SONIC_TAG == ent->tag) {
 			en_update_sonic(g);
+		} else if (EN_GOAL_TAG == ent->tag) {
+			en_update_goal(g);
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			int const id_platform = i;
 			en_update_platform(g, id_platform);

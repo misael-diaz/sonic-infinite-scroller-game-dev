@@ -32,6 +32,9 @@ S: South, aligned with the screen -y-axis
 #define EN_LVLMAP_DEFAULT_AN 0
 #define EN_LVLMAP_DEFAULT_AF 0
 
+#define EN_GOAL_DEFAULT_AN 0
+#define EN_GOAL_DEFAULT_AF 0
+
 #define EN_SONIC_RUN_AN 0
 #define EN_SONIC_SPIN_AN 1
 #define EN_SONIC_DEFAULT_AF 0
@@ -44,6 +47,7 @@ S: South, aligned with the screen -y-axis
 #define EN_ENEMY_MOTOBUG_RUN_AN 0
 #define EN_ENEMY_MOTOBUG_EXPLODE_AN 1
 
+#define EN_GOAL_AFRAME_COUNT 1
 #define EN_PLATFORM_AFRAME_COUNT 1
 #define EN_SONIC_AFRAME_COUNT EN_AFRAME_COUNT
 #define EN_SONIC_ANIMATIONS_COUNT EN_ANIMATIONS_COUNT
@@ -53,6 +57,7 @@ _Static_assert(EN_SONIC_AFRAME_COUNT == EN_AFRAME_COUNT, "UXAframeCountError");
 
 #define EN_SONIC_RUN_FRAME_NAME "run"
 #define EN_SONIC_SPIN_FRAME_NAME "spin"
+#define EN_GOAL_FRAME_NAME "goal"
 #define EN_PLATFORM_FRAME_NAME "scroll"
 #define EN_ENEMY_MOTOBUG_RUN_FRAME_NAME "bobbing"
 #define EN_ENEMY_MOTOBUG_EXPLODE_FRAME_NAME "exploding"
