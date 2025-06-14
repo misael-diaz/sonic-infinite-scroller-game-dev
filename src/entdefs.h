@@ -29,6 +29,9 @@ S: South, aligned with the screen -y-axis
 #define EN_CAMERA_DEFAULT_AN 0
 #define EN_CAMERA_DEFAULT_AF 0
 
+#define EN_LVLMAP_DEFAULT_AN 0
+#define EN_LVLMAP_DEFAULT_AF 0
+
 #define EN_SONIC_RUN_AN 0
 #define EN_SONIC_SPIN_AN 1
 #define EN_SONIC_DEFAULT_AF 0
@@ -53,6 +56,7 @@ _Static_assert(EN_SONIC_AFRAME_COUNT == EN_AFRAME_COUNT, "UXAframeCountError");
 #define EN_PLATFORM_FRAME_NAME "scroll"
 #define EN_ENEMY_MOTOBUG_RUN_FRAME_NAME "bobbing"
 #define EN_ENEMY_MOTOBUG_EXPLODE_FRAME_NAME "exploding"
+#define EN_LVLMAP_FRAME_NAME "display"
 #define EN_CAMERA_FRAME_NAME "hover"
 
 #endif

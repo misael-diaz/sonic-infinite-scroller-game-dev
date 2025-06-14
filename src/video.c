@@ -181,6 +181,7 @@ void vid_draw_gw(struct game const * const g)
 {
 	XClearWindow(g->display, g->window);
 	struct entity const * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const lvlmap = &g->ents[EN_LVLMAP_ID];
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	XSetForeground(
 			g->display,
@@ -196,7 +197,7 @@ void vid_draw_gw(struct game const * const g)
 			camera->view.width,
 			camera->view.height
 		      );
-	for (int id = (EN_CAMERA_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
+	for (int id = (EN_LVLMAP_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
 		struct entity const * const ent = &g->ents[id];
 		XPutImage(
 				g->display,
@@ -212,6 +213,26 @@ void vid_draw_gw(struct game const * const g)
 			 );
 	}
 
+	XSetForeground(
+			g->display,
+			g->gc,
+			BlackPixelOfScreen(g->screen)
+		      );
+	XFillRectangle(
+			g->display,
+			g->window,
+			g->gc,
+			lvlmap->mapview.xscr,
+			lvlmap->mapview.yscr,
+			lvlmap->mapview.width,
+			lvlmap->mapview.height
+		      );
+
+	XSetForeground(
+			g->display,
+			g->gc,
+			g->gray.pixel
+		      );
 	for(int id = 0; id != EN_MAXNUMOF_PLATFORMS; ++id) {
 		int const id_platform = g->platform_ids[id];
 		struct entity const * const platform = &g->ents[id_platform];

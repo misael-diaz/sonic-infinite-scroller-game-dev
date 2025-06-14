@@ -139,6 +139,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_CAMERA_TAG;
 			ent->id = EN_CAMERA_ID;
 			++count;
+		} else if (EN_LVLMAP_ID == i) {
+			ent->tag = EN_LVLMAP_TAG;
+			ent->id = EN_LVLMAP_ID;
+			++count;
 		} else if (EN_SONIC_ID == i) {
 			ent->tag = EN_SONIC_TAG;
 			ent->id = EN_SONIC_ID;
@@ -254,10 +258,18 @@ static void en_load_graphic(struct game * const g)
 		if (EN_CAMERA_TAG == ent->tag) {
 			struct entity * const camera = ent;
 			memset(&camera->graphic, 0, sizeof(camera->graphic));
-			camera->graphic.name = GAME_CAMERA_NOGRAPHIC_FP;
+			camera->graphic.name = GAME_ENTITY_NOGRAPHIC_FP;
 			camera->graphic.data = NULL;
 			camera->graphic.loaded = !GAME_LOADED_GRAPHIC;
-			camera->graphic.binded = !GAME_LOADED_GRAPHIC;
+			camera->graphic.binded = !GAME_BINDED_GRAPHIC;
+			++count;
+		} else if (EN_LVLMAP_TAG == ent->tag) {
+			struct entity * const lvlmap = ent;
+			memset(&lvlmap->graphic, 0, sizeof(lvlmap->graphic));
+			lvlmap->graphic.name = GAME_ENTITY_NOGRAPHIC_FP;
+			lvlmap->graphic.data = NULL;
+			lvlmap->graphic.loaded = !GAME_LOADED_GRAPHIC;
+			lvlmap->graphic.binded = !GAME_BINDED_GRAPHIC;
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			graphicp->name = GAME_SONIC_GRAPHIC_FP;
@@ -320,6 +332,29 @@ static void en_init_camera_aframes(struct game * const g)
 		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
 		animations[animno].tickcount_aframe = 1;
 		animations[animno].name = EN_CAMERA_FRAME_NAME;
+		animations[animno].count = 1;
+		animations[animno].id = animno;
+	}
+}
+
+static void en_init_lvlmap_aframes(struct game * const g)
+{
+	struct entity * const entities = g->ents;
+	struct entity * const lvlmap = &entities[EN_LVLMAP_ID];
+	struct animation * const animations = lvlmap->animations;
+	int const width_lvlmap = GAME_LVLMAP_WIDTH;
+	int const height_lvlmap = GAME_LVLMAP_HEIGHT;
+	for (int animno = 0; animno != EN_ANIMATIONS_COUNT; ++animno) {
+		for (int aframeno = 0; aframeno != EN_AFRAME_COUNT; ++aframeno) {
+			animations[animno].aframes[aframeno].id = aframeno;
+			animations[animno].aframes[aframeno].xof = 0;
+			animations[animno].aframes[aframeno].yof = 0;
+			animations[animno].aframes[aframeno].width = width_lvlmap;
+			animations[animno].aframes[aframeno].height = height_lvlmap;
+		}
+		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = 1;
+		animations[animno].name = EN_LVLMAP_FRAME_NAME;
 		animations[animno].count = 1;
 		animations[animno].id = animno;
 	}
@@ -500,6 +535,7 @@ static void en_init_enemy_motobug_aframes(
 static void en_init_aframes(struct game * const g)
 {
 	en_init_camera_aframes(g);
+	en_init_lvlmap_aframes(g);
 	en_init_sonic_aframes(g);
 	en_init_platform_aframes(g, EN_PLATFORM_BETA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ZETA_ID);
@@ -836,6 +872,50 @@ static void en_init_camera(struct game * const g)
 		camera->view.width = 0;
 		camera->view.height = 0;
 	}
+}
+
+static void en_init_lvlmap(struct game * const g)
+{
+	struct entity * const lvlmap = &g->ents[EN_LVLMAP_ID];
+	lvlmap->xpos = EN_IGNORE_PROPERTY;
+	lvlmap->ypos = EN_IGNORE_PROPERTY;
+	lvlmap->xold = EN_IGNORE_PROPERTY;
+	lvlmap->yold = EN_IGNORE_PROPERTY;
+	lvlmap->xvel = EN_IGNORE_PROPERTY;
+	lvlmap->yvel = EN_IGNORE_PROPERTY;
+	lvlmap->xv00 = EN_IGNORE_PROPERTY;
+	lvlmap->yv00 = EN_IGNORE_PROPERTY;
+	lvlmap->xscr = EN_IGNORE_PROPERTY;
+	lvlmap->yscr = EN_IGNORE_PROPERTY;
+	lvlmap->xmap = EN_IGNORE_PROPERTY;
+	lvlmap->ymap = EN_IGNORE_PROPERTY;
+	lvlmap->wmap = EN_IGNORE_PROPERTY;
+	lvlmap->hmap = EN_IGNORE_PROPERTY;
+	lvlmap->width = lvlmap->animations[0].aframes[0].width;
+	lvlmap->height = lvlmap->animations[0].aframes[0].height;
+	lvlmap->reff = EN_IGNORE_PROPERTY;
+	lvlmap->visible = EN_IGNORE_PROPERTY;
+	lvlmap->falling = EN_IGNORE_PROPERTY;
+	lvlmap->contact = EN_IGNORE_PROPERTY;
+	lvlmap->hitting = EN_IGNORE_PROPERTY;
+	lvlmap->explode = EN_IGNORE_PROPERTY;
+	lvlmap->frameid = EN_IGNORE_PROPERTY;
+	lvlmap->platfno = EN_IGNORE_PROPERTY;
+	lvlmap->frameno = EN_LVLMAP_DEFAULT_AF;
+	lvlmap->animno = EN_LVLMAP_DEFAULT_AN;
+	lvlmap->tickno = EN_IGNORE_PROPERTY;
+	lvlmap->mapview.xref = 0.5f * GAME_LVLMAP_VIEW_WIDTH;
+	lvlmap->mapview.yref = 0.5f * GAME_LVLMAP_VIEW_HEIGHT;
+	lvlmap->mapview.xrel = 0;
+	lvlmap->mapview.yrel = 0;
+	lvlmap->mapview.xedg = -0.5f * GAME_LVLMAP_VIEW_WIDTH;
+	lvlmap->mapview.yedg = -0.5f * GAME_LVLMAP_VIEW_HEIGHT;
+	lvlmap->mapview.xscr = 0;
+	lvlmap->mapview.yscr = 0;
+	lvlmap->mapview.xoff = 0;
+	lvlmap->mapview.yoff = 0;
+	lvlmap->mapview.width = GAME_LVLMAP_VIEW_WIDTH;
+	lvlmap->mapview.height = GAME_LVLMAP_VIEW_HEIGHT;
 }
 
 static void en_init_sonic(struct game * const g)
@@ -1331,12 +1411,19 @@ void en_init(struct game * const g)
 	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
-		if (!ent->graphic.data && (EN_CAMERA_TAG != ent->tag)) {
+		if (
+			(!ent->graphic.data) &&
+			(EN_CAMERA_TAG != ent->tag) &&
+			(EN_LVLMAP_TAG != ent->tag)
+		   ) {
 			fprintf(stderr, "%s\n", "en_init: UXNoGraphicsDataEntityError\n");
 			goto handle_err;
 		}
 		if (EN_CAMERA_TAG == ent->tag) {
 			en_init_camera(g);
+			++count;
+		} else if (EN_LVLMAP_TAG == ent->tag) {
+			en_init_lvlmap(g);
 			++count;
 		} else if (EN_SONIC_TAG == ent->tag) {
 			en_init_sonic(g);
