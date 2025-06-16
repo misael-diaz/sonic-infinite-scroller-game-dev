@@ -1764,6 +1764,18 @@ static void en_apply_gravity(
 	);
 	if (GAME_PLATFORM_CLAMPED == ent->clamped) {
 		ent->ypos = en_clamp(ent->ypos, ent->ymin, floor);
+		int const id = ent->platfno;
+		struct entity const * const ceiling_platform = &g->ents[id];
+		if (platform->xpos != ceiling_platform->xpos) {
+			ent->falling = GAME_ENTITY_FALLING;
+			ent->clamped = !GAME_PLATFORM_CLAMPED;
+			ent->frameno = g->frameno;
+			ent->tickno = 1;
+			ent->yold = ent->ymin;
+			ent->ymin = 0;
+			ent->yvel = 0;
+			ent->yv00 = 0;
+		}
 	} else if (platform->platfno) {
 		int const platfno = platform->platfno;
 		int const id = g->platform_ids[platfno - 1];
@@ -1777,6 +1789,7 @@ static void en_apply_gravity(
 			ent->ypos = en_clamp(ent->ypos, floor, ceiling);
 			if (ceiling == ent->ypos) {
 				ent->clamped = GAME_PLATFORM_CLAMPED;
+				ent->platfno = id;
 				ent->ymin = ceiling;
 			}
 		} else {
