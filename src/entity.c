@@ -882,6 +882,8 @@ static void en_init_camera(struct game * const g)
 	camera->ymap = EN_IGNORE_PROPERTY;
 	camera->wmap = EN_IGNORE_PROPERTY;
 	camera->hmap = EN_IGNORE_PROPERTY;
+	camera->xvcol = EN_IGNORE_PROPERTY;
+	camera->yvcol = EN_IGNORE_PROPERTY;
 	camera->width = camera->animations[0].aframes[0].width;
 	camera->height = camera->animations[0].aframes[0].height;
 	camera->reff = 0.5f * (0.5f * (camera->width + camera->height));
@@ -947,6 +949,8 @@ static void en_init_lvlmap(struct game * const g)
 	lvlmap->ymap = EN_IGNORE_PROPERTY;
 	lvlmap->wmap = EN_IGNORE_PROPERTY;
 	lvlmap->hmap = EN_IGNORE_PROPERTY;
+	lvlmap->xvcol = EN_IGNORE_PROPERTY;
+	lvlmap->yvcol = EN_IGNORE_PROPERTY;
 	lvlmap->width = lvlmap->animations[0].aframes[0].width;
 	lvlmap->height = lvlmap->animations[0].aframes[0].height;
 	lvlmap->reff = EN_IGNORE_PROPERTY;
@@ -1062,6 +1066,8 @@ static void en_init_sonic(struct game * const g)
 	sonic->yv00 = GAME_SONIC_YVEL;
 	sonic->xscr = EN_IGNORE_PROPERTY;
 	sonic->yscr = EN_IGNORE_PROPERTY;
+	sonic->xvcol = EN_IGNORE_PROPERTY;
+	sonic->yvcol = 0;
 	sonic->width = sonic->animations[0].aframes[0].width;
 	sonic->height = sonic->animations[0].aframes[0].height;
 	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
@@ -1164,6 +1170,8 @@ static void en_init_platform(
 	platform->yv00 = EN_IGNORE_PROPERTY;
 	platform->xscr = EN_IGNORE_PROPERTY;
 	platform->yscr = EN_IGNORE_PROPERTY;
+	platform->xvcol = EN_IGNORE_PROPERTY;
+	platform->yvcol = EN_IGNORE_PROPERTY;
 	platform->width = platform->animations[0].aframes[0].width;
 	platform->height = platform->animations[0].aframes[0].height;
 	platform->wmap = GAME_LVLMAP_PLATFORM_WIDTH;
@@ -1507,6 +1515,8 @@ static void en_init_enemy(
 	enemy->ymap = EN_IGNORE_PROPERTY;
 	enemy->wmap = EN_IGNORE_PROPERTY;
 	enemy->hmap = EN_IGNORE_PROPERTY;
+	enemy->xvcol = EN_IGNORE_PROPERTY;
+	enemy->yvcol = EN_IGNORE_PROPERTY;
 	enemy->width = enemy->animations[0].aframes[0].width;
 	enemy->height = enemy->animations[0].aframes[0].height;
 	enemy->reff = 0.5f * (0.5f * (enemy->width + enemy->height));
@@ -1773,8 +1783,8 @@ static void en_apply_gravity(
 			ent->tickno = 1;
 			ent->yold = ent->ymin;
 			ent->ymin = 0;
-			ent->yvel = 0;
-			ent->yv00 = 0;
+			ent->yvel = -ent->yvcol;
+			ent->yv00 = -ent->yvcol;
 		}
 	} else if (platform->platfno) {
 		int const platfno = platform->platfno;
@@ -1790,6 +1800,7 @@ static void en_apply_gravity(
 			if (ceiling == ent->ypos) {
 				ent->clamped = GAME_PLATFORM_CLAMPED;
 				ent->platfno = id;
+				ent->yvcol = ent->yvel;
 				ent->ymin = ceiling;
 			}
 		} else {

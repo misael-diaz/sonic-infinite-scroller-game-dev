@@ -137,6 +137,8 @@ struct entity {
 	float wmap;
 	float hmap;
 	float reff;
+	float xvcol;
+	float yvcol;
 	float width;
 	float height;
 	int visible;
