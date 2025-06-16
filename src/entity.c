@@ -872,6 +872,8 @@ static void en_init_camera(struct game * const g)
 	camera->ypos = (0.5f * height_game_window);
 	camera->xold = GAME_CAMERA_XVEL;
 	camera->yold = GAME_CAMERA_YVEL;
+	camera->ymin = GAME_CAMERA_YVEL;
+	camera->ymax = GAME_CAMERA_YVEL;
 	camera->xvel = GAME_CAMERA_XVEL;
 	camera->yvel = GAME_CAMERA_YVEL;
 	camera->xv00 = GAME_CAMERA_XVEL;
@@ -1050,6 +1052,8 @@ static void en_init_sonic(struct game * const g)
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	sonic->xold = EN_IGNORE_PROPERTY;
+	sonic->ymin = 0;
+	sonic->ymax = EN_IGNORE_PROPERTY;
 	sonic->wmap = GAME_LVLMAP_SONIC_WIDTH;
 	sonic->hmap = GAME_LVLMAP_SONIC_HEIGHT;
 	sonic->xvel = GAME_SONIC_XVEL;
@@ -1152,6 +1156,8 @@ static void en_init_platform(
 	struct entity const * const chi_platform = &g->ents[EN_PLATFORM_CHI_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
+	platform->ymin = EN_IGNORE_PROPERTY;
+	platform->ymax = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
 	platform->yvel = GAME_PLATFORM_YVEL;
 	platform->xv00 = EN_IGNORE_PROPERTY;
@@ -1486,6 +1492,8 @@ static void en_init_enemy(
 	float const height_game_window = g->screen_height;
 	struct entity const * const warp_platform = &g->ents[EN_WARP_PLATFORM_RHO_ID];
 	enemy->xold = EN_IGNORE_PROPERTY;
+	enemy->ymin = EN_IGNORE_PROPERTY;
+	enemy->ymax = EN_IGNORE_PROPERTY;
 	enemy->xvel = -sys_random(
 		GAME_ENEMY_MOTOBUG_MIN_XVEL,
 		GAME_ENEMY_MOTOBUG_MAX_XVEL
@@ -1754,7 +1762,9 @@ static void en_apply_gravity(
 			(ent->yv00 * t) +
 			(0.5f * gc * t * t)
 	);
-	if (platform->platfno) {
+	if (GAME_PLATFORM_CLAMPED == ent->clamped) {
+		ent->ypos = en_clamp(ent->ypos, ent->ymin, floor);
+	} else if (platform->platfno) {
 		int const platfno = platform->platfno;
 		int const id = g->platform_ids[platfno - 1];
 		struct entity const * const ceiling_platform = &g->ents[id];
@@ -1767,6 +1777,7 @@ static void en_apply_gravity(
 			ent->ypos = en_clamp(ent->ypos, floor, ceiling);
 			if (ceiling == ent->ypos) {
 				ent->clamped = GAME_PLATFORM_CLAMPED;
+				ent->ymin = ceiling;
 			}
 		} else {
 			ent->ypos = MIN(ent->ypos, floor);
@@ -1783,6 +1794,7 @@ static void en_apply_gravity(
 		ent->clamped = !GAME_PLATFORM_CLAMPED;
 		ent->falling = !GAME_ENTITY_FALLING;
 		ent->contact = GAME_PLATFORM_CONTACT;
+		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
 		ent->frameno = 0;

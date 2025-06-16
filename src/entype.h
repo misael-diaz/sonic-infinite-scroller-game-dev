@@ -124,6 +124,8 @@ struct entity {
 	float ypos;
 	float xold;
 	float yold;
+	float ymin;
+	float ymax;
 	float xvel;
 	float yvel;
 	float xv00;
