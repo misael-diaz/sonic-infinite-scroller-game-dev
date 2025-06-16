@@ -1767,8 +1767,6 @@ static void en_apply_gravity(
 			ent->ypos = en_clamp(ent->ypos, floor, ceiling);
 			if (ceiling == ent->ypos) {
 				ent->clamped = GAME_PLATFORM_CLAMPED;
-			} else {
-				ent->clamped = !GAME_PLATFORM_CLAMPED;
 			}
 		} else {
 			ent->ypos = MIN(ent->ypos, floor);
@@ -1782,6 +1780,7 @@ static void en_apply_gravity(
 			sonic->animno = EN_SONIC_RUN_AN;
 			sonic->hitting = !GAME_ENEMY_HITTING;
 		}
+		ent->clamped = !GAME_PLATFORM_CLAMPED;
 		ent->falling = !GAME_ENTITY_FALLING;
 		ent->contact = GAME_PLATFORM_CONTACT;
 		ent->yvel = 0;
