@@ -122,6 +122,7 @@ int in_handle_input(struct game * const g)
 			} else if (KBD_TAB == ev.xkey.keycode) {
 				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
 					sonic->contact = !GAME_PLATFORM_CONTACT;
+					sonic->spring = GAME_PLATFORM_SPRING;
 				}
 				fprintf(stdout, "%s\n", "tab-key pressed");
 				rc = 0;

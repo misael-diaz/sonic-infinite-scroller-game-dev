@@ -1071,6 +1071,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->width = sonic->animations[0].aframes[0].width;
 	sonic->height = sonic->animations[0].aframes[0].height;
 	sonic->reff = 0.5f * (0.5f * (sonic->width + sonic->height));
+	sonic->spring = !GAME_PLATFORM_SPRING;
 	sonic->visible = EN_IGNORE_PROPERTY;
 	sonic->falling = !GAME_ENTITY_FALLING;
 	sonic->contact = GAME_PLATFORM_CONTACT;
@@ -1177,6 +1178,7 @@ static void en_init_platform(
 	platform->wmap = GAME_LVLMAP_PLATFORM_WIDTH;
 	platform->hmap = GAME_LVLMAP_PLATFORM_HEIGHT;
 	platform->reff = EN_IGNORE_PROPERTY;
+	platform->spring = EN_IGNORE_PROPERTY;
 	platform->visible = EN_IGNORE_PROPERTY;
 	platform->falling = EN_IGNORE_PROPERTY;
 	platform->contact = EN_IGNORE_PROPERTY;
@@ -1776,8 +1778,12 @@ static void en_apply_gravity(
 		ent->ypos = en_clamp(ent->ypos, ent->ymin, floor);
 		int const id = ent->platfno;
 		struct entity const * const ceiling_platform = &g->ents[id];
-		if (platform->xpos != ceiling_platform->xpos) {
+		if (
+				(platform->xpos != ceiling_platform->xpos) ||
+				(GAME_PLATFORM_SPRING == ent->spring)
+		   ) {
 			ent->falling = GAME_ENTITY_FALLING;
+			ent->spring = !GAME_PLATFORM_SPRING;
 			ent->clamped = !GAME_PLATFORM_CLAMPED;
 			ent->frameno = g->frameno;
 			ent->tickno = 1;
@@ -1880,6 +1886,7 @@ static void en_update_sonic(struct game * const g)
 	} else {
 		sonic->animno = EN_SONIC_SPIN_AN;
 		if (!sonic->tickno) {
+			sonic->spring = !GAME_PLATFORM_SPRING;
 			sonic->frameno = g->frameno;
 			sonic->yv00 = -((float)GAME_SONIC_JUMP_VEL);
 			sonic->yold = sonic->ypos;

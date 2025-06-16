@@ -141,6 +141,7 @@ struct entity {
 	float yvcol;
 	float width;
 	float height;
+	int spring;
 	int visible;
 	int falling;
 	int contact;
