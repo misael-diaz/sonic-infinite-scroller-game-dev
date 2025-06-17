@@ -1661,6 +1661,8 @@ static void en_update_camera(struct game * const g)
 	float const r2 = (r * r);
 	float const overlap = 0.5f * (camera->height + sonic->height);
 	float const overlap2 = overlap * overlap;
+	float const screen_height = GAME_CAMERA_VIEW_HEIGHT;
+	float const screen_height2 = (screen_height * screen_height);
 	float yvel = 0;
 	if (
 		((!GAME_PLATFORM_CONTACT) == sonic->contact) &&
@@ -1676,6 +1678,10 @@ static void en_update_camera(struct game * const g)
 			yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
 		} else {
 			yvel = (d2 * GAME_CAMERA_CATCHUP_YVEL);
+		}
+	} else if (screen_height2 < r2) {
+		if (GAME_PLATFORM_CONTACT == sonic->contact) {
+			camera->ypos = sonic->ypos;
 		}
 	} else {
 		yvel = 0;
