@@ -1673,7 +1673,7 @@ static void en_update_camera(struct game * const g)
 		} else {
 			yvel = 1.005f * (sonic->yvel + gc * t);
 		}
-	} else if (overlap2 < r2) {
+	} else if ((overlap2 < r2) && (screen_height2 >= r2)) {
 		if (0 > sonic->view.yrel) {
 			yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
 		} else {
