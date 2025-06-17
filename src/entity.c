@@ -887,7 +887,7 @@ static void en_init_camera(struct game * const g)
 	camera->width = camera->animations[0].aframes[0].width;
 	camera->height = camera->animations[0].aframes[0].height;
 	camera->reff = 0.5f * (0.5f * (camera->width + camera->height));
-	camera->visible = !GAME_CAMERA_VISIBLE;
+	camera->visible = GAME_CAMERA_VISIBLE;
 	camera->falling = EN_IGNORE_PROPERTY;
 	camera->contact = EN_IGNORE_PROPERTY;
 	camera->hitting = EN_IGNORE_PROPERTY;
@@ -1650,9 +1650,7 @@ static void en_update_camera(struct game * const g)
 	float const gc = GAME_GRAVITY_ACCELERATION;
 	float const t = GAME_PERIOD_SEC;
 	float const beacon_ypos = (
-			sonic->ypos -
-			(0.5f * sonic->height) -
-			(camera->height)
+			sonic->ypos
 	);
 	float const base = (
 			(0.5f * sonic->height)
@@ -1668,7 +1666,11 @@ static void en_update_camera(struct game * const g)
 		((!GAME_PLATFORM_CONTACT) == sonic->contact) &&
 		((!GAME_PLATFORM_CLAMPED) == sonic->clamped)
 	   ) {
-		yvel = 0.9995f * (sonic->yvel + gc * t);
+		if (0 > (sonic->view.yrel * sonic->yvel)) {
+			yvel = 0.995f * (sonic->yvel + gc * t);
+		} else {
+			yvel = 1.005f * (sonic->yvel + gc * t);
+		}
 	} else if (overlap2 < r2) {
 		if (0 > sonic->view.yrel) {
 			yvel = -(d2 * GAME_CAMERA_CATCHUP_YVEL);
