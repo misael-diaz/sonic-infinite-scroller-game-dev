@@ -1669,9 +1669,9 @@ static void en_update_camera(struct game * const g)
 		((!GAME_PLATFORM_CLAMPED) == sonic->clamped)
 	   ) {
 		if (0 > (sonic->view.yrel * sonic->yvel)) {
-			yvel = 0.995f * (sonic->yvel + gc * t);
+			yvel = 0.95f * (sonic->yvel + gc * t);
 		} else {
-			yvel = 1.005f * (sonic->yvel + gc * t);
+			yvel = 1.05f * (sonic->yvel + gc * t);
 		}
 	} else if ((overlap2 < r2) && (screen_height2 >= r2)) {
 		if (0 > sonic->view.yrel) {
