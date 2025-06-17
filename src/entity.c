@@ -1856,7 +1856,7 @@ static void en_enemy_hitting(struct game * const g)
 		float const r2 = (dx * dx) + (dy * dy);
 		if (
 			(contact2 >= r2) &&
-			(enemy->ypos > sonic->ypos) &&
+			(enemy->ypos >= sonic->ypos) &&
 			(0 < sonic->yvel)
 		   ) {
 			sonic->hitting = GAME_ENEMY_HITTING;
