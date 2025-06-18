@@ -67,6 +67,26 @@ enum enid {
 	EN_MAXNUMOF_ENEMIES = (EN_SONIC_ID - EN_ENEMY_MOTOBUG_ALPHA_ID)
 };
 
+enum enflag {
+	EN_FLOOR_SHIFT,
+	EN_CEILING_SHIFT,
+	EN_HITTING_SHIFT,
+	EN_FALLING_SHIFT,
+	EN_EXPLODING_SHIFT,
+	EN_SPRINGING_SHIFT,
+	EN_INVISIBLE_SHIFT,
+	EN_FLAG_MAX,
+	EN_FLOOR_FLAG = (1 << EN_FLOOR_SHIFT),
+	EN_CEILING_FLAG = (1 << EN_CEILING_SHIFT),
+	EN_HITTING_FLAG = (1 << EN_HITTING_SHIFT),
+	EN_FALLING_FLAG = (1 << EN_FALLING_SHIFT),
+	EN_EXPLODING_FLAG = (1 << EN_EXPLODING_SHIFT),
+	EN_SPRINGING_FLAG = (1 << EN_SPRINGING_SHIFT),
+	EN_INVISIBLE_FLAG = (1 << EN_INVISIBLE_SHIFT),
+	EN_PLATFORM_CONTACT_FLAG = (EN_FLOOR_FLAG | EN_CEILING_FLAG)
+};
+_Static_assert(32 >= EN_FLAG_MAX, "EntityMaxFlagError");
+
 struct vector {
 	float x;
 	float y;
@@ -115,6 +135,7 @@ struct enview {
 struct entity {
 	enum entag tag;
 	enum enid id;
+	enum enflag flags;
 	struct graphic graphic;
 	struct animation animations[EN_ANIMATIONS_COUNT];
 	struct enview view;
@@ -141,13 +162,6 @@ struct entity {
 	float yvcol;
 	float width;
 	float height;
-	int spring;
-	int visible;
-	int falling;
-	int contact;
-	int clamped;
-	int hitting;
-	int explode;
 	int frameid;
 	int platfno;
 	int frameno;

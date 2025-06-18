@@ -6,9 +6,7 @@
 #define GAME_PERIOD_NS ((1.0e9f * (1.0f / GAME_FRAMERATE_HZ)))
 
 #define GAME_ERROR_RC 1
-
 #define GAME_INITED_GW 1
-
 #define GAME_LOADED_GRAPHIC 1
 #define GAME_BINDED_GRAPHIC 1
 
@@ -30,7 +28,6 @@
 #define GAME_LVLMAP_PLATFORM_HEIGHT 16
 #define GAME_LVLMAP_PLATFORM_VSPACE 32
 
-#define GAME_CAMERA_VISIBLE 1
 #define GAME_ENTITY_NOGRAPHIC_FP "nographic"
 #define GAME_GOAL_GRAPHIC_FP "public/graphics/goal.png"
 #define GAME_SONIC_GRAPHIC_FP "public/graphics/sonic.png"
@@ -62,16 +59,6 @@
 #define GAME_SORTED_PLATFORMS 1
 
 #define GAME_SONIC_JUMP_VEL 3000
-
-/* if set sonic is in contact with a platform (has no meaning for other entities) */
-
-#define GAME_ENTITY_FALLING 1
-#define GAME_PLATFORM_CONTACT 1
-#define GAME_PLATFORM_CLAMPED 1
-#define GAME_PLATFORM_SPRING 1
-#define GAME_ENEMY_HITTING 1
-#define GAME_ENEMY_EXPLODE 1
-
 #define GAME_GRAVITY_ACCELERATION 4000
 
 #define GAME_SUPPORTED_PROTOCOLS_NUM 2
