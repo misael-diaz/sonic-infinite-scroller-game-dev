@@ -1826,6 +1826,8 @@ static void en_enemy_hitting(struct game * const g)
 		float const r2 = (dx * dx) + (dy * dy);
 		if (
 			(contact2 >= r2) &&
+			(enemy->flags & EN_EXPLODING_FLAG) &&
+			(!enemy->tickno) &&
 			(0 < sonic->yvel)
 		   ) {
 			sonic->flags |= EN_HITTING_FLAG;
@@ -2035,6 +2037,7 @@ static void en_update_enemy(
 			enemy->flags ^= EN_EXPLODING_FLAG;
 			enemy->animno = EN_ENEMY_MOTOBUG_EXPLODE_AN;
 			enemy->frameid = g->frameno;
+			enemy->tickno = 0;
 			enemy->xvel = 0;
 		}
 	}
@@ -2075,7 +2078,11 @@ static void en_update_enemy(
 		int const platform_id = en_map_platform(g, enemy->id);
 		struct entity const * platform = &g->ents[platform_id];
 		int const platform_next_id = g->platform_ids[(platform->platfno) + 1];
-		if (!(enemy->flags & EN_EXPLODING_FLAG)) {
+		if (enemy->flags & EN_EXPLODING_FLAG) {
+			if (g->frameno != enemy->frameid) {
+				enemy->tickno++;
+			}
+		} else {
 			if (enemy->flags & EN_FLOOR_FLAG) {
 				en_check_falling(g, platform_id, enemy->id);
 			} else {
