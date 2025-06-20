@@ -143,6 +143,14 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_LVLMAP_TAG;
 			ent->id = EN_LVLMAP_ID;
 			++count;
+		} else if (EN_BLOCK_BETA_ID == i) {
+			ent->tag = EN_BLOCK_TAG;
+			ent->id = EN_BLOCK_BETA_ID;
+			++count;
+		} else if (EN_BLOCK_ZETA_ID == i) {
+			ent->tag = EN_BLOCK_TAG;
+			ent->id = EN_BLOCK_ZETA_ID;
+			++count;
 		} else if (EN_GOAL_ID == i) {
 			ent->tag = EN_GOAL_TAG;
 			ent->id = EN_GOAL_ID;
@@ -283,6 +291,14 @@ static void en_load_graphic(struct game * const g)
 			lvlmap->graphic.loaded = !GAME_LOADED_GRAPHIC;
 			lvlmap->graphic.binded = !GAME_BINDED_GRAPHIC;
 			++count;
+		} else if (EN_BLOCK_TAG == ent->tag) {
+			struct entity * const block = ent;
+			memset(&block->graphic, 0, sizeof(block->graphic));
+			block->graphic.name = GAME_ENTITY_NOGRAPHIC_FP;
+			block->graphic.data = NULL;
+			block->graphic.loaded = !GAME_LOADED_GRAPHIC;
+			block->graphic.binded = !GAME_BINDED_GRAPHIC;
+			++count;
 		} else if (EN_GOAL_TAG == ent->tag) {
 			graphicp->name = GAME_GOAL_GRAPHIC_FP;
 			if (GAME_ERROR_RC == graph_load_graphic(graphicp)) {
@@ -376,6 +392,32 @@ static void en_init_lvlmap_aframes(struct game * const g)
 		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
 		animations[animno].tickcount_aframe = 1;
 		animations[animno].name = EN_LVLMAP_FRAME_NAME;
+		animations[animno].count = 1;
+		animations[animno].id = animno;
+	}
+}
+
+static void en_init_block_aframes(
+		struct game * const g,
+		int const id_block
+)
+{
+	struct entity * const entities = g->ents;
+	struct entity * const block = &entities[id_block];
+	struct animation * const animations = block->animations;
+	int const width_block = GAME_BLOCK_WIDTH;
+	int const height_block = GAME_BLOCK_HEIGHT;
+	for (int animno = 0; animno != EN_ANIMATIONS_COUNT; ++animno) {
+		for (int aframeno = 0; aframeno != EN_AFRAME_COUNT; ++aframeno) {
+			animations[animno].aframes[aframeno].id = aframeno;
+			animations[animno].aframes[aframeno].xof = 0;
+			animations[animno].aframes[aframeno].yof = 0;
+			animations[animno].aframes[aframeno].width = width_block;
+			animations[animno].aframes[aframeno].height = height_block;
+		}
+		animations[animno].tickcount_aframe_sequence = EN_AFRAME_COUNT;
+		animations[animno].tickcount_aframe = 1;
+		animations[animno].name = EN_BLOCK_FRAME_NAME;
 		animations[animno].count = 1;
 		animations[animno].id = animno;
 	}
@@ -601,6 +643,8 @@ static void en_init_aframes(struct game * const g)
 	en_init_platform_aframes(g, EN_PLATFORM_XI_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_OMEGA_ID);
 	en_init_platform_aframes(g, EN_PLATFORM_ALPHA_ID);
+	en_init_block_aframes(g, EN_BLOCK_BETA_ID);
+	en_init_block_aframes(g, EN_BLOCK_ZETA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -669,6 +713,8 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_PLATFORM_XI_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_OMEGA_ID);
 	en_init_entity_framebuffer(g, EN_PLATFORM_ALPHA_ID);
+	en_init_entity_framebuffer(g, EN_BLOCK_BETA_ID);
+	en_init_entity_framebuffer(g, EN_BLOCK_ZETA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_DELTA_ID);
@@ -868,6 +914,7 @@ static void en_init_camera(struct game * const g)
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	camera->name = EN_CAMERA_NM;
 	camera->xpos = (0.5f * width_game_window);
 	camera->ypos = (0.5f * height_game_window);
 	camera->xold = GAME_CAMERA_XVEL;
@@ -931,6 +978,7 @@ static void en_init_camera(struct game * const g)
 static void en_init_lvlmap(struct game * const g)
 {
 	struct entity * const lvlmap = &g->ents[EN_LVLMAP_ID];
+	lvlmap->name = EN_LVLMAP_NM;
 	lvlmap->xpos = EN_IGNORE_PROPERTY;
 	lvlmap->ypos = EN_IGNORE_PROPERTY;
 	lvlmap->xold = EN_IGNORE_PROPERTY;
@@ -987,12 +1035,7 @@ static void en_init_goal(struct game * const g)
 	}
 	struct entity const * const alpha_platform = &g->ents[EN_PLATFORM_ALPHA_ID];
 	struct entity * const goal = &g->ents[EN_GOAL_ID];
-	goal->xpos = alpha_platform->xpos;
-	goal->ypos = (
-		alpha_platform->ypos -
-		(0.5f * alpha_platform->height) -
-		(0.5f * goal->height)
-	);
+	goal->name = EN_GOAL_NM;
 	goal->xold = EN_IGNORE_PROPERTY;
 	goal->yold = EN_IGNORE_PROPERTY;
 	goal->xvel = EN_IGNORE_PROPERTY;
@@ -1008,6 +1051,12 @@ static void en_init_goal(struct game * const g)
 	goal->reff = EN_IGNORE_PROPERTY;
 	goal->width = goal->animations[0].aframes[0].width;
 	goal->height = goal->animations[0].aframes[0].height;
+	goal->xpos = alpha_platform->xpos;
+	goal->ypos = (
+		alpha_platform->ypos -
+		(0.5f * alpha_platform->height) -
+		(0.5f * goal->height)
+	);
 	goal->flags = EN_FLOOR_FLAG;
 	goal->frameid = EN_IGNORE_PROPERTY;
 	goal->platfno = EN_IGNORE_PROPERTY;
@@ -1042,6 +1091,7 @@ static void en_init_sonic(struct game * const g)
 	}
 	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
+	sonic->name = EN_SONIC_NM;
 	sonic->xold = EN_IGNORE_PROPERTY;
 	sonic->ymin = 0;
 	sonic->ymax = EN_IGNORE_PROPERTY;
@@ -1117,7 +1167,7 @@ static void en_init_platform(
 
 	struct entity * const platform = &g->ents[id_platform];
 	if (id_platform != platform->id) {
-		fprintf(stderr, "%s\n", "en_init_enemy: MismatchEnemyIdError");
+		fprintf(stderr, "%s\n", "en_init_platform: MismatchPlatformIdError");
 		graph_unloadall_graphics(g);
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
@@ -1174,6 +1224,7 @@ static void en_init_platform(
 	platform->mapview.width = platform->wmap;
 	platform->mapview.height = platform->hmap;
 	if (EN_PLATFORM_BETA_ID == id_platform) {
+		platform->name = EN_PLATFORM_BETA_NM;
 		platform->xpos = camera->xpos + GAME_PLATFORM_XREL;
 		platform->ypos = (
 				camera->ypos +
@@ -1188,6 +1239,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_ZETA_ID == id_platform) {
+		platform->name = EN_PLATFORM_ZETA_NM;
 		platform->xpos = (
 				camera->xpos +
 				platform->width +
@@ -1206,6 +1258,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_IOTA_ID == id_platform) {
+		platform->name = EN_PLATFORM_IOTA_NM;
 		platform->xpos = (
 				camera->xpos +
 				(2.0f * platform->width) +
@@ -1224,6 +1277,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_ETA_ID == id_platform) {
+		platform->name = EN_PLATFORM_ETA_NM;
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
@@ -1235,6 +1289,7 @@ static void en_init_platform(
 				GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_PLATFORM_RHO_ID == id_platform) {
+		platform->name = EN_PLATFORM_RHO_NM;
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
@@ -1246,6 +1301,7 @@ static void en_init_platform(
 				GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_PLATFORM_TAU_ID == id_platform) {
+		platform->name = EN_PLATFORM_TAU_NM;
 		platform->xpos = (
 				camera->xpos +
 				(3.0f * platform->width) +
@@ -1264,6 +1320,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_PHI_ID == id_platform) {
+		platform->name = EN_PLATFORM_PHI_NM;
 		platform->xpos = (
 				camera->xpos +
 				(4.0f * platform->width) +
@@ -1282,6 +1339,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_PLATFORM_CHI_ID == id_platform) {
+		platform->name = EN_PLATFORM_CHI_NM;
 		platform->xpos = (
 				camera->xpos +
 				(5.0f * platform->width) +
@@ -1300,6 +1358,7 @@ static void en_init_platform(
 				(0.5f * platform->hmap)
 		);
 	} else if (EN_SKY_PLATFORM_PSI_ID == id_platform) {
+		platform->name = EN_PLATFORM_PSI_NM;
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
@@ -1312,6 +1371,7 @@ static void en_init_platform(
 			2.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_EPSILON_ID == id_platform) {
+		platform->name = EN_PLATFORM_EPSILON_NM;
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 				zeta_platform->ypos -
@@ -1324,6 +1384,7 @@ static void en_init_platform(
 			3.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_LAMBDA_ID == id_platform) {
+		platform->name = EN_PLATFORM_LAMBDA_NM;
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
@@ -1336,6 +1397,7 @@ static void en_init_platform(
 			4.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_OMICRON_ID == id_platform) {
+		platform->name = EN_PLATFORM_OMICRON_NM;
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
@@ -1348,6 +1410,7 @@ static void en_init_platform(
 			5.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_SIGMA_ID == id_platform) {
+		platform->name = EN_PLATFORM_SIGMA_NM;
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
@@ -1360,6 +1423,7 @@ static void en_init_platform(
 			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_UPSILON_ID == id_platform) {
+		platform->name = EN_PLATFORM_UPSILON_NM;
 		platform->xpos = zeta_platform->xpos;
 		platform->ypos = (
 				zeta_platform->ypos -
@@ -1372,6 +1436,7 @@ static void en_init_platform(
 			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_MU_ID == id_platform) {
+		platform->name = EN_PLATFORM_MU_NM;
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
@@ -1384,6 +1449,7 @@ static void en_init_platform(
 			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_NU_ID == id_platform) {
+		platform->name = EN_PLATFORM_NU_NM;
 		platform->xpos = tau_platform->xpos;
 		platform->ypos = (
 				tau_platform->ypos -
@@ -1396,6 +1462,7 @@ static void en_init_platform(
 			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_PI_ID == id_platform) {
+		platform->name = EN_PLATFORM_PI_NM;
 		platform->xpos = chi_platform->xpos;
 		platform->ypos = (
 				chi_platform->ypos -
@@ -1408,6 +1475,7 @@ static void en_init_platform(
 			6.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_XI_ID == id_platform) {
+		platform->name = EN_PLATFORM_XI_NM;
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
@@ -1420,6 +1488,7 @@ static void en_init_platform(
 			7.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_OMEGA_ID == id_platform) {
+		platform->name = EN_PLATFORM_OMEGA_NM;
 		platform->xpos = beta_platform->xpos;
 		platform->ypos = (
 				beta_platform->ypos -
@@ -1432,6 +1501,7 @@ static void en_init_platform(
 			9.0f * GAME_LVLMAP_PLATFORM_VSPACE
 		);
 	} else if (EN_SKY_PLATFORM_ALPHA_ID == id_platform) {
+		platform->name = EN_PLATFORM_ALPHA_NM;
 		platform->xpos = iota_platform->xpos;
 		platform->ypos = (
 				iota_platform->ypos -
@@ -1445,6 +1515,329 @@ static void en_init_platform(
 		);
 	}
 	en_init_view(g, platform->id);
+}
+
+static void en_check_platform_list(struct game * const g)
+{
+	int platforms[EN_MAXNUMOF_PLATFORMS];
+	_Static_assert(
+		(EN_MAXNUMOF_PLATFORMS * sizeof(int) == sizeof(platforms)),
+		"en_check_lists: UXArraySizeError"
+	);
+	_Static_assert(
+		EN_PLATFORM_START_ID == EN_PLATFORM_BETA_ID,
+		"en_check_lists: UXPlatformStartIdError"
+	);
+	memset(platforms, 0xff, sizeof(platforms));
+	for(int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+		if (!g->platform_ids[i]) {
+			fprintf(stderr, "%s\n", "en_check_lists: UnsetPlatformIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+		enum enid const id_platform = g->platform_ids[i];
+		struct entity * const platform = &g->ents[id_platform];
+		if (EN_PLATFORM_TAG != platform->tag) {
+			fprintf(stderr, "%s\n", "en_check_lists: PlatformTagError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (
+				(EN_PLATFORM_START_ID > id_platform) ||
+				(EN_PLATFORM_END_ID <= id_platform)
+			  ) {
+			fprintf(stderr, "%s\n", "en_check_lists: InvalidPlatformIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (id_platform != platform->id) {
+			fprintf(stderr, "%s\n", "en_check_lists: PlatformIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int platfno = 0; platfno != EN_MAXNUMOF_PLATFORMS; ++platfno) {
+		int const id_platform = g->platform_ids[platfno];
+		platforms[platfno] = id_platform;
+	}
+
+	for(int platfno = 0; platfno != EN_MAXNUMOF_PLATFORMS; ++platfno) {
+		if (-1 == platforms[platfno]) {
+			fprintf(stderr,
+				"%s\n",
+				"en_check_lists: DuplicatePlatformIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+static void en_check_block_list(struct game * const g)
+{
+	int blocks[EN_MAXNUMOF_BLOCKS];
+	_Static_assert(
+		(EN_MAXNUMOF_BLOCKS * sizeof(int) == sizeof(blocks)),
+		"en_check_lists: UXArraySizeError"
+	);
+	_Static_assert(
+		EN_BLOCK_START_ID == EN_BLOCK_BETA_ID,
+		"en_check_lists: UXBlockStartIdError"
+	);
+	memset(blocks, 0xff, sizeof(blocks));
+	for(int i = 0; i != EN_MAXNUMOF_BLOCKS; ++i) {
+		if (!g->block_ids[i]) {
+			fprintf(stderr, "%s\n", "en_check_lists: UnsetBlockIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int i = 0; i != EN_MAXNUMOF_BLOCKS; ++i) {
+		enum enid const id_block = g->block_ids[i];
+		struct entity * const block = &g->ents[id_block];
+		if (EN_BLOCK_TAG != block->tag) {
+			fprintf(stderr, "%s\n", "en_check_lists: BlockTagError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (
+				(EN_BLOCK_START_ID > id_block) ||
+				(EN_BLOCK_END_ID <= id_block)
+			  ) {
+			fprintf(stderr, "%s\n", "en_check_lists: InvalidBlockIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (id_block != block->id) {
+			fprintf(stderr, "%s\n", "en_check_lists: BlockIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int blockno = 0; blockno != EN_MAXNUMOF_BLOCKS; ++blockno) {
+		enum enid const id_block = g->block_ids[blockno];
+		struct entity * const block = &g->ents[id_block];
+		if (id_block != block->id) {
+			fprintf(stderr, "%s\n", "en_check_lists: BlockIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+		}
+		blocks[blockno] = id_block;
+	}
+
+	for(int blockno = 0; blockno != EN_MAXNUMOF_BLOCKS; ++blockno) {
+		if (-1 == blocks[blockno]) {
+			fprintf(stderr,
+				"%s\n",
+				"en_check_lists: DuplicateBlockIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+static void en_check_enemy_list(struct game * const g)
+{
+	int enemys[EN_MAXNUMOF_ENEMIES];
+	_Static_assert(
+		(EN_MAXNUMOF_ENEMIES * sizeof(typeof(*enemys)) == sizeof(enemys)),
+		"en_check_lists: UXArraySizeError"
+	);
+	_Static_assert(
+		EN_ENEMY_START_ID == EN_ENEMY_MOTOBUG_ALPHA_ID,
+		"en_check_lists: UXEnemyStartIdError"
+	);
+	memset(enemys, 0xff, sizeof(enemys));
+	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+		if (!g->enemy_ids[i]) {
+			fprintf(stderr, "%s\n", "en_check_lists: UnsetEnemyIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+		if (
+			(EN_ENEMY_START_ID > g->enemy_ids[i]) ||
+			((EN_ENEMY_START_ID + EN_MAXNUMOF_ENEMIES) <= g->enemy_ids[i])
+		   ) {
+			fprintf(stderr, "%s\n", "en_check_lists: InvalidEnemyIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+		enum enid const id_enemy = g->enemy_ids[i];
+		struct entity * const enemy = &g->ents[id_enemy];
+		if (EN_ENEMY_TAG != enemy->tag) {
+			fprintf(stderr, "%s\n", "en_check_lists: EnemyTagError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (
+			(EN_ENEMY_START_ID > enemy->id) ||
+			(EN_ENEMY_END_ID <= enemy->id)
+			) {
+			fprintf(stderr, "%s\n", "en_check_lists: InvalidEnemyIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		} else if (id_enemy != enemy->id) {
+			fprintf(stderr, "%s\n", "en_check_lists: EnemyIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for(int enemyno = 0; enemyno != EN_MAXNUMOF_ENEMIES; ++enemyno) {
+		int const id_enemy = g->enemy_ids[enemyno];
+		enemys[enemyno] = id_enemy;
+	}
+
+	for(int enemyno = 0; enemyno != EN_MAXNUMOF_ENEMIES; ++enemyno) {
+		if (-1 == enemys[enemyno]) {
+			fprintf(stderr,
+				"%s\n",
+				"en_check_lists: DuplicateEnemyIdError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+static void en_check_lists(struct game * const g)
+{
+	en_check_platform_list(g);
+	en_check_block_list(g);
+	en_check_enemy_list(g);
+}
+
+static void en_check_names(struct game * const g)
+{
+	for(int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+		if (!g->ent_names[i]) {
+			fprintf(stderr, "%s\n", "en_check_names: NullEntityNameError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+static void en_init_block(
+		struct game * const g,
+		enum enid const id_block
+)
+{
+	if (
+		(EN_BLOCK_BETA_ID != id_block) &&
+		(EN_BLOCK_ZETA_ID != id_block)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_block: InvalidBlockIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	struct entity * const block = &g->ents[id_block];
+	if (id_block != block->id) {
+		fprintf(stderr, "%s\n", "en_init_block: MismatchBlockIdError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+
+	if (
+		(GAME_CAMERA_VIEW_WIDTH != g->screen_width) ||
+		(GAME_CAMERA_VIEW_HEIGHT != g->screen_height)
+	   ) {
+		fprintf(stderr, "%s\n", "en_init_block: UXScreenDimsError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+	float const width_game_window = g->screen_width;
+	float const height_game_window = g->screen_height;
+	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	struct enview * const mapview = &block->mapview;
+	if (beta_platform->width < block->width) {
+		fprintf(stderr, "%s\n", "en_init_block: BlockWidthError");
+		goto handle_err;
+	}
+	block->xold = EN_IGNORE_PROPERTY;
+	block->yold = EN_IGNORE_PROPERTY;
+	block->ymin = EN_IGNORE_PROPERTY;
+	block->ymax = EN_IGNORE_PROPERTY;
+	block->xvel = GAME_BLOCK_XVEL;
+	block->yvel = GAME_BLOCK_YVEL;
+	block->xv00 = EN_IGNORE_PROPERTY;
+	block->yv00 = EN_IGNORE_PROPERTY;
+	block->xscr = EN_IGNORE_PROPERTY;
+	block->yscr = EN_IGNORE_PROPERTY;
+	block->xmap = EN_IGNORE_PROPERTY;
+	block->ymap = EN_IGNORE_PROPERTY;
+	block->wmap = EN_IGNORE_PROPERTY;
+	block->hmap = EN_IGNORE_PROPERTY;
+	block->xvcol = EN_IGNORE_PROPERTY;
+	block->yvcol = EN_IGNORE_PROPERTY;
+	block->width = GAME_BLOCK_WIDTH;
+	block->height = GAME_BLOCK_HEIGHT;
+	block->reff = 0.5f * (block->width + block->height);
+	block->frameid = EN_IGNORE_PROPERTY;
+	block->frameno = EN_BLOCK_DEFAULT_AF;
+	block->animno = EN_BLOCK_DEFAULT_AN;
+	block->tickno = EN_IGNORE_PROPERTY;
+	block->view.xref = (0.5f * width_game_window);
+	block->view.yref = (0.5f * height_game_window);
+	block->view.width = block->width;
+	block->view.height = block->height;
+	memset(mapview, 0, sizeof(*mapview));
+	if (EN_BLOCK_BETA_ID == id_block) {
+		block->flags = 0;
+		block->name = EN_BLOCK_BETA_NM;
+		block->platfno = EN_PLATFORM_BETA_ID;
+		block->xpos = beta_platform->xpos;
+		block->ypos = (
+				beta_platform->ypos -
+				(0.5f * beta_platform->height) -
+				(2.5f * block->height)
+		);
+	} else if (EN_BLOCK_ZETA_ID == id_block) {
+		block->flags = EN_FLOOR_FLAG;
+		block->name = EN_BLOCK_ZETA_NM;
+		block->platfno = EN_PLATFORM_ZETA_ID;
+		block->xpos = zeta_platform->xpos;
+		block->ypos = (
+				zeta_platform->ypos -
+				(0.5f * zeta_platform->height) -
+				(0.5f * block->height)
+		);
+	}
+	en_init_view(g, block->id);
+	return;
+handle_err:
+	{
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
 }
 
 static void en_init_enemy(
@@ -1476,6 +1869,17 @@ static void en_init_enemy(
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	struct entity const * const warp_platform = &g->ents[EN_WARP_PLATFORM_RHO_ID];
+	if (EN_ENEMY_MOTOBUG_ALPHA_ID == enemy->id) {
+		enemy->name = EN_ENEMY_MOTOBUG_ALPHA_NM;
+	} else if (EN_ENEMY_MOTOBUG_GAMMA_ID == enemy->id) {
+		enemy->name = EN_ENEMY_MOTOBUG_GAMMA_NM;
+	} else if (EN_ENEMY_MOTOBUG_DELTA_ID == enemy->id) {
+		enemy->name = EN_ENEMY_MOTOBUG_DELTA_NM;
+	} else if (EN_ENEMY_MOTOBUG_THETA_ID == enemy->id) {
+		enemy->name = EN_ENEMY_MOTOBUG_THETA_NM;
+	} else if (EN_ENEMY_MOTOBUG_KAPPA_ID == enemy->id) {
+		enemy->name = EN_ENEMY_MOTOBUG_KAPPA_NM;
+	}
 	enemy->xold = EN_IGNORE_PROPERTY;
 	enemy->ymin = EN_IGNORE_PROPERTY;
 	enemy->ymax = EN_IGNORE_PROPERTY;
@@ -1525,6 +1929,41 @@ static void en_init_enemy(
 	en_init_view(g, enemy->id);
 }
 
+static void en_check_overlap(struct game * const g)
+{
+	for (int i = 0; i != (EN_MAXNUMOF_ENT - 1); ++i) {
+		struct entity const * const ent = &g->ents[i];
+		if (EN_CAMERA_TAG == ent->tag) {
+			continue;
+		}
+		for (int j = (i + 1); j != EN_MAXNUMOF_ENT; ++j) {
+			struct entity const * const other = &g->ents[j];
+			float const contact = 0.5f * (ent->width + other->width);
+			float const contact2 = (contact * contact);
+			float const dx = (ent->xpos - other->xpos);
+			float const dx2 = (dx * dx);
+			if (contact2 > dx2) {
+				float const dy = (ent->ypos - other->ypos);
+				float const dy2 = (dy * dy);
+				float const contact = (
+					0.5f * (ent->height + other->height)
+				);
+				float const contact2 = (contact * contact);
+				if (contact2 > dy2) {
+					fprintf(stderr, "entity: %s\n", ent->name);
+					fprintf(stderr, "entity: %s\n", other->name);
+					fprintf(stderr,
+						"%s\n",
+						"en_check_overlap: EntityOverlapError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
+	}
+}
+
 void en_init(struct game * const g)
 {
 	int count = 0;
@@ -1544,7 +1983,8 @@ void en_init(struct game * const g)
 		if (
 			(!ent->graphic.data) &&
 			(EN_CAMERA_TAG != ent->tag) &&
-			(EN_LVLMAP_TAG != ent->tag)
+			(EN_LVLMAP_TAG != ent->tag) &&
+			(EN_BLOCK_TAG  != ent->tag)
 		   ) {
 			fprintf(stderr, "%s\n", "en_init: UXNoGraphicsDataEntityError\n");
 			goto handle_err;
@@ -1565,6 +2005,9 @@ void en_init(struct game * const g)
 			en_init_platform(g, i);
 			++count;
 			++platform_count;
+		} else if (EN_BLOCK_TAG == ent->tag) {
+			en_init_block(g, i);
+			++count;
 		} else if (EN_ENEMY_TAG == ent->tag) {
 			en_init_enemy(g, i);
 			++count;
@@ -1575,6 +2018,9 @@ void en_init(struct game * const g)
 		goto handle_err;
 	}
 	en_init_framebuffers(g);
+	en_check_names(g);
+	en_check_lists(g);
+	en_check_overlap(g);
 	return;
 handle_err:
 	{
@@ -1792,6 +2238,7 @@ static void en_apply_gravity(
 			sonic->animno = EN_SONIC_RUN_AN;
 		}
 		ent->flags = EN_FLOOR_FLAG;
+		ent->xvel = ent->xv00;
 		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
@@ -1983,6 +2430,32 @@ static void en_update_platform(
 		);
 	}
 	en_set_screenview(g, platform->id);
+}
+
+static void en_update_block(
+		struct game * const g,
+		int const id_block
+)
+{
+	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	struct entity * const block = &g->ents[id_block];
+	if (EN_BLOCK_BETA_ID == block->id) {
+		block->xpos = beta_platform->xpos;
+		block->ypos = (
+				beta_platform->ypos -
+				(0.5f * beta_platform->height) -
+				(3.5f * block->height)
+		);
+	} else if (EN_BLOCK_ZETA_ID == block->id) {
+		block->xpos = zeta_platform->xpos;
+		block->ypos = (
+				zeta_platform->ypos -
+				(0.5f * zeta_platform->height) -
+				(0.5f * block->height)
+		);
+	}
+	en_set_screenview(g, block->id);
 }
 
 static void en_check_notwarp_platform(
@@ -2183,6 +2656,9 @@ void en_update(struct game * const g)
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			int const id_platform = i;
 			en_update_platform(g, id_platform);
+		} else if (EN_BLOCK_TAG == ent->tag) {
+			int const id_block = i;
+			en_update_block(g, id_block);
 		} else if (EN_ENEMY_TAG == ent->tag) {
 			int const id_enemy = i;
 			en_update_enemy(g, id_enemy);

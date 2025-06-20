@@ -200,18 +200,36 @@ void vid_draw_gw(struct game const * const g)
 		      );
 	for (int id = (EN_LVLMAP_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
 		struct entity const * const ent = &g->ents[id];
-		XPutImage(
-				g->display,
-				g->window,
-				g->gc,
-				ent->framebuffer,
-				ent->view.xoff,
-				ent->view.yoff,
-				ent->view.xscr,
-				ent->view.yscr,
-				ent->view.width,
-				ent->view.height
-			 );
+		if (EN_BLOCK_TAG == ent->tag) {
+			struct entity const * const block = ent;
+			XSetForeground(
+					g->display,
+					g->gc,
+					g->gray.pixel
+				      );
+			XFillRectangle(
+					g->display,
+					g->window,
+					g->gc,
+					block->view.xscr,
+					block->view.yscr,
+					block->view.width,
+					block->view.height
+				      );
+		} else {
+			XPutImage(
+					g->display,
+					g->window,
+					g->gc,
+					ent->framebuffer,
+					ent->view.xoff,
+					ent->view.yoff,
+					ent->view.xscr,
+					ent->view.yscr,
+					ent->view.width,
+					ent->view.height
+				 );
+		}
 	}
 
 	XSetForeground(

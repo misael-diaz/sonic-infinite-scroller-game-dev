@@ -42,6 +42,9 @@ S: South, aligned with the screen -y-axis
 #define EN_PLATFORM_DEFAULT_AN 0
 #define EN_PLATFORM_DEFAULT_AF 0
 
+#define EN_BLOCK_DEFAULT_AN 0
+#define EN_BLOCK_DEFAULT_AF 0
+
 #define EN_ENEMY_MOTOBUG_DEFAULT_AN 0
 #define EN_ENEMY_MOTOBUG_DEFAULT_AF 0
 #define EN_ENEMY_MOTOBUG_RUN_AN 0
@@ -57,12 +60,45 @@ _Static_assert(EN_SONIC_AFRAME_COUNT == EN_AFRAME_COUNT, "UXAframeCountError");
 
 #define EN_SONIC_RUN_FRAME_NAME "run"
 #define EN_SONIC_SPIN_FRAME_NAME "spin"
+#define EN_BLOCK_FRAME_NAME "block"
 #define EN_GOAL_FRAME_NAME "goal"
 #define EN_PLATFORM_FRAME_NAME "scroll"
 #define EN_ENEMY_MOTOBUG_RUN_FRAME_NAME "bobbing"
 #define EN_ENEMY_MOTOBUG_EXPLODE_FRAME_NAME "exploding"
 #define EN_LVLMAP_FRAME_NAME "display"
 #define EN_CAMERA_FRAME_NAME "hover"
+
+#define EN_CAMERA_NM "camera"
+#define EN_LVLMAP_NM "map"
+#define EN_PLATFORM_BETA_NM "platform_beta"
+#define EN_PLATFORM_ZETA_NM "platform_zeta"
+#define EN_PLATFORM_IOTA_NM "platform_iota"
+#define EN_PLATFORM_TAU_NM "platform_tau"
+#define EN_PLATFORM_PHI_NM "platform_phi"
+#define EN_PLATFORM_CHI_NM "platform_chi"
+#define EN_PLATFORM_ETA_NM "platform_eta"
+#define EN_PLATFORM_RHO_NM "platform_rho"
+#define EN_PLATFORM_PSI_NM "platform_psi"
+#define EN_PLATFORM_EPSILON_NM "platform_epsilon"
+#define EN_PLATFORM_LAMBDA_NM "platform_lambda"
+#define EN_PLATFORM_OMICRON_NM "platform_omicron"
+#define EN_PLATFORM_SIGMA_NM "platform_sigma"
+#define EN_PLATFORM_UPSILON_NM "platform_upsilon"
+#define EN_PLATFORM_MU_NM "platform_mu"
+#define EN_PLATFORM_NU_NM "platform_nu"
+#define EN_PLATFORM_PI_NM "platform_pi"
+#define EN_PLATFORM_XI_NM "platform_xi"
+#define EN_PLATFORM_OMEGA_NM "platform_omega"
+#define EN_PLATFORM_ALPHA_NM "platform_alpha"
+#define EN_BLOCK_BETA_NM "block_beta"
+#define EN_BLOCK_ZETA_NM "block_zeta"
+#define EN_ENEMY_MOTOBUG_ALPHA_NM "enemy_motobug_alpha"
+#define EN_ENEMY_MOTOBUG_GAMMA_NM "enemy_motobug_gamma"
+#define EN_ENEMY_MOTOBUG_DELTA_NM "enemy_motobug_delta"
+#define EN_ENEMY_MOTOBUG_THETA_NM "enemy_motobug_theta"
+#define EN_ENEMY_MOTOBUG_KAPPA_NM "enemy_motobug_kappa"
+#define EN_GOAL_NM "goal"
+#define EN_SONIC_NM "sonic"
 
 #endif
 

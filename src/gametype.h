@@ -8,6 +8,8 @@ struct game {
 	struct entity ents[EN_MAXNUMOF_ENT];
 	int platform_ids[EN_MAXNUMOF_PLATFORMS];
 	int enemy_ids[EN_MAXNUMOF_ENEMIES];
+	int block_ids[EN_MAXNUMOF_BLOCKS];
+	char const * const ent_names[EN_MAXNUMOF_ENT];
 	char *supported_protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	Atom protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	char const *error;
