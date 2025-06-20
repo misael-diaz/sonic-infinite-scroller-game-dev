@@ -2257,7 +2257,7 @@ static void en_apply_gravity(
 	}
 }
 
-static void en_enemy_hitting(struct game * const g)
+static void en_check_hitting(struct game * const g)
 {
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	for (int id = EN_ENEMY_MOTOBUG_ALPHA_ID; id <= EN_ENEMY_MOTOBUG_KAPPA_ID; ++id) {
@@ -2294,7 +2294,7 @@ static void en_update_sonic(struct game * const g)
 	sonic->ymap = platform->ymap;
 
 	if (!(sonic->flags & EN_HITTING_FLAG)) {
-		en_enemy_hitting(g);
+		en_check_hitting(g);
 	}
 
 	if (sonic->flags & EN_FLOOR_FLAG) {
