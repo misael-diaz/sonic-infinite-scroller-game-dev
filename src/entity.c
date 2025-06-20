@@ -52,7 +52,7 @@ static int en_compare_platforms(
 static void en_sort_platforms(struct game * const g)
 {
 	int * const ids = g->platform_ids;
-	int const numel = EN_MAXNUMOF_PLATFORMS;
+	int const numel = EN_PLATFORMS_MAX;
 	// loop-invariant: the elements in the arange [0, i) are sorted
 	for (int i = 0; i != numel; ++i) {
 		int loc = (i - 1);
@@ -1519,9 +1519,9 @@ static void en_init_platform(
 
 static void en_check_platform_list(struct game * const g)
 {
-	int platforms[EN_MAXNUMOF_PLATFORMS];
+	int platforms[EN_PLATFORMS_MAX];
 	_Static_assert(
-		(EN_MAXNUMOF_PLATFORMS * sizeof(int) == sizeof(platforms)),
+		(EN_PLATFORMS_MAX * sizeof(int) == sizeof(platforms)),
 		"en_check_lists: UXArraySizeError"
 	);
 	_Static_assert(
@@ -1529,7 +1529,7 @@ static void en_check_platform_list(struct game * const g)
 		"en_check_lists: UXPlatformStartIdError"
 	);
 	memset(platforms, 0xff, sizeof(platforms));
-	for(int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+	for(int i = 0; i != EN_PLATFORMS_MAX; ++i) {
 		if (!g->platform_ids[i]) {
 			fprintf(stderr, "%s\n", "en_check_lists: UnsetPlatformIdError");
 			graph_unloadall_graphics(g);
@@ -1538,7 +1538,7 @@ static void en_check_platform_list(struct game * const g)
 		}
 	}
 
-	for(int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+	for(int i = 0; i != EN_PLATFORMS_MAX; ++i) {
 		enum enid const id_platform = g->platform_ids[i];
 		struct entity * const platform = &g->ents[id_platform];
 		if (EN_PLATFORM_TAG != platform->tag) {
@@ -1562,12 +1562,12 @@ static void en_check_platform_list(struct game * const g)
 		}
 	}
 
-	for(int platfno = 0; platfno != EN_MAXNUMOF_PLATFORMS; ++platfno) {
+	for(int platfno = 0; platfno != EN_PLATFORMS_MAX; ++platfno) {
 		int const id_platform = g->platform_ids[platfno];
 		platforms[platfno] = id_platform;
 	}
 
-	for(int platfno = 0; platfno != EN_MAXNUMOF_PLATFORMS; ++platfno) {
+	for(int platfno = 0; platfno != EN_PLATFORMS_MAX; ++platfno) {
 		if (-1 == platforms[platfno]) {
 			fprintf(stderr,
 				"%s\n",
@@ -2013,7 +2013,7 @@ void en_init(struct game * const g)
 			++count;
 		}
 	}
-	if ((EN_MAXNUMOF_ENT != count) || (EN_MAXNUMOF_PLATFORMS != platform_count)) {
+	if ((EN_MAXNUMOF_ENT != count) || (EN_PLATFORMS_MAX != platform_count)) {
 		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
 		goto handle_err;
 	}
@@ -2114,7 +2114,7 @@ static int en_map_platform(
 	}
 	struct entity const * const ent = &g->ents[entid];
 	int id_platform = -1;
-	for (int i = 0; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+	for (int i = 0; i != EN_PLATFORMS_MAX; ++i) {
 		int const id = g->platform_ids[i];
 		struct entity const * const platform = &g->ents[id];
 		if (
@@ -2589,7 +2589,7 @@ static void en_update_enemy(
 			min = (platform->xpos - 0.5f * platform->width);
 		} else {
 			min = (platform->xpos - 0.5f * platform->width);
-			for (int i = platform->platfno; i != EN_MAXNUMOF_PLATFORMS; ++i) {
+			for (int i = platform->platfno; i != EN_PLATFORMS_MAX; ++i) {
 				int const id_platform = g->platform_ids[i];
 				struct entity const * const other = &g->ents[id_platform];
 				if (platform->ypos == other->ypos) {
