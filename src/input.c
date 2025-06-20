@@ -151,7 +151,7 @@ int in_handle_input(struct game * const g)
 					fprintf(stdout, "x: %f\t", platform->xpos);
 					fprintf(stdout, "y: %f\n", platform->ypos);
 					g->platformno++;
-					if (EN_PLATFORMS_MAX == g->platformno) {
+					if (EN_PLATFORM_MAX == g->platformno) {
 						g->platformno = 0;
 					}
 				}

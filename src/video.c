@@ -252,7 +252,7 @@ void vid_draw_gw(struct game const * const g)
 			g->gc,
 			g->gray.pixel
 		      );
-	for(int id = 0; id != EN_PLATFORMS_MAX; ++id) {
+	for(int id = 0; id != EN_PLATFORM_MAX; ++id) {
 		int const id_platform = g->platform_ids[id];
 		struct entity const * const platform = &g->ents[id_platform];
 		XFillRectangle(
