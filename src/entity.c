@@ -1581,9 +1581,9 @@ static void en_check_platform_list(struct game * const g)
 
 static void en_check_block_list(struct game * const g)
 {
-	int blocks[EN_MAXNUMOF_BLOCKS];
+	int blocks[EN_BLOCK_MAX];
 	_Static_assert(
-		(EN_MAXNUMOF_BLOCKS * sizeof(int) == sizeof(blocks)),
+		(EN_BLOCK_MAX * sizeof(int) == sizeof(blocks)),
 		"en_check_lists: UXArraySizeError"
 	);
 	_Static_assert(
@@ -1591,7 +1591,7 @@ static void en_check_block_list(struct game * const g)
 		"en_check_lists: UXBlockStartIdError"
 	);
 	memset(blocks, 0xff, sizeof(blocks));
-	for(int i = 0; i != EN_MAXNUMOF_BLOCKS; ++i) {
+	for(int i = 0; i != EN_BLOCK_MAX; ++i) {
 		if (!g->block_ids[i]) {
 			fprintf(stderr, "%s\n", "en_check_lists: UnsetBlockIdError");
 			graph_unloadall_graphics(g);
@@ -1600,7 +1600,7 @@ static void en_check_block_list(struct game * const g)
 		}
 	}
 
-	for(int i = 0; i != EN_MAXNUMOF_BLOCKS; ++i) {
+	for(int i = 0; i != EN_BLOCK_MAX; ++i) {
 		enum enid const id_block = g->block_ids[i];
 		struct entity * const block = &g->ents[id_block];
 		if (EN_BLOCK_TAG != block->tag) {
@@ -1624,7 +1624,7 @@ static void en_check_block_list(struct game * const g)
 		}
 	}
 
-	for(int blockno = 0; blockno != EN_MAXNUMOF_BLOCKS; ++blockno) {
+	for(int blockno = 0; blockno != EN_BLOCK_MAX; ++blockno) {
 		enum enid const id_block = g->block_ids[blockno];
 		struct entity * const block = &g->ents[id_block];
 		if (id_block != block->id) {
@@ -1635,7 +1635,7 @@ static void en_check_block_list(struct game * const g)
 		blocks[blockno] = id_block;
 	}
 
-	for(int blockno = 0; blockno != EN_MAXNUMOF_BLOCKS; ++blockno) {
+	for(int blockno = 0; blockno != EN_BLOCK_MAX; ++blockno) {
 		if (-1 == blocks[blockno]) {
 			fprintf(stderr,
 				"%s\n",
