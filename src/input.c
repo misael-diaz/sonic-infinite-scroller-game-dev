@@ -135,7 +135,7 @@ int in_handle_input(struct game * const g)
 					camera->xpos = enemy->xpos;
 					camera->ypos = enemy->ypos;
 					g->enemyno++;
-					if (EN_MAXNUMOF_ENEMIES == g->enemyno) {
+					if (EN_ENEMY_MAX == g->enemyno) {
 						g->enemyno = 0;
 					}
 				}

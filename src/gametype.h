@@ -7,7 +7,7 @@
 struct game {
 	struct entity ents[EN_MAXNUMOF_ENT];
 	int platform_ids[EN_PLATFORMS_MAX];
-	int enemy_ids[EN_MAXNUMOF_ENEMIES];
+	int enemy_ids[EN_ENEMY_MAX];
 	int block_ids[EN_BLOCK_MAX];
 	char const * const ent_names[EN_MAXNUMOF_ENT];
 	char *supported_protocols[GAME_SUPPORTED_PROTOCOLS_NUM];

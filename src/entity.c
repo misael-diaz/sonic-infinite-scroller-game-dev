@@ -1649,9 +1649,9 @@ static void en_check_block_list(struct game * const g)
 
 static void en_check_enemy_list(struct game * const g)
 {
-	int enemys[EN_MAXNUMOF_ENEMIES];
+	int enemys[EN_ENEMY_MAX];
 	_Static_assert(
-		(EN_MAXNUMOF_ENEMIES * sizeof(typeof(*enemys)) == sizeof(enemys)),
+		(EN_ENEMY_MAX * sizeof(typeof(*enemys)) == sizeof(enemys)),
 		"en_check_lists: UXArraySizeError"
 	);
 	_Static_assert(
@@ -1659,7 +1659,7 @@ static void en_check_enemy_list(struct game * const g)
 		"en_check_lists: UXEnemyStartIdError"
 	);
 	memset(enemys, 0xff, sizeof(enemys));
-	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+	for(int i = 0; i != EN_ENEMY_MAX; ++i) {
 		if (!g->enemy_ids[i]) {
 			fprintf(stderr, "%s\n", "en_check_lists: UnsetEnemyIdError");
 			graph_unloadall_graphics(g);
@@ -1668,10 +1668,10 @@ static void en_check_enemy_list(struct game * const g)
 		}
 	}
 
-	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+	for(int i = 0; i != EN_ENEMY_MAX; ++i) {
 		if (
 			(EN_ENEMY_START_ID > g->enemy_ids[i]) ||
-			((EN_ENEMY_START_ID + EN_MAXNUMOF_ENEMIES) <= g->enemy_ids[i])
+			((EN_ENEMY_START_ID + EN_ENEMY_MAX) <= g->enemy_ids[i])
 		   ) {
 			fprintf(stderr, "%s\n", "en_check_lists: InvalidEnemyIdError");
 			graph_unloadall_graphics(g);
@@ -1680,7 +1680,7 @@ static void en_check_enemy_list(struct game * const g)
 		}
 	}
 
-	for(int i = 0; i != EN_MAXNUMOF_ENEMIES; ++i) {
+	for(int i = 0; i != EN_ENEMY_MAX; ++i) {
 		enum enid const id_enemy = g->enemy_ids[i];
 		struct entity * const enemy = &g->ents[id_enemy];
 		if (EN_ENEMY_TAG != enemy->tag) {
@@ -1704,12 +1704,12 @@ static void en_check_enemy_list(struct game * const g)
 		}
 	}
 
-	for(int enemyno = 0; enemyno != EN_MAXNUMOF_ENEMIES; ++enemyno) {
+	for(int enemyno = 0; enemyno != EN_ENEMY_MAX; ++enemyno) {
 		int const id_enemy = g->enemy_ids[enemyno];
 		enemys[enemyno] = id_enemy;
 	}
 
-	for(int enemyno = 0; enemyno != EN_MAXNUMOF_ENEMIES; ++enemyno) {
+	for(int enemyno = 0; enemyno != EN_ENEMY_MAX; ++enemyno) {
 		if (-1 == enemys[enemyno]) {
 			fprintf(stderr,
 				"%s\n",
