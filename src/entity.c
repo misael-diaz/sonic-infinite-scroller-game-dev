@@ -937,6 +937,7 @@ static void en_init_camera(struct game * const g)
 	camera->flags = 0;
 	camera->frameid = EN_IGNORE_PROPERTY;
 	camera->platfno = EN_IGNORE_PROPERTY;
+	camera->blockno = EN_IGNORE_PROPERTY;
 	camera->frameno = EN_CAMERA_DEFAULT_AF;
 	camera->animno = EN_CAMERA_DEFAULT_AN;
 	camera->tickno = EN_IGNORE_PROPERTY;
@@ -1001,6 +1002,7 @@ static void en_init_lvlmap(struct game * const g)
 	lvlmap->flags = 0;
 	lvlmap->frameid = EN_IGNORE_PROPERTY;
 	lvlmap->platfno = EN_IGNORE_PROPERTY;
+	lvlmap->blockno = EN_IGNORE_PROPERTY;
 	lvlmap->frameno = EN_LVLMAP_DEFAULT_AF;
 	lvlmap->animno = EN_LVLMAP_DEFAULT_AN;
 	lvlmap->tickno = EN_IGNORE_PROPERTY;
@@ -1060,6 +1062,7 @@ static void en_init_goal(struct game * const g)
 	goal->flags = EN_FLOOR_FLAG;
 	goal->frameid = EN_IGNORE_PROPERTY;
 	goal->platfno = EN_IGNORE_PROPERTY;
+	goal->blockno = EN_IGNORE_PROPERTY;
 	goal->frameno = EN_GOAL_DEFAULT_AF;
 	goal->animno = EN_GOAL_DEFAULT_AN;
 	goal->tickno = EN_IGNORE_PROPERTY;
@@ -1111,6 +1114,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->flags = EN_FLOOR_FLAG;
 	sonic->frameid = EN_IGNORE_PROPERTY;
 	sonic->platfno = EN_IGNORE_PROPERTY;
+	sonic->blockno = 0;
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
 	sonic->animno = EN_SONIC_RUN_AN;
 	sonic->tickno = 0;
@@ -1212,6 +1216,7 @@ static void en_init_platform(
 	platform->flags = 0;
 	platform->frameid = EN_IGNORE_PROPERTY;
 	platform->platfno = 0;
+	platform->blockno = 0;
 	platform->frameno = EN_PLATFORM_DEFAULT_AF;
 	platform->animno = EN_PLATFORM_DEFAULT_AN;
 	platform->tickno = EN_IGNORE_PROPERTY;
@@ -1774,8 +1779,8 @@ static void en_init_block(
 	}
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
-	struct entity const * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
-	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
+	struct entity * const beta_platform = &g->ents[EN_PLATFORM_BETA_ID];
+	struct entity * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	struct enview * const mapview = &block->mapview;
 	if (beta_platform->width < block->width) {
 		fprintf(stderr, "%s\n", "en_init_block: BlockWidthError");
@@ -1810,9 +1815,11 @@ static void en_init_block(
 	block->view.height = block->height;
 	memset(mapview, 0, sizeof(*mapview));
 	if (EN_BLOCK_BETA_ID == id_block) {
+		beta_platform->blockno = EN_BLOCK_BETA_ID;
 		block->flags = 0;
 		block->name = EN_BLOCK_BETA_NM;
 		block->platfno = EN_PLATFORM_BETA_ID;
+		block->blockno = EN_BLOCK_BETA_ID;
 		block->xpos = beta_platform->xpos;
 		block->ypos = (
 				beta_platform->ypos -
@@ -1820,9 +1827,11 @@ static void en_init_block(
 				(2.5f * block->height)
 		);
 	} else if (EN_BLOCK_ZETA_ID == id_block) {
+		zeta_platform->blockno = EN_BLOCK_ZETA_ID;
 		block->flags = EN_FLOOR_FLAG;
 		block->name = EN_BLOCK_ZETA_NM;
 		block->platfno = EN_PLATFORM_ZETA_ID;
+		block->blockno = EN_BLOCK_ZETA_ID;
 		block->xpos = zeta_platform->xpos;
 		block->ypos = (
 				zeta_platform->ypos -
@@ -1904,6 +1913,7 @@ static void en_init_enemy(
 	enemy->flags = EN_FLOOR_FLAG;
 	enemy->frameid = g->frameno;
 	enemy->platfno = EN_WARP_PLATFORM_RHO_ID;
+	enemy->blockno = EN_IGNORE_PROPERTY;
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 	enemy->tickno = EN_IGNORE_PROPERTY;
@@ -2096,6 +2106,7 @@ static void en_update_camera(struct game * const g)
 		yvel = 0;
 	}
 	camera->yvel = yvel;
+	camera->xvel = sonic->xvel;
 	camera->xpos += (time_step * camera->xvel);
 	camera->ypos += (time_step * camera->yvel);
 }
@@ -2133,6 +2144,117 @@ static int en_map_platform(
 		exit(EXIT_FAILURE);
 	}
 	return id_platform;
+}
+
+static int en_check_overlapped(
+		struct game * const g,
+		int const block_id,
+		int const id
+)
+{
+	int rc = -1;
+	struct entity const * const block = &g->ents[block_id];
+	struct entity const * const ent = &g->ents[id];
+	if (EN_BLOCK_TAG != block->tag) {
+		fprintf(stderr, "%s\n", "en_check_rc: UXBlockTagError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+	float const dx = (ent->xpos - block->xpos);
+	float const dx2 = (dx * dx);
+	float const contact = 0.5f * (ent->width + block->width);
+	float const contact2 = (contact * contact);
+	if (contact2 > dx2) {
+		float const dy = (ent->ypos - block->ypos);
+		float const dy2 = (dy * dy);
+		float const contact = 0.5f * (ent->height + block->height);
+		float const contact2 = (contact * contact);
+		if (contact2 > dy2) {
+			rc = EN_OVERLAP_FLAG;
+		} else {
+			if (0 > dy) {
+				rc = EN_ABOVE_FLAG;
+			} else {
+				rc = EN_BELOW_FLAG;
+			}
+		}
+	} else {
+		if (0 > dx) {
+			rc = EN_LEFT_FLAG;
+		} else {
+			rc = EN_RIGHT_FLAG;
+		}
+	}
+	if (-1 == rc) {
+		fprintf(stderr, "%s\n", "en_check_rc: ImplError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
+	return rc;
+}
+
+static void en_check_blocked(
+		struct game * const g,
+		int const platform_id,
+		int const id
+)
+{
+	struct entity const * const platform = &g->ents[platform_id];
+	struct entity * const ent = &g->ents[id];
+	if (!platform->blockno) {
+		return;
+	}
+	int const blockno = platform->blockno;
+	struct entity const * const block = &g->ents[blockno];
+	float const dx = (ent->xpos - block->xpos);
+	if (EN_OVERLAP_FLAG == en_check_overlapped(g, block->id, ent->id)) {
+		if (EN_ENEMY_TAG == ent->tag) {
+			ent->xvel = -(ent->xvel);
+		} else if (EN_SONIC_TAG == ent->tag) {
+			ent->flags |= EN_BLOCKED_FLAG;
+			ent->blockno = blockno;
+			ent->xv00 = ent->xvel;
+			ent->xvel = 0;
+			if (0 > dx) {
+				if (0 >= ent->xv00) {
+					fprintf(stderr,
+						"%s\n",
+						"en_check_blocked: "
+						"ImplBlockingError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
+				}
+				ent->xpos = (
+						block->xpos -
+						(0.5f * block->width) -
+						(0.5f * ent->width)
+					    );
+			} else {
+				if (0 <= ent->xv00) {
+					fprintf(stderr,
+						"%s\n",
+						"en_check_blocked: "
+						"ImplBlockingError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
+				}
+				ent->xpos = (
+						block->xpos +
+						(0.5f * block->width) +
+						(0.5f * ent->width)
+					    );
+			}
+		} else {
+			fprintf(stderr, "%s\n", "en_check_blocked: ImplError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 static void en_check_falling(
@@ -2237,8 +2359,13 @@ static void en_apply_gravity(
 			struct entity * const sonic = ent;
 			sonic->animno = EN_SONIC_RUN_AN;
 		}
-		ent->flags = EN_FLOOR_FLAG;
-		ent->xvel = ent->xv00;
+		ent->flags ^= EN_FLOOR_FLAG;
+		if ((EN_SONIC_TAG == ent->tag) && (!(ent->flags & EN_BLOCKED_FLAG))) {
+			struct entity * const sonic = ent;
+			if (!sonic->blockno) {
+				ent->xvel = ent->xv00;
+			}
+		}
 		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
@@ -2295,6 +2422,10 @@ static void en_update_sonic(struct game * const g)
 
 	if (!(sonic->flags & EN_HITTING_FLAG)) {
 		en_check_hitting(g);
+	}
+
+	if (!(sonic->flags & EN_BLOCKED_FLAG)) {
+		en_check_blocked(g, platform_id, sonic->id);
 	}
 
 	if (sonic->flags & EN_FLOOR_FLAG) {
@@ -2601,6 +2732,10 @@ static void en_update_enemy(
 			max = ((platform->xpos + 0.5f * platform->width) - 1);
 		}
 
+		if (!(enemy->flags & EN_BLOCKED_FLAG)) {
+			en_check_blocked(g, platform_id, enemy->id);
+		}
+
 		enemy->xpos += (time_step * enemy->xvel);
 		enemy->xpos = en_clamp(
 			enemy->xpos,
@@ -2626,6 +2761,16 @@ static void en_update_goal(struct game * const g)
 		(0.5f * goal->height)
 	);
 	en_set_screenview(g, goal->id);
+}
+
+static void en_late_update_camera(struct game * const g)
+{
+	struct entity * const camera = &g->ents[EN_CAMERA_ID];
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	if (EN_BLOCKED_FLAG == (sonic->flags & EN_BLOCKED_FLAG)) {
+		camera->xpos = sonic->xpos;
+		camera->xvel = sonic->xvel;
+	}
 }
 
 void en_update(struct game * const g)
@@ -2664,4 +2809,5 @@ void en_update(struct game * const g)
 			en_update_enemy(g, id_enemy);
 		}
 	}
+	en_late_update_camera(g);
 }

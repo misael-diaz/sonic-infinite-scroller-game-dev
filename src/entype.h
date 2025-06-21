@@ -84,6 +84,11 @@ enum enid {
 enum enflag {
 	EN_FLOOR_SHIFT,
 	EN_CEILING_SHIFT,
+	EN_LEFT_SHIFT,
+	EN_RIGHT_SHIFT,
+	EN_ABOVE_SHIFT,
+	EN_BELOW_SHIFT,
+	EN_OVERLAP_SHIFT,
 	EN_BLOCKED_SHIFT,
 	EN_HITTING_SHIFT,
 	EN_FALLING_SHIFT,
@@ -93,6 +98,11 @@ enum enflag {
 	EN_FLAG_MAX,
 	EN_FLOOR_FLAG = (1 << EN_FLOOR_SHIFT),
 	EN_CEILING_FLAG = (1 << EN_CEILING_SHIFT),
+	EN_LEFT_FLAG = (1 << EN_LEFT_SHIFT),
+	EN_RIGHT_FLAG = (1 << EN_RIGHT_SHIFT),
+	EN_ABOVE_FLAG = (1 << EN_ABOVE_SHIFT),
+	EN_BELOW_FLAG = (1 << EN_BELOW_SHIFT),
+	EN_OVERLAP_FLAG = (1 << EN_OVERLAP_SHIFT),
 	EN_BLOCKED_FLAG = (1 << EN_BLOCKED_SHIFT),
 	EN_HITTING_FLAG = (1 << EN_HITTING_SHIFT),
 	EN_FALLING_FLAG = (1 << EN_FALLING_SHIFT),
@@ -181,6 +191,7 @@ struct entity {
 	float height;
 	int frameid;
 	int platfno;
+	int blockno;
 	int frameno;
 	int animno;
 	int tickno;
