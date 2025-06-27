@@ -90,7 +90,7 @@ _Static_assert(EN_SONIC_AFRAME_COUNT == EN_AFRAME_COUNT, "UXAframeCountError");
 #define EN_PLATFORM_XI_NM "platform_xi"
 #define EN_PLATFORM_OMEGA_NM "platform_omega"
 #define EN_PLATFORM_ALPHA_NM "platform_alpha"
-#define EN_BLOCK_BETA_NM "block_beta"
+#define EN_BLOCK_ETA_NM "block_eta"
 #define EN_BLOCK_ZETA_NM "block_zeta"
 #define EN_ENEMY_MOTOBUG_ALPHA_NM "enemy_motobug_alpha"
 #define EN_ENEMY_MOTOBUG_GAMMA_NM "enemy_motobug_gamma"
