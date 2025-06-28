@@ -2530,6 +2530,7 @@ static void en_apply_gravity(
 				sonic->xv00 = GAME_SONIC_XVEL;
 			}
 		}
+		ent->flags |= EN_COLLISION_FLAG;
 		ent->flags ^= EN_FLOOR_FLAG;
 		ent->flags &= (~EN_FALLING_FLAG);
 		ent->flags &= (~EN_SPRINGING_FLAG);
@@ -3086,8 +3087,12 @@ static void en_update_goal(struct game * const g)
 static void en_late_update_camera(struct game * const g)
 {
 	struct entity * const camera = &g->ents[EN_CAMERA_ID];
-	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
+	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	if (EN_BLOCKED_FLAG == (sonic->flags & EN_BLOCKED_FLAG)) {
+		camera->xpos = sonic->xpos;
+		camera->xvel = sonic->xvel;
+	} else if (EN_COLLISION_FLAG == (sonic->flags & EN_COLLISION_FLAG)) {
+		sonic->flags ^= EN_COLLISION_FLAG;
 		camera->xpos = sonic->xpos;
 		camera->xvel = sonic->xvel;
 	}
@@ -3130,4 +3135,17 @@ void en_update(struct game * const g)
 		}
 	}
 	en_late_update_camera(g);
+	for (int i = 0; i != g->entno; ++i) {
+		struct entity * const entities = g->ents;
+		struct entity * const ent = &entities[i];
+		if (
+			(EN_PLATFORM_TAG == ent->tag) ||
+			(EN_BLOCK_TAG == ent->tag) ||
+			(EN_ENEMY_TAG == ent->tag) ||
+			(EN_GOAL_TAG == ent->tag) ||
+			(EN_SONIC_TAG == ent->tag)
+		   ) {
+			en_set_screenview(g, ent->id);
+		}
+	}
 }
