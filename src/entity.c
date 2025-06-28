@@ -1133,6 +1133,17 @@ static void en_init_sonic(struct game * const g)
 		(0.5f * sonic->height)
 	);
 	sonic->yold = sonic->ypos;
+	if (GAME_SONIC_WIDTH != sonic->width) {
+		fprintf(stderr, "%s\n", "en_init_sonic: WrongSonicWidthError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	} else if (GAME_SONIC_HEIGHT != sonic->height) {
+		fprintf(stderr, "%s\n", "en_init_sonic: WrongSonicHeightError");
+		graph_unloadall_graphics(g);
+		vid_close_gw(g);
+		exit(EXIT_FAILURE);
+	}
 	en_init_view(g, sonic->id);
 }
 
@@ -1816,7 +1827,7 @@ static void en_init_block(
 	memset(mapview, 0, sizeof(*mapview));
 	if (EN_BLOCK_ETA_ID == id_block) {
 		eta_platform->blockno = EN_BLOCK_ETA_ID;
-		block->flags = EN_FLOOR_FLAG;
+		block->flags = 0;
 		block->name = EN_BLOCK_ETA_NM;
 		block->platfno = EN_PLATFORM_ETA_ID;
 		block->blockno = EN_BLOCK_ETA_ID;
@@ -1824,7 +1835,8 @@ static void en_init_block(
 		block->ypos = (
 				eta_platform->ypos -
 				(0.5f * eta_platform->height) -
-				(0.5f * block->height)
+				(0.5f * block->height) -
+				(1.5f * GAME_SONIC_HEIGHT)
 		);
 	} else if (EN_BLOCK_ZETA_ID == id_block) {
 		zeta_platform->blockno = EN_BLOCK_ZETA_ID;
@@ -2788,7 +2800,8 @@ static void en_update_block(
 		block->ypos = (
 				eta_platform->ypos -
 				(0.5f * eta_platform->height) -
-				(0.5f * block->height)
+				(0.5f * block->height) -
+				(1.5f * GAME_SONIC_HEIGHT)
 		);
 	} else if (EN_BLOCK_ZETA_ID == block->id) {
 		block->xpos = zeta_platform->xpos;
