@@ -1840,7 +1840,7 @@ static void en_init_block(
 		);
 	} else if (EN_BLOCK_ZETA_ID == id_block) {
 		zeta_platform->blockno = EN_BLOCK_ZETA_ID;
-		block->flags = EN_FLOOR_FLAG;
+		block->flags = 0;
 		block->name = EN_BLOCK_ZETA_NM;
 		block->platfno = EN_PLATFORM_ZETA_ID;
 		block->blockno = EN_BLOCK_ZETA_ID;
@@ -1848,7 +1848,8 @@ static void en_init_block(
 		block->ypos = (
 				zeta_platform->ypos -
 				(0.5f * zeta_platform->height) -
-				(0.5f * block->height)
+				(0.5f * block->height) -
+				(2.5f * GAME_SONIC_HEIGHT)
 		);
 	}
 	en_init_view(g, block->id);
@@ -2284,10 +2285,12 @@ static void en_apply_gravity(
 			(0.5f * platform->height) -
 			(0.5f * ent->height)
 	);
-	int const blockno = (platform->blockno)? platform->blockno : 0;
+	int sliding = 0;
 	int overlapping = 0;
+	float ceiling_block = 0;
 	float floor_contact = 0;
 	if (platform->blockno) {
+		int const blockno = platform->blockno;
 		struct entity const * const block = &g->ents[blockno];
 		if (EN_BLOCK_TAG != block->tag) {
 			fprintf(stderr,
@@ -2311,32 +2314,58 @@ static void en_apply_gravity(
 				(0.5f * block->height) -
 				(0.5f * ent->height)
 		);
+		float const ceil_block = (
+				block->ypos +
+				(0.5f * block->height)
+		);
+		float const floor_linked_platform = (
+				platform->ypos -
+				(0.5f * platform->height)
+		);
 		if ((xcontact2 >= dx2) && (ycontact2 >= dy2)) {
 			if (0 > ent->yvel) {
-				ent->xv00 = ent->xvel;
-				ent->xvel = -(ent->xvel);
-				ent->yold = ent->ypos;
-				ent->yvel = -((float) (GAME_SONIC_JUMP_VEL));
-				ent->yv00 = -((float) (GAME_SONIC_JUMP_VEL));
-				ent->frameno = g->frameno;
-				ent->tickno = 1;
-				if (0 >= dx) {
-					ent->xpos = (
-							block->xpos -
-							(0.5f * block->width) -
-							(0.5f * ent->width) -
-							1.0f
-						    );
+				if ((block->ypos + 0.5f * block->height) <= ent->ypos) {
+					if (floor_linked_platform == ceil_block) {
+						sliding = 0;
+						overlapping = 0;
+						ceiling_block = 0;
+						floor_contact = floor_platform;
+					} else {
+						sliding = 1;
+						overlapping = 0;
+						ceiling_block = (
+								block->ypos +
+								(0.5f * block->height) +
+								(0.5f * ent->height)
+								);
+						floor_contact = floor_platform;
+					}
 				} else {
-					ent->xpos = (
-							block->xpos +
-							(0.5f * block->width) +
-							(0.5f * ent->width) +
-							1.0f
-						    );
+					ent->xv00 = ent->xvel;
+					ent->xvel = -(ent->xvel);
+					ent->yold = ent->ypos;
+					ent->yvel = -((float) (GAME_SONIC_JUMP_VEL));
+					ent->yv00 = -((float) (GAME_SONIC_JUMP_VEL));
+					ent->frameno = g->frameno;
+					ent->tickno = 1;
+					if (0 >= dx) {
+						ent->xpos = (
+								block->xpos -
+								(0.5f * block->width) -
+								(0.5f * ent->width) -
+								1.0f
+							    );
+					} else {
+						ent->xpos = (
+								block->xpos +
+								(0.5f * block->width) +
+								(0.5f * ent->width) +
+								1.0f
+							    );
+					}
+					overlapping = 0;
+					floor_contact = floor_platform;
 				}
-				overlapping = 0;
-				floor_contact = floor_platform;
 			} else if ((block->ypos - 0.5f * block->height) >= ent->ypos) {
 				overlapping = 1;
 				floor_contact = floor_block;
@@ -2379,44 +2408,112 @@ static void en_apply_gravity(
 			(ent->yv00 * t) +
 			(0.5f * gc * t * t)
 	);
-	// TODO: IMPL SLIDING ON BLOCKS
 	if (ent->flags & EN_CEILING_FLAG) {
 		ent->ypos = en_clamp(ent->ypos, ent->ymin, floor_contact);
 		int const id = ent->platfno;
 		struct entity const * const ceiling_platform = &g->ents[id];
-		if (
+		if (EN_PLATFORM_TAG == ceiling_platform->tag) {
+			if (
 				(platform->xpos != ceiling_platform->xpos) ||
 				(ent->flags & EN_SPRINGING_FLAG)
-		   ) {
-			ent->flags ^= EN_CEILING_FLAG;
-			ent->flags &= (~EN_SPRINGING_FLAG);
-			ent->flags |= EN_FALLING_FLAG;
-			ent->frameno = g->frameno;
-			ent->tickno = 1;
-			ent->yold = ent->ymin;
-			ent->ymin = 0;
-			ent->yvel = -ent->yvcol;
-			ent->yv00 = -ent->yvcol;
-		}
-	} else if (platform->platfno) {
-		int const platfno = platform->platfno;
-		int const id = g->platform_ids[platfno - 1];
-		struct entity const * const ceiling_platform = &g->ents[id];
-		if (platform->xpos == ceiling_platform->xpos) {
-			int const ceiling = (
-				ceiling_platform->ypos +
-				0.5f * ceiling_platform->height +
-				0.5f * ent->height
-			) + 1;
-			ent->ypos = en_clamp(ent->ypos, floor_contact, ceiling);
-			if (ceiling == ent->ypos) {
-				ent->flags |= EN_CEILING_FLAG;
-				ent->platfno = id;
-				ent->yvcol = ent->yvel;
-				ent->ymin = ceiling;
+			   ) {
+				ent->flags ^= EN_CEILING_FLAG;
+				ent->flags &= (~EN_SPRINGING_FLAG);
+				ent->flags |= EN_FALLING_FLAG;
+				ent->yold = ent->ymin;
+				ent->yvel = -ent->yvcol;
+				ent->yv00 = -ent->yvcol;
+				ent->frameno = g->frameno;
+				ent->tickno = 1;
+				ent->platfno = 0;
+				ent->blockno = 0;
+				ent->ymin = 0;
+			}
+		} else if (EN_BLOCK_TAG == ceiling_platform->tag) {
+			if ((!sliding) || (ent->flags & EN_SPRINGING_FLAG)) {
+				ent->flags ^= EN_CEILING_FLAG;
+				ent->flags &= (~EN_SPRINGING_FLAG);
+				ent->flags |= EN_FALLING_FLAG;
+				ent->yold = ent->ymin;
+				ent->yvel = -ent->yvcol;
+				ent->yv00 = -ent->yvcol;
+				ent->frameno = g->frameno;
+				ent->tickno = 1;
+				ent->platfno = 0;
+				ent->blockno = 0;
+				ent->ymin = 0;
 			}
 		} else {
-			ent->ypos = MIN(ent->ypos, floor_contact);
+			fprintf(stderr,
+				"%s\n",
+				"en_apply_gravity: "
+				"ImplEntityTagError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	} else if (platform->platfno) {
+		int const blockno = platform->blockno;
+		int const platfno = g->platform_ids[platform->platfno - 1];
+		struct entity const * const above_platform = &g->ents[platfno];
+		if (platform->xpos == above_platform->xpos) {
+			int ceiling_contact = 0;
+
+			int const ceiling_platform = (
+				above_platform->ypos +
+				0.5f * above_platform->height +
+				0.5f * ent->height
+			) + 1;
+
+			if (sliding) {
+				if (0 == ceiling_block) {
+					fprintf(stderr,
+						"%s\n",
+						"en_apply_gravity: "
+						"ImplBlockSlidingError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
+				}
+				ceiling_contact = ceiling_block;
+			} else {
+				ceiling_contact = ceiling_platform;
+			}
+			ent->ypos = en_clamp(ent->ypos, floor_contact, ceiling_contact);
+			if (ceiling_contact == ent->ypos) {
+				ent->flags |= EN_CEILING_FLAG;
+				ent->platfno = (sliding)? blockno : platfno;
+				ent->yvcol = ent->yvel;
+				ent->ymin = ceiling_contact;
+				ent->blockno = 0;
+			}
+		} else {
+			if (sliding) {
+				float const ceiling_contact = ceiling_block;
+				if (0 == ceiling_block) {
+					fprintf(stderr,
+						"%s\n",
+						"en_apply_gravity: "
+						"ImplBlockSlidingError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
+				}
+				ent->ypos = en_clamp(
+						ent->ypos,
+						floor_contact,
+						ceiling_contact
+				);
+				if (ceiling_contact == ent->ypos) {
+					ent->flags |= EN_CEILING_FLAG;
+					ent->platfno = platform->blockno;
+					ent->yvcol = ent->yvel;
+					ent->ymin = ceiling_contact;
+					ent->blockno = 0;
+				}
+			} else {
+				ent->ypos = MIN(ent->ypos, floor_contact);
+			}
 		}
 	} else {
 		ent->ypos = MIN(ent->ypos, floor_contact);
@@ -2439,7 +2536,7 @@ static void en_apply_gravity(
 		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
-		ent->blockno = (overlapping)? blockno : 0;
+		ent->blockno = (overlapping)? platform->blockno : 0;
 		ent->frameno = 0;
 		ent->tickno = 0;
 	} else {
@@ -2808,7 +2905,8 @@ static void en_update_block(
 		block->ypos = (
 				zeta_platform->ypos -
 				(0.5f * zeta_platform->height) -
-				(0.5f * block->height)
+				(0.5f * block->height) -
+				(2.5f * GAME_SONIC_HEIGHT)
 		);
 	}
 	en_set_screenview(g, block->id);
