@@ -2341,6 +2341,7 @@ static void en_apply_gravity(
 						floor_contact = floor_platform;
 					}
 				} else {
+					ent->flags |= EN_COLLISION_FLAG;
 					ent->xv00 = ent->xvel;
 					ent->xvel = -(ent->xvel);
 					ent->yold = ent->ypos;
@@ -2370,6 +2371,7 @@ static void en_apply_gravity(
 				overlapping = 1;
 				floor_contact = floor_block;
 			} else {
+				ent->flags |= EN_COLLISION_FLAG;
 				ent->xv00 = ent->xvel;
 				ent->xvel = -(ent->xvel);
 				if (0 >= dx) {
