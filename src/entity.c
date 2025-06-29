@@ -2573,7 +2573,10 @@ static void en_check_hitting(struct game * const g)
 		   ) {
 			sonic->flags |= EN_HITTING_FLAG;
 			sonic->yold = sonic->ypos;
-			sonic->yv00 = -(sonic->yvel);
+			if (GAME_SONIC_JUMP_VEL > sonic->yvel) {
+				sonic->yvel = GAME_SONIC_JUMP_VEL;
+			}
+			sonic->yv00 = (-sonic->yvel);
 			sonic->frameno = g->frameno;
 			sonic->tickno = 1;
 			break;
