@@ -2371,32 +2371,40 @@ static void en_apply_gravity(
 				overlapping = 1;
 				floor_contact = floor_block;
 			} else {
-				ent->flags |= EN_COLLISION_FLAG;
-				ent->xv00 = ent->xvel;
-				ent->xvel = -(ent->xvel);
-				if (0 >= dx) {
-					ent->xpos = (
-							block->xpos -
-							(0.5f * block->width) -
-							(0.5f * ent->width) -
-							1.0f
-						    );
-				} else {
-					ent->xpos = (
-							block->xpos +
-							(0.5f * block->width) +
-							(0.5f * ent->width) +
-							1.0f
-						    );
+				if (!ent->yvcol) {
+					ent->flags |= EN_COLLISION_FLAG;
+					ent->xv00 = ent->xvel;
+					ent->xvel = -(ent->xvel);
+					if (0 >= dx) {
+						ent->xpos = (
+								block->xpos -
+								(0.5f * block->width) -
+								(0.5f * ent->width) -
+								1.0f
+							    );
+					} else {
+						ent->xpos = (
+								block->xpos +
+								(0.5f * block->width) +
+								(0.5f * ent->width) +
+								1.0f
+							    );
+					}
 				}
 				overlapping = 0;
 				floor_contact = floor_platform;
 			}
 		} else {
+			if (!(ent->flags & EN_CEILING_FLAG)) {
+				ent->yvcol = 0;
+			}
 			overlapping = 0;
 			floor_contact = floor_platform;
 		}
 	} else {
+		if (!(ent->flags & EN_CEILING_FLAG)) {
+			ent->yvcol = 0;
+		}
 		overlapping = 0;
 		floor_contact = floor_platform;
 	}
@@ -2536,6 +2544,7 @@ static void en_apply_gravity(
 		ent->flags ^= EN_FLOOR_FLAG;
 		ent->flags &= (~EN_FALLING_FLAG);
 		ent->flags &= (~EN_SPRINGING_FLAG);
+		ent->yvcol = 0;
 		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
