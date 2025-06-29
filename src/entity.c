@@ -2757,6 +2757,7 @@ static void en_update_sonic(struct game * const g)
 	);
 	sonic->xpos += (time_step * sonic->xvel);
 	if ((limit >= sonic->xpos) && (0 > sonic->xvel)) {
+		sonic->flags = EN_COLLISION_FLAG;
 		sonic->xpos = limit;
 		if (0 > sonic->xvel) {
 			sonic->xv00 = -(sonic->xvel);
@@ -3103,6 +3104,7 @@ static void en_late_update_camera(struct game * const g)
 void en_update(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
+	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
 	if (GAME_CAMERA_VIEW_MODE == g->mode) {
 		struct entity * const camera = &g->ents[EN_CAMERA_ID];
 		camera->xpos += (time_step * camera->xvel);
@@ -3136,18 +3138,20 @@ void en_update(struct game * const g)
 			en_update_enemy(g, id_enemy);
 		}
 	}
-	en_late_update_camera(g);
-	for (int i = 0; i != g->entno; ++i) {
-		struct entity * const entities = g->ents;
-		struct entity * const ent = &entities[i];
-		if (
-			(EN_PLATFORM_TAG == ent->tag) ||
-			(EN_BLOCK_TAG == ent->tag) ||
-			(EN_ENEMY_TAG == ent->tag) ||
-			(EN_GOAL_TAG == ent->tag) ||
-			(EN_SONIC_TAG == ent->tag)
-		   ) {
-			en_set_screenview(g, ent->id);
+	if (sonic->flags & (EN_COLLISION_FLAG | EN_BLOCKED_SHIFT)) {
+		en_late_update_camera(g);
+		for (int i = 0; i != g->entno; ++i) {
+			struct entity * const entities = g->ents;
+			struct entity * const ent = &entities[i];
+			if (
+					(EN_PLATFORM_TAG == ent->tag) ||
+					(EN_BLOCK_TAG == ent->tag) ||
+					(EN_ENEMY_TAG == ent->tag) ||
+					(EN_GOAL_TAG == ent->tag) ||
+					(EN_SONIC_TAG == ent->tag)
+			   ) {
+				en_set_screenview(g, ent->id);
+			}
 		}
 	}
 }
