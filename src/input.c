@@ -91,7 +91,6 @@ int in_handle_input(struct game * const g)
 				if (GAME_CAMERA_VIEW_MODE == g->mode) {
 					camera->xvel = -GAME_CAMERA_HOVER_XVEL;
 				}
-				fprintf(stdout, "%s\n", "left-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_RIGHT == ev.xkey.keycode) {
@@ -100,7 +99,6 @@ int in_handle_input(struct game * const g)
 				} else {
 					sonic->animno = EN_SONIC_RUN_AN;
 				}
-				fprintf(stdout, "%s\n", "right-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_DOWN == ev.xkey.keycode) {
@@ -109,14 +107,12 @@ int in_handle_input(struct game * const g)
 				} else {
 					sonic->animno = EN_SONIC_SPIN_AN;
 				}
-				fprintf(stdout, "%s\n", "down-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_UP == ev.xkey.keycode) {
 				if (GAME_CAMERA_VIEW_MODE == g->mode) {
 					camera->yvel = -GAME_CAMERA_HOVER_YVEL;
 				}
-				fprintf(stdout, "%s\n", "up-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
@@ -124,7 +120,6 @@ int in_handle_input(struct game * const g)
 					sonic->flags &= (~EN_FLOOR_FLAG);
 					sonic->flags |= EN_SPRINGING_FLAG;
 				}
-				fprintf(stdout, "%s\n", "tab-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_E == ev.xkey.keycode) {
@@ -180,7 +175,6 @@ int in_handle_input(struct game * const g)
 					camera->view.height = camera->height;
 				}
 				g->mode ^= GAME_CAMERA_VIEW_MODE;
-				fprintf(stdout, "%s\n", "M-key pressed");
 				rc = 0;
 				break;
 			} else if (KBD_B == ev.xkey.keycode) {
@@ -194,33 +188,26 @@ int in_handle_input(struct game * const g)
 					camera->view.width = camera->width;
 					camera->view.height = camera->height;
 				}
-				fprintf(stdout, "%s\n", "M-key pressed");
 				rc = 0;
 				break;
 			}
 		} else if (KeyRelease == ev.type) {
 			if (KBD_LEFT == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "left-key released");
 				rc = 0;
 				break;
 			} else if (KBD_RIGHT == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "right-key released");
 				rc = 0;
 				break;
 			} else if (KBD_DOWN == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "down-key released");
 				rc = 0;
 				break;
 			} else if (KBD_UP == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "up-key released");
 				rc = 0;
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "tab-key released");
 				rc = 0;
 				break;
 			} else if (KBD_M == ev.xkey.keycode) {
-				fprintf(stdout, "%s\n", "M-key released");
 				rc = 0;
 				break;
 			}
