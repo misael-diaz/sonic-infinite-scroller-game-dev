@@ -190,6 +190,9 @@ int in_handle_input(struct game * const g)
 				}
 				rc = 0;
 				break;
+			} else {
+				rc = 0;
+				break;
 			}
 		} else if (KeyRelease == ev.type) {
 			if (KBD_LEFT == ev.xkey.keycode) {
@@ -210,7 +213,13 @@ int in_handle_input(struct game * const g)
 			} else if (KBD_M == ev.xkey.keycode) {
 				rc = 0;
 				break;
+			} else {
+				rc = 0;
+				break;
 			}
+		} else {
+			rc = 0;
+			break;
 		}
 	}
 	return rc;
