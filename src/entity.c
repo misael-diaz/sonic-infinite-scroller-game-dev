@@ -1754,6 +1754,15 @@ static void en_check_names(struct game * const g)
 			exit(EXIT_FAILURE);
 		}
 	}
+	for(int i = 0; i != EN_ENT_MAX; ++i) {
+		struct entity const * const ent = &g->ents[i];
+		if (!ent->name || !strlen(ent->name)) {
+			fprintf(stderr, "%s\n", "en_check_names: NoEntityNameError");
+			graph_unloadall_graphics(g);
+			vid_close_gw(g);
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 static void en_init_block(
