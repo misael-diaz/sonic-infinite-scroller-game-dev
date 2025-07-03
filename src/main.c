@@ -126,7 +126,7 @@ int main(void)
 		.enemyno = 0,
 		.screeno = 0,
 		.frameno = 0,
-		.entno = EN_MAXNUMOF_ENT,
+		.entno = EN_ENT_MAX,
 		.mode = !GAME_CAMERA_VIEW_MODE,
 		.init = !GAME_INITED_GW
 	};

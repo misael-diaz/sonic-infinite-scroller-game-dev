@@ -5,11 +5,11 @@
 #include "entype.h"
 
 struct game {
-	struct entity ents[EN_MAXNUMOF_ENT];
+	struct entity ents[EN_ENT_MAX];
 	int platform_ids[EN_PLATFORM_MAX];
 	int enemy_ids[EN_ENEMY_MAX];
 	int block_ids[EN_BLOCK_MAX];
-	char const * const ent_names[EN_MAXNUMOF_ENT];
+	char const * const ent_names[EN_ENT_MAX];
 	char *supported_protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	Atom protocols[GAME_SUPPORTED_PROTOCOLS_NUM];
 	char const *error;
@@ -17,7 +17,7 @@ struct game {
 	Window window;
 	Screen *screen;
 	Visual *visual;
-	XImage *framebuffers[EN_MAXNUMOF_ENT];
+	XImage *framebuffers[EN_ENT_MAX];
 	Colormap colormap;
 	XColor red;
 	XColor green;

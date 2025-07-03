@@ -128,7 +128,7 @@ void graph_unload_graphic(struct graphic * const graphicp)
 void graph_unloadall_graphics(struct game * const g)
 {
 	struct entity * const ents = g->ents;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+	for (int i = 0; i != EN_ENT_MAX; ++i) {
 		struct entity * const ent = &ents[i];
 		if (!ent->framebuffer) {
 			graph_unload_graphic(&ent->graphic);

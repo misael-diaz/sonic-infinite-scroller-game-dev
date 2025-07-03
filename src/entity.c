@@ -132,7 +132,7 @@ static float en_clamp(
 static void en_tag_entity(struct game * const g)
 {
 	int count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+	for (int i = 0; i != EN_ENT_MAX; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		if (EN_CAMERA_ID == i) {
@@ -261,7 +261,7 @@ static void en_tag_entity(struct game * const g)
 			++count;
 		}
 	}
-	if (EN_MAXNUMOF_ENT != count) {
+	if (EN_ENT_MAX != count) {
 		fprintf(stderr, "%s\n", "en_tag_entity: UXUnhandledEntitiesError");
 		vid_close_gw(g);
 		exit(EXIT_FAILURE);
@@ -271,7 +271,7 @@ static void en_tag_entity(struct game * const g)
 static void en_load_graphic(struct game * const g)
 {
 	int count = 0;
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+	for (int i = 0; i != EN_ENT_MAX; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		struct graphic * const graphicp = &ent->graphic;
@@ -337,7 +337,7 @@ static void en_load_graphic(struct game * const g)
 			++count;
 		}
 	}
-	if (EN_MAXNUMOF_ENT != count) {
+	if (EN_ENT_MAX != count) {
 		fprintf(stderr, "%s\n", "en_load_graphic: UXUnhandledEntitiesError");
 		goto handle_err;
 	}
@@ -1746,7 +1746,7 @@ static void en_check_lists(struct game * const g)
 
 static void en_check_names(struct game * const g)
 {
-	for(int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+	for(int i = 0; i != EN_ENT_MAX; ++i) {
 		if (!g->ent_names[i]) {
 			fprintf(stderr, "%s\n", "en_check_names: NullEntityNameError");
 			graph_unloadall_graphics(g);
@@ -1954,12 +1954,12 @@ static void en_init_enemy(
 
 static void en_check_overlap(struct game * const g)
 {
-	for (int i = 0; i != (EN_MAXNUMOF_ENT - 1); ++i) {
+	for (int i = 0; i != (EN_ENT_MAX - 1); ++i) {
 		struct entity const * const ent = &g->ents[i];
 		if (EN_CAMERA_TAG == ent->tag) {
 			continue;
 		}
-		for (int j = (i + 1); j != EN_MAXNUMOF_ENT; ++j) {
+		for (int j = (i + 1); j != EN_ENT_MAX; ++j) {
 			struct entity const * const other = &g->ents[j];
 			float const contact = 0.5f * (ent->width + other->width);
 			float const contact2 = (contact * contact);
@@ -1991,7 +1991,7 @@ void en_init(struct game * const g)
 {
 	int count = 0;
 	int platform_count = 0;
-	if ((0 >= g->entno) || (EN_MAXNUMOF_ENT < g->entno)) {
+	if ((0 >= g->entno) || (EN_ENT_MAX < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
 		graph_unloadall_graphics(g);
 		vid_close_gw(g);
@@ -2000,7 +2000,7 @@ void en_init(struct game * const g)
 	en_tag_entity(g);
 	en_load_graphic(g);
 	en_init_aframes(g);
-	for (int i = 0; i != EN_MAXNUMOF_ENT; ++i) {
+	for (int i = 0; i != EN_ENT_MAX; ++i) {
 		struct entity * const entities = g->ents;
 		struct entity * const ent = &entities[i];
 		if (
@@ -2036,7 +2036,7 @@ void en_init(struct game * const g)
 			++count;
 		}
 	}
-	if ((EN_MAXNUMOF_ENT != count) || (EN_PLATFORM_MAX != platform_count)) {
+	if ((EN_ENT_MAX != count) || (EN_PLATFORM_MAX != platform_count)) {
 		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
 		goto handle_err;
 	}
@@ -3123,7 +3123,7 @@ void en_update(struct game * const g)
 		camera->ypos += (time_step * camera->yvel);
 		camera->xvel = 0;
 		camera->yvel = 0;
-		for (int i = (EN_CAMERA_ID + 1); i != EN_MAXNUMOF_ENT; ++i) {
+		for (int i = (EN_CAMERA_ID + 1); i != EN_ENT_MAX; ++i) {
 			struct entity * const ent = &g->ents[i];
 			en_set_screenview(g, ent->id);
 		}

@@ -198,7 +198,7 @@ void vid_draw_gw(struct game const * const g)
 			camera->view.width,
 			camera->view.height
 		      );
-	for (int id = (EN_LVLMAP_ID + 1); id != EN_MAXNUMOF_ENT; ++id) {
+	for (int id = (EN_LVLMAP_ID + 1); id != EN_ENT_MAX; ++id) {
 		struct entity const * const ent = &g->ents[id];
 		if (EN_BLOCK_TAG == ent->tag) {
 			struct entity const * const block = ent;
