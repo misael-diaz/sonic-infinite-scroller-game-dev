@@ -2520,6 +2520,17 @@ static void en_apply_gravity(
 				ceiling_contact = ceiling_platform;
 			}
 			ent->ypos = en_clamp(ent->ypos, floor_contact, ceiling_contact);
+			if (
+				(ceiling_contact == ent->ypos) &&
+				(0 == ent->yvcol) &&
+				(0 < ent->yvel)
+			   ) {
+				float const floor_platform = (
+					above_platform->ypos -
+					(0.5f * above_platform->height)
+				);
+				ent->ypos = floor_platform;
+			}
 			if (ceiling_contact == ent->ypos) {
 				ent->flags |= EN_CEILING_FLAG;
 				ent->platfno = (sliding)? blockno : platfno;
