@@ -1003,6 +1003,10 @@ static void en_init_lvlmap(struct game * const g)
 	lvlmap->ypos = EN_IGNORE_PROPERTY;
 	lvlmap->xold = EN_IGNORE_PROPERTY;
 	lvlmap->yold = EN_IGNORE_PROPERTY;
+	lvlmap->xmin = EN_IGNORE_PROPERTY;
+	lvlmap->xmax = EN_IGNORE_PROPERTY;
+	lvlmap->ymin = EN_IGNORE_PROPERTY;
+	lvlmap->ymax = EN_IGNORE_PROPERTY;
 	lvlmap->xvel = EN_IGNORE_PROPERTY;
 	lvlmap->yvel = EN_IGNORE_PROPERTY;
 	lvlmap->xv00 = EN_IGNORE_PROPERTY;
@@ -1057,6 +1061,12 @@ static void en_init_goal(struct game * const g)
 	struct entity const * const alpha_platform = &g->ents[EN_PLATFORM_ALPHA_ID];
 	struct entity * const goal = &g->ents[EN_GOAL_ID];
 	goal->name = EN_GOAL_NM;
+	goal->xold = EN_IGNORE_PROPERTY;
+	goal->yold = EN_IGNORE_PROPERTY;
+	goal->xmin = EN_IGNORE_PROPERTY;
+	goal->xmax = EN_IGNORE_PROPERTY;
+	goal->ymin = EN_IGNORE_PROPERTY;
+	goal->ymax = EN_IGNORE_PROPERTY;
 	goal->xold = EN_IGNORE_PROPERTY;
 	goal->yold = EN_IGNORE_PROPERTY;
 	goal->xvel = EN_IGNORE_PROPERTY;
@@ -1115,6 +1125,8 @@ static void en_init_sonic(struct game * const g)
 	struct entity * const sonic = &g->ents[EN_SONIC_ID];
 	sonic->name = EN_SONIC_NM;
 	sonic->xold = EN_IGNORE_PROPERTY;
+	sonic->xmin = 0;
+	sonic->xmax = 0;
 	sonic->ymin = 0;
 	sonic->ymax = EN_IGNORE_PROPERTY;
 	sonic->wmap = GAME_LVLMAP_SONIC_WIDTH;
@@ -1228,6 +1240,8 @@ static void en_init_platform(
 	struct entity const * const chi_platform = &g->ents[EN_PLATFORM_CHI_ID];
 	platform->xold = EN_IGNORE_PROPERTY;
 	platform->yold = EN_IGNORE_PROPERTY;
+	platform->xmin = EN_IGNORE_PROPERTY;
+	platform->xmax = EN_IGNORE_PROPERTY;
 	platform->ymin = EN_IGNORE_PROPERTY;
 	platform->ymax = EN_IGNORE_PROPERTY;
 	platform->xvel = GAME_PLATFORM_XVEL;
@@ -1835,6 +1849,8 @@ static void en_init_block(
 	}
 	block->xold = EN_IGNORE_PROPERTY;
 	block->yold = EN_IGNORE_PROPERTY;
+	block->xmin = EN_IGNORE_PROPERTY;
+	block->xmax = EN_IGNORE_PROPERTY;
 	block->ymin = EN_IGNORE_PROPERTY;
 	block->ymax = EN_IGNORE_PROPERTY;
 	block->xvel = GAME_BLOCK_XVEL;
@@ -1999,6 +2015,8 @@ static void en_init_enemy(
 		enemy->name = EN_ENEMY_MOTOBUG_KAPPA_NM;
 	}
 	enemy->xold = EN_IGNORE_PROPERTY;
+	enemy->xmin = EN_IGNORE_PROPERTY;
+	enemy->xmax = EN_IGNORE_PROPERTY;
 	enemy->ymin = EN_IGNORE_PROPERTY;
 	enemy->ymax = EN_IGNORE_PROPERTY;
 	enemy->xvel = -sys_random(
@@ -2443,6 +2461,8 @@ static void en_apply_gravity(
 				platform->ypos -
 				(0.5f * platform->height)
 		);
+		ent->xmin = 0;
+		ent->xmax = 0;
 		if ((xcontact2 >= dx2) && (ycontact2 >= dy2)) {
 			if (0 > ent->yvel) {
 				if ((block->ypos + 0.5f * block->height) <= ent->ypos) {
@@ -2519,12 +2539,38 @@ static void en_apply_gravity(
 			if (!(ent->flags & EN_CEILING_FLAG)) {
 				ent->yvcol = 0;
 			}
+			if (EN_SONIC_TAG == ent->tag) {
+				if (
+					(block->ypos - 0.5f*block->height <= ent->ypos) &&
+					(block->ypos + 0.5f*block->height >= ent->ypos)
+				   ) {
+					if (0 > dx) {
+						ent->xmin = 0;
+						ent->xmax = (
+								block->xpos -
+								(0.5f * block->width) -
+								(0.5f * ent->width)
+							    );
+					} else {
+						ent->xmin = (
+								block->xpos +
+								(0.5f * block->width) +
+								(0.5f * ent->width)
+							    );
+						ent->xmax = 0;
+					}
+				}
+			}
 			overlapping = 0;
 			floor_contact = floor_platform;
 		}
 	} else {
 		if (!(ent->flags & EN_CEILING_FLAG)) {
 			ent->yvcol = 0;
+		}
+		if (EN_SONIC_TAG == ent->tag) {
+			ent->xmin = 0;
+			ent->xmax = 0;
 		}
 		overlapping = 0;
 		floor_contact = floor_platform;
@@ -2559,6 +2605,8 @@ static void en_apply_gravity(
 				ent->platfno = 0;
 				ent->blockno = 0;
 				ent->ymin = 0;
+				ent->xmin = 0;
+				ent->xmax = 0;
 			}
 		} else if (EN_BLOCK_TAG == ceiling_platform->tag) {
 			if ((!sliding) || (ent->flags & EN_SPRINGING_FLAG)) {
@@ -2573,6 +2621,8 @@ static void en_apply_gravity(
 				ent->platfno = 0;
 				ent->blockno = 0;
 				ent->ymin = 0;
+				ent->xmin = 0;
+				ent->xmax = 0;
 			}
 		} else {
 			fprintf(stderr,
@@ -2629,6 +2679,8 @@ static void en_apply_gravity(
 				ent->platfno = (sliding)? blockno : platfno;
 				ent->yvcol = ent->yvel;
 				ent->ymin = ceiling_contact;
+				ent->xmin = 0;
+				ent->xmax = 0;
 				ent->blockno = 0;
 			}
 		} else {
@@ -2654,6 +2706,8 @@ static void en_apply_gravity(
 					ent->platfno = platform->blockno;
 					ent->yvcol = ent->yvel;
 					ent->ymin = ceiling_contact;
+					ent->xmin = 0;
+					ent->xmax = 0;
 					ent->blockno = 0;
 				}
 			} else {
@@ -2680,6 +2734,8 @@ static void en_apply_gravity(
 		ent->flags &= (~EN_FALLING_FLAG);
 		ent->flags &= (~EN_SPRINGING_FLAG);
 		ent->yvcol = 0;
+		ent->xmin = 0;
+		ent->xmax = 0;
 		ent->ymin = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
@@ -2914,6 +2970,11 @@ static void en_update_sonic(struct game * const g)
 			sonic->xv00 = GAME_SONIC_XVEL;
 		}
 		sonic->xvel = 0;
+	}
+	if (sonic->xmin) {
+		sonic->xpos = MAX(sonic->xpos, sonic->xmin);
+	} else if (sonic->xmax) {
+		sonic->xpos = MIN(sonic->xpos, sonic->xmax);
 	}
 	en_update_animation(g, sonic->id, sonic->animno);
 	en_set_screenview(g, sonic->id);

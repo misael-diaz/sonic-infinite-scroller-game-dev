@@ -168,6 +168,8 @@ struct entity {
 	float ypos;
 	float xold;
 	float yold;
+	float xmin;
+	float xmax;
 	float ymin;
 	float ymax;
 	float xvel;
