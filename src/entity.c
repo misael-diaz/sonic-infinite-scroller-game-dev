@@ -2000,6 +2000,7 @@ void en_init(struct game * const g)
 {
 	int count = 0;
 	int camera_count = 0;
+	int lvlmap_count = 0;
 	int platform_count = 0;
 	int block_count = 0;
 	int enemy_count = 0;
@@ -2031,6 +2032,7 @@ void en_init(struct game * const g)
 		} else if (EN_LVLMAP_TAG == ent->tag) {
 			en_init_lvlmap(g);
 			++count;
+			++lvlmap_count;
 		} else if (EN_GOAL_TAG == ent->tag) {
 			en_init_goal(g);
 			++count;
@@ -2054,6 +2056,7 @@ void en_init(struct game * const g)
 	if (
 		(EN_ENT_MAX != count) ||
 		(1 != camera_count) ||
+		(1 != lvlmap_count) ||
 		(EN_PLATFORM_MAX != platform_count) ||
 		(EN_BLOCK_MAX != block_count) ||
 		(EN_ENEMY_MAX != enemy_count)
