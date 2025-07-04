@@ -151,6 +151,10 @@ static void en_tag_entity(struct game * const g)
 			ent->tag = EN_BLOCK_TAG;
 			ent->id = EN_BLOCK_IOTA_ID;
 			++count;
+		} else if (EN_BLOCK_PHI_ID == i) {
+			ent->tag = EN_BLOCK_TAG;
+			ent->id = EN_BLOCK_PHI_ID;
+			++count;
 		} else if (EN_BLOCK_ZETA_ID == i) {
 			ent->tag = EN_BLOCK_TAG;
 			ent->id = EN_BLOCK_ZETA_ID;
@@ -649,6 +653,7 @@ static void en_init_aframes(struct game * const g)
 	en_init_platform_aframes(g, EN_PLATFORM_ALPHA_ID);
 	en_init_block_aframes(g, EN_BLOCK_ETA_ID);
 	en_init_block_aframes(g, EN_BLOCK_IOTA_ID);
+	en_init_block_aframes(g, EN_BLOCK_PHI_ID);
 	en_init_block_aframes(g, EN_BLOCK_ZETA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_ALPHA_ID);
 	en_init_enemy_motobug_aframes(g, EN_ENEMY_MOTOBUG_GAMMA_ID);
@@ -1776,9 +1781,10 @@ static void en_init_block(
 )
 {
 	if (
-		(EN_BLOCK_ETA_ID != id_block) &&
-		(EN_BLOCK_ZETA_ID != id_block) &&
-		(EN_BLOCK_IOTA_ID != id_block)
+		(EN_BLOCK_ETA_ID  != id_block) &&
+		(EN_BLOCK_IOTA_ID != id_block) &&
+		(EN_BLOCK_PHI_ID  != id_block) &&
+		(EN_BLOCK_ZETA_ID != id_block)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init_block: InvalidBlockIdError");
 		graph_unloadall_graphics(g);
@@ -1806,8 +1812,9 @@ static void en_init_block(
 	float const width_game_window = g->screen_width;
 	float const height_game_window = g->screen_height;
 	struct entity * const eta_platform = &g->ents[EN_PLATFORM_ETA_ID];
-	struct entity * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	struct entity * const iota_platform = &g->ents[EN_PLATFORM_IOTA_ID];
+	struct entity * const phi_platform = &g->ents[EN_PLATFORM_PHI_ID];
+	struct entity * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	struct enview * const mapview = &block->mapview;
 	if (zeta_platform->width < block->width) {
 		fprintf(stderr, "%s\n", "en_init_block: BlockWidthError");
@@ -1879,6 +1886,21 @@ static void en_init_block(
 		block->ypos = (
 				iota_platform->ypos -
 				(0.5f * iota_platform->height) -
+				(0.5f * block->height) -
+				(32.0f * GAME_SONIC_HEIGHT)
+		);
+	} else if (EN_BLOCK_PHI_ID == id_block) {
+		phi_platform->blockno = EN_BLOCK_PHI_ID;
+		block->flags = 0;
+		block->name = EN_BLOCK_PHI_NM;
+		block->platfno = EN_PLATFORM_PHI_ID;
+		block->blockno = EN_BLOCK_PHI_ID;
+		block->width = GAME_BLOCK_WIDTH;
+		block->height = 0.25f * GAME_BLOCK_HEIGHT;
+		block->xpos = phi_platform->xpos;
+		block->ypos = (
+				phi_platform->ypos -
+				(0.5f * phi_platform->height) -
 				(0.5f * block->height) -
 				(32.0f * GAME_SONIC_HEIGHT)
 		);
@@ -2977,6 +2999,7 @@ static void en_update_block(
 {
 	struct entity const * const eta_platform = &g->ents[EN_PLATFORM_ETA_ID];
 	struct entity const * const iota_platform = &g->ents[EN_PLATFORM_IOTA_ID];
+	struct entity const * const phi_platform = &g->ents[EN_PLATFORM_PHI_ID];
 	struct entity const * const zeta_platform = &g->ents[EN_PLATFORM_ZETA_ID];
 	struct entity * const block = &g->ents[id_block];
 	if (EN_BLOCK_ETA_ID == block->id) {
@@ -2992,6 +3015,14 @@ static void en_update_block(
 		block->ypos = (
 				iota_platform->ypos -
 				(0.5f * iota_platform->height) -
+				(0.5f * block->height) -
+				(32.0f * GAME_SONIC_HEIGHT)
+		);
+	} else if (EN_BLOCK_PHI_ID == block->id) {
+		block->xpos = phi_platform->xpos;
+		block->ypos = (
+				phi_platform->ypos -
+				(0.5f * phi_platform->height) -
 				(0.5f * block->height) -
 				(32.0f * GAME_SONIC_HEIGHT)
 		);
