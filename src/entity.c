@@ -2533,6 +2533,7 @@ static void en_apply_gravity(
 			}
 			if (ceiling_contact == ent->ypos) {
 				ent->flags |= EN_CEILING_FLAG;
+				ent->flags &= (~EN_FALLING_FLAG);
 				ent->platfno = (sliding)? blockno : platfno;
 				ent->yvcol = ent->yvel;
 				ent->ymin = ceiling_contact;
@@ -2557,6 +2558,7 @@ static void en_apply_gravity(
 				);
 				if (ceiling_contact == ent->ypos) {
 					ent->flags |= EN_CEILING_FLAG;
+					ent->flags &= (~EN_FALLING_FLAG);
 					ent->platfno = platform->blockno;
 					ent->yvcol = ent->yvel;
 					ent->ymin = ceiling_contact;
