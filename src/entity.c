@@ -2463,6 +2463,7 @@ static void en_apply_gravity(
 		);
 		ent->xmin = 0;
 		ent->xmax = 0;
+		ent->ymax = 0;
 		if ((xcontact2 >= dx2) && (ycontact2 >= dy2)) {
 			if (0 > ent->yvel) {
 				if ((block->ypos + 0.5f * block->height) <= ent->ypos) {
@@ -2559,6 +2560,28 @@ static void en_apply_gravity(
 							    );
 						ent->xmax = 0;
 					}
+				} else if (block->ypos - 0.5f*block->height > ent->ypos) {
+					float const xmin = (
+							block->xpos -
+							0.5f * block->width +
+							0.5f * ent->width
+					);
+					float const xmax = (
+							block->xpos +
+							0.5f * block->width -
+							0.5f * ent->width
+					);
+					if (
+						(xmin <= ent->xpos) &&
+						(xmax >= ent->xpos) &&
+						!(ent->flags & EN_CEILING_FLAG)
+					   ) {
+						ent->ymax = (
+								block->ypos -
+								(0.5f * block->height) -
+								(0.5f * ent->height)
+						);
+					}
 				}
 			}
 			overlapping = 0;
@@ -2571,6 +2594,7 @@ static void en_apply_gravity(
 		if (EN_SONIC_TAG == ent->tag) {
 			ent->xmin = 0;
 			ent->xmax = 0;
+			ent->ymax = 0;
 		}
 		overlapping = 0;
 		floor_contact = floor_platform;
@@ -2605,6 +2629,7 @@ static void en_apply_gravity(
 				ent->platfno = 0;
 				ent->blockno = 0;
 				ent->ymin = 0;
+				ent->ymax = 0;
 				ent->xmin = 0;
 				ent->xmax = 0;
 			}
@@ -2621,6 +2646,7 @@ static void en_apply_gravity(
 				ent->platfno = 0;
 				ent->blockno = 0;
 				ent->ymin = 0;
+				ent->ymax = 0;
 				ent->xmin = 0;
 				ent->xmax = 0;
 			}
@@ -2679,6 +2705,7 @@ static void en_apply_gravity(
 				ent->platfno = (sliding)? blockno : platfno;
 				ent->yvcol = ent->yvel;
 				ent->ymin = ceiling_contact;
+				ent->ymax = 0;
 				ent->xmin = 0;
 				ent->xmax = 0;
 				ent->blockno = 0;
@@ -2706,6 +2733,7 @@ static void en_apply_gravity(
 					ent->platfno = platform->blockno;
 					ent->yvcol = ent->yvel;
 					ent->ymin = ceiling_contact;
+					ent->ymax = 0;
 					ent->xmin = 0;
 					ent->xmax = 0;
 					ent->blockno = 0;
@@ -2737,6 +2765,7 @@ static void en_apply_gravity(
 		ent->xmin = 0;
 		ent->xmax = 0;
 		ent->ymin = 0;
+		ent->ymax = 0;
 		ent->yvel = 0;
 		ent->yv00 = 0;
 		ent->blockno = (overlapping)? platform->blockno : 0;
@@ -2975,6 +3004,8 @@ static void en_update_sonic(struct game * const g)
 		sonic->xpos = MAX(sonic->xpos, sonic->xmin);
 	} else if (sonic->xmax) {
 		sonic->xpos = MIN(sonic->xpos, sonic->xmax);
+	} else if (sonic->ymax) {
+		sonic->ypos = MIN(sonic->ypos, sonic->ymax);
 	}
 	en_update_animation(g, sonic->id, sonic->animno);
 	en_set_screenview(g, sonic->id);
