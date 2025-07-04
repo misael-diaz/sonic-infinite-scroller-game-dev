@@ -2001,6 +2001,7 @@ void en_init(struct game * const g)
 	int count = 0;
 	int platform_count = 0;
 	int block_count = 0;
+	int enemy_count = 0;
 	if ((0 >= g->entno) || (EN_ENT_MAX < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
 		graph_unloadall_graphics(g);
@@ -2045,12 +2046,14 @@ void en_init(struct game * const g)
 		} else if (EN_ENEMY_TAG == ent->tag) {
 			en_init_enemy(g, i);
 			++count;
+			++enemy_count;
 		}
 	}
 	if (
 		(EN_ENT_MAX != count) ||
 		(EN_PLATFORM_MAX != platform_count) ||
-		(EN_BLOCK_MAX != block_count)
+		(EN_BLOCK_MAX != block_count) ||
+		(EN_ENEMY_MAX != enemy_count)
 	   ) {
 		fprintf(stderr, "%s\n", "en_init: UXUnhandledEntitiesError");
 		goto handle_err;
