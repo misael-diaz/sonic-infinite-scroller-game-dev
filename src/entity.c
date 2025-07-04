@@ -2533,6 +2533,7 @@ static void en_apply_gravity(
 					above_platform->ypos -
 					(0.5f * above_platform->height)
 				);
+				floor_contact = floor_platform;
 				ent->ypos = floor_platform;
 			}
 			if (ceiling_contact == ent->ypos) {
