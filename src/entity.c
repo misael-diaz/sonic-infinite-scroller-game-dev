@@ -2005,6 +2005,7 @@ void en_init(struct game * const g)
 	int block_count = 0;
 	int enemy_count = 0;
 	int goal_count = 0;
+	int sonic_count = 0;
 	if ((0 >= g->entno) || (EN_ENT_MAX < g->entno)) {
 		fprintf(stderr, "%s\n", "en_init: InvalidEntityCount");
 		graph_unloadall_graphics(g);
@@ -2041,6 +2042,7 @@ void en_init(struct game * const g)
 		} else if (EN_SONIC_TAG == ent->tag) {
 			en_init_sonic(g);
 			++count;
+			++sonic_count;
 		} else if (EN_PLATFORM_TAG == ent->tag) {
 			en_init_platform(g, i);
 			++count;
@@ -2060,6 +2062,7 @@ void en_init(struct game * const g)
 		(1 != camera_count) ||
 		(1 != lvlmap_count) ||
 		(1 != goal_count) ||
+		(1 != sonic_count) ||
 		(EN_PLATFORM_MAX != platform_count) ||
 		(EN_BLOCK_MAX != block_count) ||
 		(EN_ENEMY_MAX != enemy_count)
