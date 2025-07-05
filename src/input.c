@@ -222,6 +222,7 @@ int in_handle_input(struct game * const g)
 			break;
 		}
 	}
+	XSync(g->display, True);
 	return rc;
 }
 
