@@ -2461,9 +2461,12 @@ static void en_apply_gravity(
 				platform->ypos -
 				(0.5f * platform->height)
 		);
+		if (!(ent->flags & EN_CEILING_FLAG)) {
+			ent->ymin = 0;
+		}
+		ent->ymax = 0;
 		ent->xmin = 0;
 		ent->xmax = 0;
-		ent->ymax = 0;
 		if ((xcontact2 >= dx2) && (ycontact2 >= dy2)) {
 			if (0 > ent->yvel) {
 				if ((block->ypos + 0.5f * block->height) <= ent->ypos) {
@@ -2579,6 +2582,29 @@ static void en_apply_gravity(
 						ent->ymax = (
 								block->ypos -
 								(0.5f * block->height) -
+								(0.5f * ent->height)
+						);
+					}
+				} else if (block->ypos + 0.5f*block->height < ent->ypos) {
+					float const xmin = (
+							block->xpos -
+							0.5f * block->width +
+							0.5f * ent->width
+					);
+					float const xmax = (
+							block->xpos +
+							0.5f * block->width -
+							0.5f * ent->width
+					);
+					if (
+						(xmin <= ent->xpos) &&
+						(xmax >= ent->xpos) &&
+						(0 > ent->yvel) &&
+						!(ent->flags & EN_CEILING_FLAG)
+					   ) {
+						ent->ymin = (
+								block->ypos +
+								(0.5f * block->height) +
 								(0.5f * ent->height)
 						);
 					}
@@ -3004,6 +3030,8 @@ static void en_update_sonic(struct game * const g)
 		sonic->xpos = MAX(sonic->xpos, sonic->xmin);
 	} else if (sonic->xmax) {
 		sonic->xpos = MIN(sonic->xpos, sonic->xmax);
+	} else if (sonic->ymin) {
+		sonic->ypos = MAX(sonic->ypos, sonic->ymin);
 	} else if (sonic->ymax) {
 		sonic->ypos = MIN(sonic->ypos, sonic->ymax);
 	}
