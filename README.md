@@ -170,43 +170,43 @@ The animation was done with the code at commit [655f4af0eb658ab04cfa2320609df662
 
 The player can switch from a running/spinning animation with the right/down arrow keys.
 
-My second animation, sonic running on an infinite platform:
+My second animation shows sonic running on an infinite platform:
 
 [![Watch the Video](https://img.youtube.com/vi/Lz_PlsWDygE/hqdefault.jpg)](https://youtu.be/Lz_PlsWDygE)
 
 The animation was done with the code at commit [16200609797955a9da826eefcbb8437388fb2671](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/16200609797955a9da826eefcbb8437388fb2671).
 
-My third animation, sonic jumping and running on an infinite platform:
+My third animation shows Sonic jumping and running on an infinite platform:
 
 [![Watch the Video](https://img.youtube.com/vi/kQrb8HPSllk/hqdefault.jpg)](https://youtu.be/kQrb8HPSllk)
 
 The animation was done with the code at commit [511c5c339a4f27fcdbddad1420df0b1aef55dd2c](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/511c5c339a4f27fcdbddad1420df0b1aef55dd2c).
 
-My fourth animation, sonic jumping off a platform:
+My fourth animation features sonic jumping off platforms:
 
 [![Watch the Video](https://img.youtube.com/vi/gpQOFEkzxYg/hqdefault.jpg)](https://youtu.be/gpQOFEkzxYg)
 
 The animation was done with the code at commit [d1c00fa9fad4549984be17578ade355874171320](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/d1c00fa9fad4549984be17578ade355874171320).
 
-My fifth animation, sonic destroying a motobug:
+My fifth animation shows Sonic destroying a motobug:
 
 [![Watch the Video](https://img.youtube.com/vi/qsgNFFoKFGs/hqdefault.jpg)](https://youtu.be/qsgNFFoKFGs)
 
 The animation was done with the code at commit [3fc8e80bb0a7108f000110d7d98e82d2bb0797f1](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/3fc8e80bb0a7108f000110d7d98e82d2bb0797f1).
 
-My sixth animation, sonic destroying multiple motobugs without landing:
+My sixth animation shows Sonic destroying multiple motobugs without landing:
 
 [![Watch the Video](https://img.youtube.com/vi/SNlcBOAgi9k/hqdefault.jpg)](https://youtu.be/SNlcBOAgi9k)
 
 The animation was done with the code at commit [a90ece4649ebeaeef3c1e15abeba03b26b6462aa](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/a90ece4649ebeaeef3c1e15abeba03b26b6462aa).
 
-My seventh animation, Sonic sliding on the platform ceilings:
+My seventh animation features Sonic sliding on the platform ceilings:
 
 [![Watch the Video](https://img.youtube.com/vi/fSwVrGqClfA/hqdefault.jpg)](https://youtu.be/fSwVrGqClfA)
 
 The animation was done with the code at commit [08aa15b1f2bfb4fbdbcae97067ee775f67b952f0](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/08aa15b1f2bfb4fbdbcae97067ee775f67b952f0).
 
-My eighth animation, shows how to beat the infinity level:
+My eighth animation shows how to beat the infinity level:
 
 [![Watch the Video](https://img.youtube.com/vi/knG9F3NxYLg/hqdefault.jpg)](https://youtu.be/knG9F3NxYLg)
 
