@@ -206,8 +206,14 @@ My seventh animation, Sonic sliding on the platform ceilings:
 
 The animation was done with the code at commit [08aa15b1f2bfb4fbdbcae97067ee775f67b952f0](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/08aa15b1f2bfb4fbdbcae97067ee775f67b952f0).
 
-My last animation, shows how to beat the infinity level:
+My eighth animation, shows how to beat the infinity level:
 
 [![Watch the Video](https://img.youtube.com/vi/knG9F3NxYLg/hqdefault.jpg)](https://youtu.be/knG9F3NxYLg)
 
 The animation was done with the code at commit [6305b22f608e34fd8eb6f5ee1aca891c40c4d7f1](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/6305b22f608e34fd8eb6f5ee1aca891c40c4d7f1).
+
+The latest animation features wall jumping:
+
+[![Watch the Video](https://img.youtube.com/vi/sG_bC1cu2FA/hqdefault.jpg)](https://youtu.be/sG_bC1cu2FA)
+
+The animation was done with the code at commit [9ddceb56c8cf8a65b9d5a58b94ebda9f6240d584](https://github.com/misael-diaz/sonic-infinite-scroller-game-dev/commit/9ddceb56c8cf8a65b9d5a58b94ebda9f6240d584).
