@@ -64,11 +64,23 @@ int in_handle_input(struct game * const g)
 						fprintf(stdout, "%s\n", msg_close_req);
 						rc = 1;
 						break;
+					} else {
+						fprintf(stdout,
+							"%s\n",
+							msg_unhandled_req);
+						rc = 0;
+						break;
 					}
 				} else if (16 == ev.xclient.format) {
 					if (close_request_short == ev.xclient.data.s[0]) {
 						fprintf(stdout, "%s\n", msg_close_req);
 						rc = 1;
+						break;
+					} else {
+						fprintf(stdout,
+							"%s\n",
+							msg_unhandled_req);
+						rc = 0;
 						break;
 					}
 				} else if (8 == ev.xclient.format) {
@@ -76,12 +88,22 @@ int in_handle_input(struct game * const g)
 						fprintf(stdout, "%s\n", msg_close_req);
 						rc = 1;
 						break;
+					} else {
+						fprintf(stdout,
+							"%s\n",
+							msg_unhandled_req);
+						rc = 0;
+						break;
 					}
 				} else {
 					fprintf(stdout, "%s\n", msg_unhandled_req);
 					rc = 0;
 					break;
 				}
+			} else {
+				fprintf(stdout, "%s\n", msg_unhandled_req);
+				rc = 0;
+				break;
 			}
 		} else if (KeyPress == ev.type) {
 			if (KBD_ESC == ev.xkey.keycode) {
@@ -134,6 +156,8 @@ int in_handle_input(struct game * const g)
 						g->enemyno = 0;
 					}
 				}
+				rc = 0;
+				break;
 			} else if (KBD_P == ev.xkey.keycode) {
 				if (GAME_CAMERA_VIEW_MODE == g->mode) {
 					int const platformno = g->platformno;
@@ -150,6 +174,8 @@ int in_handle_input(struct game * const g)
 						g->platformno = 0;
 					}
 				}
+				rc = 0;
+				break;
 			} else if (KBD_M == ev.xkey.keycode) {
 				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
 					g->oldframeno = g->frameno;
