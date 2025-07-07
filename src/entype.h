@@ -82,6 +82,7 @@ enum enid {
 	EN_BLOCK_MAX = (EN_BLOCK_END_ID - EN_BLOCK_START_ID),
 	EN_ENEMY_MAX = (EN_ENEMY_END_ID - EN_ENEMY_START_ID)
 };
+_Static_assert(0 == EN_CAMERA_ID, "EntityCameraIdError");
 
 /* entity flags */
 
@@ -193,6 +194,7 @@ struct entity {
 	int frameno;
 	int animno;
 	int tickno;
+	int entno;
 };
 
 #endif

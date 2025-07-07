@@ -26,6 +26,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include "graphic.h"
+#include "video.h"
 #include "input.h"
 
 #define KBD_ESC XKeysymToKeycode(dpy, XK_Escape)
@@ -110,42 +112,74 @@ int in_handle_input(struct game * const g)
 				rc = 1;
 				break;
 			} else if (KBD_LEFT == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					camera->xvel = -GAME_CAMERA_HOVER_XVEL;
+				} else if (GAME_AUTO_MODE == g->mode) {
+					if (EN_CAMERA_ID == camera->entno) {
+						camera->xvel = -GAME_CAMERA_HOVER_XVEL;
+					} else {
+						camera->entno = EN_CAMERA_ID;
+						camera->xvel = -GAME_CAMERA_HOVER_XVEL;
+						camera->yvel = 0;
+					}
 				}
 				rc = 0;
 				break;
 			} else if (KBD_RIGHT == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					camera->xvel = GAME_CAMERA_HOVER_XVEL;
+				} else if (GAME_AUTO_MODE == g->mode) {
+					if (EN_CAMERA_ID == camera->entno) {
+						camera->xvel = GAME_CAMERA_HOVER_XVEL;
+					} else {
+						camera->entno = EN_CAMERA_ID;
+						camera->xvel = GAME_CAMERA_HOVER_XVEL;
+						camera->yvel = 0;
+					}
 				} else {
 					sonic->animno = EN_SONIC_RUN_AN;
 				}
 				rc = 0;
 				break;
 			} else if (KBD_DOWN == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					camera->yvel = GAME_CAMERA_HOVER_YVEL;
+				} else if (GAME_AUTO_MODE == g->mode) {
+					if (EN_CAMERA_ID == camera->entno) {
+						camera->yvel = GAME_CAMERA_HOVER_YVEL;
+					} else {
+						camera->entno = EN_CAMERA_ID;
+						camera->xvel = 0;
+						camera->yvel = GAME_CAMERA_HOVER_YVEL;
+					}
 				} else {
 					sonic->animno = EN_SONIC_SPIN_AN;
 				}
 				rc = 0;
 				break;
 			} else if (KBD_UP == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					camera->yvel = -GAME_CAMERA_HOVER_YVEL;
+				} else if (GAME_AUTO_MODE == g->mode) {
+					if (EN_CAMERA_ID == camera->entno) {
+						camera->yvel = -GAME_CAMERA_HOVER_YVEL;
+					} else {
+						camera->entno = EN_CAMERA_ID;
+						camera->xvel = 0;
+						camera->yvel = -GAME_CAMERA_HOVER_YVEL;
+					}
 				}
 				rc = 0;
 				break;
 			} else if (KBD_TAB == ev.xkey.keycode) {
-				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
+				if (GAME_GAME_MODE == g->mode) {
 					sonic->flags &= (~EN_FLOOR_FLAG);
 					sonic->flags |= EN_SPRINGING_FLAG;
 				}
 				rc = 0;
 				break;
 			} else if (KBD_E == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					int const enemyno = g->enemyno;
 					int const id = g->enemy_ids[enemyno];
 					struct entity const * const enemy = &g->ents[id];
@@ -155,11 +189,19 @@ int in_handle_input(struct game * const g)
 					if (EN_ENEMY_MAX == g->enemyno) {
 						g->enemyno = 0;
 					}
+				} else if (GAME_AUTO_MODE == g->mode) {
+					int const enemyno = g->enemyno;
+					int const entno = g->enemy_ids[enemyno];
+					camera->entno = entno;
+					g->enemyno++;
+					if (EN_ENEMY_MAX == g->enemyno) {
+						g->enemyno = 0;
+					}
 				}
 				rc = 0;
 				break;
 			} else if (KBD_P == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					int const platformno = g->platformno;
 					int const id = g->platform_ids[platformno];
 					struct entity const * const ents = g->ents;
@@ -177,7 +219,7 @@ int in_handle_input(struct game * const g)
 				rc = 0;
 				break;
 			} else if (KBD_M == ev.xkey.keycode) {
-				if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
+				if (GAME_GAME_MODE == g->mode) {
 					g->oldframeno = g->frameno;
 					camera->xold = camera->xpos;
 					camera->yold = camera->ypos;
@@ -189,7 +231,8 @@ int in_handle_input(struct game * const g)
 					camera->height = camera->view.height;
 					camera->xvel = 0;
 					camera->yvel = 0;
-				} else {
+					camera->entno = EN_SONIC_ID;
+				} else if (GAME_VIEW_MODE == g->mode) {
 					g->frameno = g->oldframeno;
 					camera->xpos = camera->xold;
 					camera->ypos = camera->yold;
@@ -199,12 +242,26 @@ int in_handle_input(struct game * const g)
 					camera->view.yscr = camera->yscr;
 					camera->view.width = camera->width;
 					camera->view.height = camera->height;
+					camera->entno = EN_CAMERA_ID;
+				} else if (GAME_AUTO_MODE == g->mode) {
+					camera->entno = EN_SONIC_ID;
+				} else {
+					fprintf(stderr,
+						"%s\n",
+						"in_handle_input: UXGameModeError");
+					graph_unloadall_graphics(g);
+					vid_close_gw(g);
+					exit(EXIT_FAILURE);
 				}
-				g->mode ^= GAME_CAMERA_VIEW_MODE;
+				g->modeno++;
+				if (GAME_MODE_MAX <= g->modeno) {
+					g->modeno = 0;
+				}
+				g->mode = g->modes[g->modeno];
 				rc = 0;
 				break;
 			} else if (KBD_B == ev.xkey.keycode) {
-				if (GAME_CAMERA_VIEW_MODE == g->mode) {
+				if (GAME_VIEW_MODE == g->mode) {
 					camera->xpos = camera->xold;
 					camera->ypos = camera->yold;
 					camera->xvel = camera->xv00;
@@ -248,7 +305,7 @@ int in_handle_input(struct game * const g)
 			break;
 		}
 	}
-	if ((!GAME_CAMERA_VIEW_MODE) == g->mode) {
+	if (GAME_GAME_MODE == g->mode) {
 		XSync(g->display, True);
 	}
 	return rc;

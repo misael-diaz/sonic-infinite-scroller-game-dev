@@ -960,6 +960,7 @@ static void en_init_camera(struct game * const g)
 	camera->frameno = EN_CAMERA_DEFAULT_AF;
 	camera->animno = EN_CAMERA_DEFAULT_AN;
 	camera->tickno = EN_IGNORE_PROPERTY;
+	camera->entno = 0;
 	camera->view.N[EN_ENVIEW_E].x = 1;
 	camera->view.N[EN_ENVIEW_E].y = 0;
 	camera->view.N[EN_ENVIEW_N].x = 0;
@@ -1029,6 +1030,7 @@ static void en_init_lvlmap(struct game * const g)
 	lvlmap->frameno = EN_LVLMAP_DEFAULT_AF;
 	lvlmap->animno = EN_LVLMAP_DEFAULT_AN;
 	lvlmap->tickno = EN_IGNORE_PROPERTY;
+	lvlmap->entno = EN_IGNORE_PROPERTY;
 	lvlmap->mapview.xref = 0.5f * GAME_LVLMAP_VIEW_WIDTH;
 	lvlmap->mapview.yref = 0.5f * GAME_LVLMAP_VIEW_HEIGHT;
 	lvlmap->mapview.xrel = 0;
@@ -1095,6 +1097,7 @@ static void en_init_goal(struct game * const g)
 	goal->frameno = EN_GOAL_DEFAULT_AF;
 	goal->animno = EN_GOAL_DEFAULT_AN;
 	goal->tickno = EN_IGNORE_PROPERTY;
+	goal->entno = EN_IGNORE_PROPERTY;
 	goal->view.xref = (0.5f * width_game_window);
 	goal->view.yref = (0.5f * height_game_window);
 	goal->view.width = goal->width;
@@ -1149,6 +1152,7 @@ static void en_init_sonic(struct game * const g)
 	sonic->frameno = EN_SONIC_DEFAULT_AF;
 	sonic->animno = EN_SONIC_RUN_AN;
 	sonic->tickno = 0;
+	sonic->entno = EN_IGNORE_PROPERTY;
 	sonic->view.xref = (0.5f * width_game_window);
 	sonic->view.yref = (0.5f * height_game_window);
 	sonic->view.width = sonic->width;
@@ -1264,6 +1268,7 @@ static void en_init_platform(
 	platform->frameno = EN_PLATFORM_DEFAULT_AF;
 	platform->animno = EN_PLATFORM_DEFAULT_AN;
 	platform->tickno = EN_IGNORE_PROPERTY;
+	platform->entno = EN_IGNORE_PROPERTY;
 	platform->view.xref = (0.5f * width_game_window);
 	platform->view.yref = (0.5f * height_game_window);
 	platform->view.width = platform->width;
@@ -1872,6 +1877,7 @@ static void en_init_block(
 	block->frameno = EN_BLOCK_DEFAULT_AF;
 	block->animno = EN_BLOCK_DEFAULT_AN;
 	block->tickno = EN_IGNORE_PROPERTY;
+	block->entno = EN_IGNORE_PROPERTY;
 	block->view.xref = (0.5f * width_game_window);
 	block->view.yref = (0.5f * height_game_window);
 	block->view.width = block->width;
@@ -2044,6 +2050,7 @@ static void en_init_enemy(
 	enemy->frameno = EN_ENEMY_MOTOBUG_DEFAULT_AF;
 	enemy->animno = EN_ENEMY_MOTOBUG_DEFAULT_AN;
 	enemy->tickno = EN_IGNORE_PROPERTY;
+	enemy->entno = EN_IGNORE_PROPERTY;
 	enemy->view.xref = (0.5f * width_game_window);
 	enemy->view.yref = (0.5f * height_game_window);
 	enemy->view.width = enemy->width;
@@ -3408,7 +3415,7 @@ void en_update(struct game * const g)
 {
 	float const time_step = GAME_PERIOD_SEC;
 	struct entity const * const sonic = &g->ents[EN_SONIC_ID];
-	if (GAME_CAMERA_VIEW_MODE == g->mode) {
+	if (GAME_VIEW_MODE == g->mode) {
 		struct entity * const camera = &g->ents[EN_CAMERA_ID];
 		camera->xpos += (time_step * camera->xvel);
 		camera->ypos += (time_step * camera->yvel);
@@ -3417,6 +3424,40 @@ void en_update(struct game * const g)
 		for (int i = (EN_CAMERA_ID + 1); i != EN_ENT_MAX; ++i) {
 			struct entity * const ent = &g->ents[i];
 			en_set_screenview(g, ent->id);
+		}
+		return;
+	} else if (GAME_AUTO_MODE == g->mode) {
+		en_sort_platforms(g);
+		for (int i = 0; i != g->entno; ++i) {
+			struct entity * const entities = g->ents;
+			struct entity * const ent = &entities[i];
+			if (EN_CAMERA_TAG == ent->tag) {
+				struct entity * const camera = &g->ents[EN_CAMERA_ID];
+				if (camera->entno) {
+					int const entno = camera->entno;
+					struct entity const * const e = &entities[entno];
+					camera->xpos = e->xpos;
+					camera->ypos = e->ypos;
+				} else {
+					camera->xpos += (time_step * camera->xvel);
+					camera->ypos += (time_step * camera->yvel);
+					camera->xvel = 0;
+					camera->yvel = 0;
+				}
+			} else if (EN_SONIC_TAG == ent->tag) {
+				en_update_sonic(g);
+			} else if (EN_GOAL_TAG == ent->tag) {
+				en_update_goal(g);
+			} else if (EN_PLATFORM_TAG == ent->tag) {
+				int const id_platform = i;
+				en_update_platform(g, id_platform);
+			} else if (EN_BLOCK_TAG == ent->tag) {
+				int const id_block = i;
+				en_update_block(g, id_block);
+			} else if (EN_ENEMY_TAG == ent->tag) {
+				int const id_enemy = i;
+				en_update_enemy(g, id_enemy);
+			}
 		}
 		return;
 	}

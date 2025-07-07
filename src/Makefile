@@ -38,6 +38,8 @@ $(VIDEO_OBJ): \
 $(INPUT_OBJ): \
 	$(DEFS_H) \
 	$(TYPES_H) \
+	$(GRAPHIC_H) \
+	$(VIDEO_H) \
 	$(INPUT_H) \
 	$(INPUT_SRC)
 	$(CC) $(CCOPT) -c $(INPUT_SRC) -o $(INPUT_OBJ)

@@ -72,6 +72,11 @@ int main(void)
 			EN_BLOCK_OMICRON_ID,
 			EN_BLOCK_ZETA_ID
 		},
+		.modes = {
+			GAME_GAME_MODE,
+			GAME_VIEW_MODE,
+			GAME_AUTO_MODE
+		},
 		.ent_names = {
 			[EN_CAMERA_ID] = EN_CAMERA_NM,
 			[EN_LVLMAP_ID] = EN_LVLMAP_NM,
@@ -135,7 +140,8 @@ int main(void)
 		.screeno = 0,
 		.frameno = 0,
 		.entno = EN_ENT_MAX,
-		.mode = !GAME_CAMERA_VIEW_MODE,
+		.modeno = 0,
+		.mode = GAME_GAME_MODE,
 		.init = !GAME_INITED_GW
 	};
 	sys_init_random();
