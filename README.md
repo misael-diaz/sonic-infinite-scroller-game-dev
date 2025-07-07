@@ -128,7 +128,7 @@ In this mode you can make sonic morph into a ball or jump.
 - arrow-right-key: sonic runs
 - arrow-down-key: sonic spins
 - tab-key: sonic jumps
-- m-key: toggles between normal and camera modes
+- m-key: cycles among game modes
 
 As you see you can practically play the game with just the `tab-key`. This is quite
 limiting in comparison to the original Sega Genesis games but the intention was never to
@@ -142,7 +142,19 @@ In this mode you control the camera placement as the world remains static:
 - b-key: places at the camera at the beacon just above sonic
 - e-key: cycles the camera position over the enemies
 - p-key: cycles the camera position over the platforms
-- m-key: toggles between normal and camera modes
+- m-key: cycles among game modes
+
+**Auto mode controls:**
+
+In this mode sonic moves automatically and its main use is to see the game from the
+perspective of the enemies:
+
+- the arrow keys move the camera in the respective directions
+- e-key: cycles the camera position over the enemies
+- m-key: cycles among game modes
+
+Note that if you press the arrow keys you regain control of the camera (because
+this is what I would want if I could do this in other games).
 
 ## References
 
