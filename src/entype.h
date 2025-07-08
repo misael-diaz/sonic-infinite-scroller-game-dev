@@ -109,6 +109,7 @@ enum enflag {
 	EN_VERTICAL_CONTACT_FLAG = (EN_FLOOR_FLAG | EN_CEILING_FLAG),
 };
 _Static_assert(32 >= EN_FLAG_MAX, "EntityMaxFlagError");
+_Static_assert(4 == sizeof(enum enflag), "EnumEnflagSizeError");
 
 struct vector {
 	float x;

@@ -200,6 +200,9 @@ void vid_draw_gw(struct game const * const g)
 		      );
 	for (int id = (EN_LVLMAP_ID + 1); id != EN_ENT_MAX; ++id) {
 		struct entity const * const ent = &g->ents[id];
+		if (ent->flags & EN_INVISIBLE_FLAG) {
+			continue;
+		}
 		if (EN_BLOCK_TAG == ent->tag) {
 			struct entity const * const block = ent;
 			XSetForeground(

@@ -741,7 +741,7 @@ static void en_init_framebuffers(struct game * const g)
 	en_init_entity_framebuffer(g, EN_ENEMY_MOTOBUG_KAPPA_ID);
 }
 
-static void en_set_view(
+static int en_set_view(
 		struct game * const g,
 		struct enview * const view,
 		float const width,
@@ -771,7 +771,7 @@ static void en_set_view(
 		view->yoff = 0;
 		view->width = 0;
 		view->height = 0;
-		return;
+		return -1;
 	}
 	if ((ymin > (view->yedg + height)) || (ymax < view->yedg)) {
 		view->xedg = 0;
@@ -782,7 +782,7 @@ static void en_set_view(
 		view->yoff = 0;
 		view->width = 0;
 		view->height = 0;
-		return;
+		return -1;
 	}
 
 	if (
@@ -833,6 +833,7 @@ static void en_set_view(
 	view->yedg = en_clamp(view->yedg, ymin, ymax);
 	view->xscr = view->xedg + view->xref;
 	view->yscr = view->yedg + view->yref;
+	return (~EN_INVISIBLE_FLAG);
 }
 
 static void en_set_screenview(
@@ -851,7 +852,7 @@ static void en_set_screenview(
 	float const height = ent->height;
 	ent->view.xrel = ent->xpos - camera->xpos;
 	ent->view.yrel = ent->ypos - camera->ypos;
-	en_set_view(
+	ent->flags &= en_set_view(
 			g,
 			view,
 			width,
@@ -861,6 +862,7 @@ static void en_set_screenview(
 			ymin,
 			ymax
 		   );
+
 	if ((EN_ENEMY_TAG == ent->tag) || (EN_SONIC_TAG == ent->tag)) {
 		int const animno = ent->animno;
 		int const aframecur = ent->animations[animno].aframecur;
